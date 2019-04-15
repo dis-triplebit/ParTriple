@@ -6,7 +6,7 @@
 class MMapBuffer {
 	int fd;
 	char volatile* mmap_addr;
-    string fileName;
+    string filename;
 	size_t size;
 public:
 	char* resize(size_t incrementSize);

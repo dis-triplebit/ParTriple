@@ -1,10 +1,3 @@
-/*
- * BufferManager.cpp
- *
- *  Created on: 2011-4-8
- *      Author: liupu
- */
-
 #include "BufferManager.h"
 #include "../EntityIDBuffer.h"
 #include <boost/thread/mutex.hpp>

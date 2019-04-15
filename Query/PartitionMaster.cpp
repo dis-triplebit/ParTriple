@@ -358,7 +358,7 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 	TripleNode *triple = &(subTransaction->triple);
 	size_t chunkCount, xChunkCount, xyChunkCount;
 	size_t xChunkIDMin, xChunkIDMax, xyChunkIDMin, xyChunkIDMax;
-	int soType, xyType; //soType 0表示s排序,1表示Y排序  xyType 1表示subject<=object,2表示subject>object
+	int soType, xyType;
 	xChunkIDMin = xChunkIDMax = xyChunkIDMin = xyChunkIDMax = 0;
 	chunkCount = xChunkCount = xyChunkCount = 0;
 
@@ -607,8 +607,7 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 	// 	}
 	// }
 	// cout << "got 3" << endl;
-
-	int cbegin = tasks.size()*5/8;   //cbegin计算的是什么？
+        int cbegin = tasks.size()*5/8;
 	vector<pair<ChunkTask*,TasksQueueChunk*> > ctasks;
 		
 	for(int i = cbegin;i < tasks.size(); i++){

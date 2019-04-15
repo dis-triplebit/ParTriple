@@ -90,6 +90,7 @@ void MemoryBuffer::load(ifstream& ifile)
 	int offset;
 	ifile>>size;
 	ifile>>offset;
+
     // skip space
 	ifile.get();
 

@@ -4,7 +4,7 @@
  *  Created on: 2013-7-1
  *      Author: root
  */
-
+//worker和PartitionMaster之间通信的队列
 #ifndef TASKSQUEUEWP_H_
 #define TASKSQUEUEWP_H_
 

@@ -79,16 +79,13 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////////
 struct ChunkManagerMeta
 {
-	size_t length[2];
-	size_t usedSpace[2];
-	int tripleCount[2];
-	// type's value must be 0 or 1
-	// 0 means so, 1 means os
-	unsigned type;
-	// predicate id
-	unsigned pid;
-	char* startPtr[2];
-	char* endPtr[2];
+	size_t length[2];	  //length[0],记录整个x<=y分块的已经申请的空间长度,1表示x>y
+	size_t usedSpace[2];  //usedSpace[0],记录整个x<=y分块除了chunkManagerMeta之外已经使用的空间
+	int tripleCount[2];	  //tripleCount[0],记录整个x<=y分块的三元组个数
+	unsigned type;		  //type表示分块的类型,0表示orderByS,1表示orderByO
+	unsigned pid;		  //谓词ID
+	char* startPtr[2];	  //startPtr[0],记录整个x<=y分块的起始地址
+	char* endPtr[2];	  //endPtr[0],记录整个x<=y分块的结束地址
 };
 
 struct MetaData
@@ -111,7 +108,8 @@ private:
 	LineHashIndex* chunkIndex[2];
 
 	BitmapBuffer* bitmapBuffer;
-	vector<size_t> usedPage[2];
+
+	vector<size_t> usedPage[2]; //在构造ChunkManager的时候，getpage会获取pageNo，并且将usedpage++
 public:
 	friend class BuildSortTask;
 	friend class BuildMergeTask;

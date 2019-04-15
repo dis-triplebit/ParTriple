@@ -38,17 +38,10 @@ enum ObjectPoolType {
 
 const int ObjectPoolTypeMask = 0xF0;
 
-struct ObjectPoolMeta {
-    /**
-     * 对象池元数据信息
-     */
+struct ObjectPoolMeta { 
 	ulonglong type; //
-	// size应该指代的是存储对象的数量
 	ulonglong size; //the total size
-	// 对象池已经使用的长度，包括元数据在内
-	// 其初始化为元数据大小
 	ulonglong usage;
-	// MMapBuffer的长度
 	ulonglong length;
 	ulonglong entrysize; //
 	ulonglong id_offset; //
@@ -80,13 +73,10 @@ public:
 	}
 
 	virtual ulonglong size(){
-	    // size of MMapBuffer
 		return get_meta()->size;
 	}
 
 	virtual ulonglong usage() {
-	    // I guess it's the actual size of used MMapBuffer
-	    // just like capacity and size
 		return get_meta()->usage;
 	}
 

@@ -2,7 +2,7 @@
  * PredicateTable.cpp
  *
  *  Created on: Mar 11, 2010
- *      Author: root	
+ *      Author: root
  */
 
 #include "PredicateTable.h"

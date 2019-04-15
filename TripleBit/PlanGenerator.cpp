@@ -14,7 +14,7 @@
 #include <queue>
 using namespace std;
 
-#define DEBUGPLAN
+//#define DEBUGPLAN
 
 bool isUnused(const TripleBitQueryGraph::SubQuery& query,const TripleNode& node,unsigned val)
 // Check if a variable is unused outside its primary pattern
@@ -193,6 +193,8 @@ Status PlanGenerator::generatePlan(TripleBitQueryGraph& _graph)
 	{
 		query->selectivityMap[iter->first] = iter->second;
 	}
+
+	//tripleNodes根据选择度初次排序，不在是analyse之后的tripleNode顺序了。
 	query->tripleNodes = tripleNodes_shuffle;
 	return OK;
 }
@@ -564,6 +566,7 @@ Status PlanGenerator::bfsTraverseVariableNode()
 				parentQueue.pop();
 
 				// get the adj. variable nodes
+				// 获取相邻的链接变量
 				s = getAdjVariableByID(tempID,adjNode);
 				if( s != OK)
 					continue;
@@ -597,13 +600,15 @@ Status PlanGenerator::bfsTraverseVariableNode()
 
 	query->joinVariables.assign(temp.begin(),temp.end());
 	query->leafNodes.assign(leafNode.begin(),leafNode.end());
+
 #ifdef DEBUGPLAN
-	for (vector<TripleBitQueryGraph::JoinVariableNodeID>::iterator iters = query->joinVariables.begin(); iters != query->joinVariables.end(); iters++)
+	for (vector<TripleBitQueryGraph::JoinVariableNodeID>::iterator iters = query->joinVariables.begin(); iters !=query->joinVariables.end(); iters++)
 		cout<<"variable:"<< *iters <<endl;
 
-	for (vector<TripleBitQueryGraph::JoinVariableNodeID>::iterator iterr = query->leafNodes.begin(); iterr != query->leafNodes.end(); iterr++)
+	for (vector<TripleBitQueryGraph::JoinVariableNodeID>::iterator iterr = query->leafNodes.begin(); iterr !=query->leafNodes.end(); iterr++)
 		cout<<"leafNodes:"<< *iterr <<endl;
 #endif
+	
 	return OK;
 }
 

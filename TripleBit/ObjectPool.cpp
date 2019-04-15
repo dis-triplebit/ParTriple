@@ -55,7 +55,6 @@ ID FixedObjectPool::append_object_get_id( const void * pdata )
 	ObjectPoolMeta * meta = get_meta();
 
 	if( meta->usage + meta->entrysize > meta->length ){
-	    // 当添加对象后大小超出MMapBuffer的大小时申请更大的内存
 		OffsetType new_length = expand(meta->length,meta->entrysize,meta->classtype);
 		Status ret = data->resize(new_length, false);
 		if(ret!=OK)

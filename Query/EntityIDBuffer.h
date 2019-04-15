@@ -32,17 +32,15 @@ public:
 class EntityIDBuffer {
 public:
     pair<ID,ID> min_max[2];
-	int	IDCount;		//模式中变量的个数,也就是一行有多少列数据
+	int	IDCount;		//the ID count in a record.
 	ID* buffer;
 	ID* p;
 	int	pos;
-	size_t usedSize;	//已经存储的ID个数
-	size_t totalSize;	//当前页数*sizePerPage
-	int sizePerPage;	//每一个page能存放的ID数量
+	size_t usedSize;
+	size_t totalSize;
+	int sizePerPage;
 
 	//used to sort
-    // 表示按照第一个ID还是第二个ID排序
-    // 即按照subject还是object排序
 	int sortKey;
 	bool sorted;
 	bool firstTime;

@@ -17,17 +17,14 @@ class EntityIDBuffer;
 
 class BufferManager {
 private:
-    // bufferPool contains all EntityIDBuffer
-    // usedBuffer.size + cleanBuffer.size should be bufferPool.size
         vector<EntityIDBuffer*> bufferPool;
         vector<EntityIDBuffer*> usedBuffer;
         vector<EntityIDBuffer*> cleanBuffer;
-    // bufferPool.size
+
         int bufferCnt;
         boost::mutex bufferMutex;
 
 protected:
-    // singleton
         static BufferManager* instance;
         BufferManager();
         bool expandBuffer();

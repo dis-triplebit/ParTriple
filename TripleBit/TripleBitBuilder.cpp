@@ -199,24 +199,6 @@ int TripleBitBuilder::compare321(const char* left, const char* right) {
 	return cmpTriples(l3, l2, l1, r3, r2, r1);
 }
 
-
-void print(TempFile& infile, char* outfile) {
-	MemoryMappedFile mappedIn;
-	assert(mappedIn.open(infile.getFile().c_str()));
-	const char* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
-
-	// Produce tempfile
-	ofstream out(outfile);
-	while (reader < limit) {
-		out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t" << *(ID*) (reader + 4) << endl;
-		//getDataType(*(char*)(reader + 16))
-		reader += 12;
-	}
-	mappedIn.close();
-	out.close();
-}
-
-
 Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	cout<<"Sort by Subject"<<endl;
 	ID subjectID, objectID, predicateID;
@@ -225,10 +207,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	unsigned count0 = 0, count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
 
-	print(rawFacts, "sortedBySubject_temp_unsort"); //test_unsort
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
-	print(sortedBySubject, "sortedBySubject_temp"); //test_sort
-
 	{
 		//insert into chunk
 		sortedBySubject.close();
@@ -240,6 +219,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
 		reader = skipIdIdId(reader);
 		bool v = generateXY(subjectID, objectID);
+
+		//s>o ture
 		bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
 		count0 = count1 = 1;
 		
@@ -251,8 +232,10 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			}
 
 			if ( subjectID != lastSubject ) {
-				((OneConstantStatisticsBuffer*)statBuffer[0])->addStatis(lastSubject, count0);
-				statBuffer[2]->addStatis(lastSubject, lastPredicate, count1);
+				//statBuffer[0]统计的是subject对应的三元组个数,例如subjectID是4的三元组个数有多少个
+				((OneConstantStatisticsBuffer*)statBuffer[0])->addStatis(lastSubject, count0);//statBuffer[0] subject statistics buffer
+				//statBuffer[2]统计的是subject-predicate对应的三元组个数,例如subjectID是4且predicateID是1的三元组个数有多少个
+				statBuffer[2]->addStatis(lastSubject, lastPredicate, count1);//statBuffer[2] subject-predicate statistics buffer
 				lastPredicate = predicateID;
 				lastSubject = subjectID;
 				count0 = count1 = 1;
@@ -300,8 +283,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			}
 
 			if ( objectID != lastObject ) {
-				((OneConstantStatisticsBuffer*)statBuffer[1])->addStatis(lastObject, count0);
-				statBuffer[3]->addStatis(lastObject, lastPredicate, count1);
+				((OneConstantStatisticsBuffer*)statBuffer[1])->addStatis(lastObject, count0);//statBuffer[1] object statistics buffer
+				statBuffer[3]->addStatis(lastObject, lastPredicate, count1); //statBuffer[3] object-predicate statistics buffer
 				lastPredicate = predicateID;
 				lastObject = objectID;
 				count0 = count1 = 1;

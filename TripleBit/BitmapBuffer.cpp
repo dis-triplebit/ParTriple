@@ -81,6 +81,8 @@ size_t BitmapBuffer::getTripleCount() {
 /*
  *	@param id: predicate id
  *       type: 0 means so, 1 means os
+ *	@param id: the chunk manager id ( predicate id );
+ *       type: the predicate_manager type;
  */
 ChunkManager* BitmapBuffer::getChunkManager(ID id, unsigned char type) {
 	//there is no predicate_managers[id]
@@ -101,7 +103,7 @@ Status BitmapBuffer::insertTriple(ID predicateId, ID xId, ID yId, bool flag, uns
 
 	len = getLen(xId);
 	len += getLen(yId);
-    // TODO: what insertXY do
+
 	if (flag == false) {
 		getChunkManager(predicateId, f)->insertXY(xId, yId, len, 1);
 	} else {
@@ -157,18 +159,19 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 	bool tempresize = false;
 
 	//cout<<__FUNCTION__<<" begin"<<endl;
-
-	if (type == 0) {
-		if (flag == 0) {
+	
+	if (type == 0) {  //如果按S排序
+		if (flag == 0) { //x<=y
 			if (usedPage1 * MemoryBuffer::pagesize >= temp1->getSize()) {
-			    // expand 1024*pagesize = 4MB when usedPage1 increment to limit
+                // expand 1024*pagesize = 4MB when usedPage1 increment to limit
 				temp1->resize(INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
 				tempresize = true;
 			}
 			pageNo = usedPage1;
 			rt = temp1->get_address() + usedPage1 * MemoryBuffer::pagesize;
 			usedPage1++;
-		} else {
+		}
+		else { //x>y
 			if (usedPage2 * MemoryBuffer::pagesize >= temp2->getSize()) {
 				temp2->resize(INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
 				tempresize = true;
@@ -177,7 +180,9 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 			rt = temp2->get_address() + usedPage2 * MemoryBuffer::pagesize;
 			usedPage2++;
 		}
-	} else {
+
+	} 
+	else {   //按O排序
 		if (flag == 0) {
 			if (usedPage3 * MemoryBuffer::pagesize >= temp3->getSize()) {
 				temp3->resize(INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
@@ -198,7 +203,7 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 	}
 
 	if (tempresize == true) {
-	    // tempx was expanded and TODO: What codes beneath do? update chunkManger
+	    // tempx was expanded and update chunkManger
 		if (type == 0) {
 			if (flag == 0) {
 				map<ID, ChunkManager*>::iterator iter, limit;
@@ -288,14 +293,19 @@ void BitmapBuffer::save() {
 	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(), predicate_managers[0].size() * (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
 	char *predicateWriter = predicateBuffer->get_address();
 	char *bufferWriter = NULL;
-
+	
+	//iter指向predicate_managers[0]的map的第一个键值对,以S排序
 	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
 	size_t offset = 0;
 
+	//iter->second->meta->length[0]表示当前谓词的(0表示x<=y)存储空间大小
 	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length[0]);
 
 	predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
+
+
+	//根据当前谓词(0表示x<=y)使用的页数量,遍历存储到buffer中
 	vector<size_t>::iterator pageNoIter = iter->second->usedPage[0].begin(), limit = iter->second->usedPage[0].end();
 
 	for (; pageNoIter != limit; pageNoIter++) {
@@ -303,18 +313,21 @@ void BitmapBuffer::save() {
 		memcpy(bufferWriter, temp1->get_address() + pageNo * MemoryBuffer::pagesize, MemoryBuffer::pagesize);
 		bufferWriter = bufferWriter + MemoryBuffer::pagesize;
 	}
-
-	*((ID*) predicateWriter) = iter->first;
+	
+	//BitmapBuffer_predicate生成
+	*((ID*) predicateWriter) = iter->first;   //写入谓词ID
 	predicateWriter += sizeof(ID);
-	*((SOType*) predicateWriter) = 0;
+	*((SOType*) predicateWriter) = 0;		  //SOType=0表示按照S排序
 	predicateWriter += sizeof(SOType);
-	*((size_t*) predicateWriter) = offset;
-	predicateWriter += sizeof(size_t) * 2;
+	*((size_t*) predicateWriter) = offset; 	  //offset表示buffer距离predicateBuffer中第一个buffer的偏移大小
+	predicateWriter += sizeof(size_t) * 2;    //这里写指针多移位了一个(size_t)大小的位置,第二个为chunkmanager的index offset???
 	offset += iter->second->meta->length[0];
 
+	//重新分配buffer的大小，参数为增量(1表示x>y,即键值不是x,而是x,y中较小的一个)
 	bufferWriter = buffer->resize(iter->second->meta->length[1]);
-	char *startPos = bufferWriter + offset;
+	char *startPos = bufferWriter + offset;  //这条指令应该是找到x>y在buffer中的写入地址
 
+	//继续根据当前谓词(1表示x>y)的使用页数，遍历存储到buffer中
 	pageNoIter = iter->second->usedPage[1].begin();
 	limit = iter->second->usedPage[1].end();
 	for (; pageNoIter != limit; pageNoIter++) {
@@ -325,7 +338,8 @@ void BitmapBuffer::save() {
 
 	assert(iter->second->meta->length[1] == iter->second->usedPage[1].size() * MemoryBuffer::pagesize);
 	offset += iter->second->meta->length[1];
-
+	
+	//iter++,操作下一个map元素，即下一个谓词对应的存储(同样以S排序)
 	iter++;
 	for (; iter != predicate_managers[0].end(); iter++) {
 		bufferWriter = buffer->resize(iter->second->meta->length[0]);
@@ -369,6 +383,8 @@ void BitmapBuffer::save() {
 	temp1->discard();
 	temp2->discard();
 
+
+	//同样的,predicate_managers[1].begin()指向的是以O排序的第一个键值对
 	iter = predicate_managers[1].begin();
 	for (; iter != predicate_managers[1].end(); iter++) {
 		bufferWriter = buffer->resize(iter->second->meta->length[0]);
@@ -408,9 +424,11 @@ void BitmapBuffer::save() {
 	}
 	buffer->flush();
 	predicateBuffer->flush();
-
+	
+	//这里之前有个疑惑就是temp1-4的buffer在discard之后ChunckManager中的ChunckManagerMeta中startPtr和endPtr
+	//的指向问题,也就是ChunckManagerMeta最终指向的内存地址是什么,下面425-428行对指针重新定位
+	//以S排序的关联矩阵的metadata计算
 	predicateWriter = predicateBuffer->get_address();
-
 	ID id;
 	for (iter = predicate_managers[0].begin(); iter != predicate_managers[0].end(); iter++) {
 		id = *((ID*) predicateWriter);
@@ -418,23 +436,29 @@ void BitmapBuffer::save() {
 		predicateWriter += sizeof(ID) + sizeof(SOType);
 		offset = *((size_t*) predicateWriter);
 		predicateWriter += sizeof(size_t) * 2;
-
+		
+		//计算chunkManagermeta中的属性值
 		char *base = buffer->get_address() + offset;
 		iter->second->meta = (ChunkManagerMeta*) base;
 		iter->second->meta->startPtr[0] = base + sizeof(ChunkManagerMeta);
 		iter->second->meta->endPtr[0] = iter->second->meta->startPtr[0] + iter->second->meta->usedSpace[0];
 		iter->second->meta->startPtr[1] = base + iter->second->meta->length[0];
 		iter->second->meta->endPtr[1] = iter->second->meta->startPtr[1] + iter->second->meta->usedSpace[1];
-
+		
+		//计算该谓词的最后一个chunk的metadata，为什么是最后一个?(2018年9月6日09:09:05更新：在insertXY的时候，最后一个块可能因为没有写满导致metadata信息没有被写入)
 		if (iter->second->meta->usedSpace[0] + sizeof(ChunkManagerMeta) <= MemoryBuffer::pagesize) {
+			//如果该谓词只有一个chunk，则x<=y块的metaData首地址是startPtr[0]
 			MetaData *metaData = (MetaData*) iter->second->meta->startPtr[0];
 			metaData->usedSpace = iter->second->meta->usedSpace[0];
 		} else {
+			//最后一个chunk使用的大小=usedSpace+chunkmanagermeta的和 % chunk的大小4096
 			size_t usedLastPage = (iter->second->meta->usedSpace[0] + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
 			if (usedLastPage == 0) {
+				//usedLastPage=0，说明正好用了整数个chunk块，则最后一个chunk的metadata信息存放在ednPtr[]-chunk的大小4096
 				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr[0] - MemoryBuffer::pagesize);
 				metaData->usedSpace = MemoryBuffer::pagesize;
 			} else if (usedLastPage > 0) {
+				//usedLastPage>0，最后一个chunk快没有用完全部的空间，有剩余的空间，则最后一个chunk的metadata信息存放在ednPtr[]-usedLastPage
 				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr[0] - usedLastPage);
 				metaData->usedSpace = usedLastPage;
 			}
@@ -453,7 +477,8 @@ void BitmapBuffer::save() {
 			}
 		}
 	}
-
+	
+	//以O排序的关联矩阵的metadata计算
 	for (iter = predicate_managers[1].begin(); iter != predicate_managers[1].end(); iter++) {
 		id = *((ID*) predicateWriter);
 		assert(iter->first == id);
@@ -505,11 +530,13 @@ void BitmapBuffer::save() {
 #ifdef MYDEBUG
 	cout<<"build hash index for subject"<<endl;
 #endif
+	//给每个chunckManage后的chunk块创建索引
 	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin(); iter != predicate_managers[0].end(); iter++) {
 		if (iter->second) {
 #ifdef MYDEBUG
 			cout<<iter->first<<endl;
-#endif
+#endif		
+			//索引建立2018年11月6日19:27:02
 			iter->second->buildChunkIndex();
 			offset = iter->second->getChunkIndex(1)->save(bitmapIndex);
 			iter->second->getChunkIndex(2)->save(bitmapIndex);
@@ -804,9 +831,9 @@ ChunkManager::ChunkManager(unsigned pid, unsigned _type, BitmapBuffer* _bitmapBu
 	size_t pageNo = 0;
 	meta = NULL;
 	ptrs[0] = bitmapBuffer->getPage(_type, 0, pageNo);
-	usedPage[0].push_back(pageNo);
+	usedPage[0].push_back(pageNo);//x<=y的使用页号
 	ptrs[1] = bitmapBuffer->getPage(_type, 1, pageNo);
-	usedPage[1].push_back(pageNo);
+	usedPage[1].push_back(pageNo);//x>y的使用页号
 
 	assert(ptrs[1] != ptrs[0]);
 
@@ -814,6 +841,7 @@ ChunkManager::ChunkManager(unsigned pid, unsigned _type, BitmapBuffer* _bitmapBu
 	memset((char*) meta, 0, sizeof(ChunkManagerMeta));
 	meta->endPtr[0] = meta->startPtr[0] = ptrs[0] + sizeof(ChunkManagerMeta);
 	meta->endPtr[1] = meta->startPtr[1] = ptrs[1];
+	//meta->length[type-1]的初始大小应该是1*MemoryBuffer::pagesize,即4KB
 	meta->length[0] = usedPage[0].size() * MemoryBuffer::pagesize;
 	meta->length[1] = usedPage[1].size() * MemoryBuffer::pagesize;
 	meta->usedSpace[0] = 0;
@@ -871,22 +899,29 @@ static void getInsertChars(char* temp, unsigned x, unsigned y) {
 }
 
 void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char type)
-//x:xID, y:yID, len:len(xID + yID), type: x>y:1, x<y:2
+//x:xID, y:yID, len:len(xID + yID), (type: x<=y->1, x>y->2);
 {
 	char temp[10];
+	//标志位设置,以128为进制单位,分解x,y,最高位为0表示x,1表示y
 	getInsertChars(temp, x, y);
 
+	//如果当前空间不够存放新的<x,y>对
 	if (isPtrFull(type, len) == true) {
-		if (type == 1) {
-			if (meta->length[0] == MemoryBuffer::pagesize) {
+		if (type == 1) { //x<=y
+			if (meta->length[0] == MemoryBuffer::pagesize) {//第一个chunk,在第一个chunk被写满(存放不下下一个元组的时候，回溯指针，写metadata的信息)
+				//将指针回溯到MetaData(即head区域)写入usedSpace信息
 				MetaData *metaData = (MetaData*) (meta->endPtr[0] - meta->usedSpace[0]);
 				metaData->usedSpace = meta->usedSpace[0];
-			} else {
+			} else {//不是第一个chunk
+				//这个usedpage计算最后一个chunk使用了多少字节，length[0]存放的是当前谓词,x<=y的数据链表的已申请buffer大小
 				size_t usedPage = MemoryBuffer::pagesize - (meta->length[0] - meta->usedSpace[0] - sizeof(ChunkManagerMeta));
+				//MetaData地址=尾指针-最后一个4KB字节使用的字节，即指向了最后一个4KB字节的首地址，也就是head区域
 				MetaData *metaData = (MetaData*) (meta->endPtr[0] - usedPage);
 				metaData->usedSpace = usedPage;
 			}
+			//重新分配大小,修改了meta->length,增加一个4KB,meta->endptr指向下一个4KB的首地址
 			resize(type);
+			//为下一个4KB创建head信息，下一个chunk的metadata首地址是meta->endPtr[]
 			MetaData *metaData = (MetaData*) (meta->endPtr[0]);
 			metaData->minID = x;
 			metaData->haveNextPage = false;
@@ -914,19 +949,19 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 			meta->usedSpace[1] = meta->length[1] - MemoryBuffer::pagesize + sizeof(MetaData) + len;
 			tripleCountAdd(type);
 		}
-	} else if (meta->usedSpace[type - 1] == 0) {
+	} else if (meta->usedSpace[type - 1] == 0) { //如果usedspace==0，即第一个chunk块，则创建head区域
 		MetaData *metaData = (MetaData*) (meta->startPtr[type - 1]);
-		memset((char*) metaData, 0, sizeof(MetaData));
-		metaData->minID = ((type == 1) ? x : (x + y));
+		memset((char*) metaData, 0, sizeof(MetaData));//将head区域初始化为0
+		metaData->minID = ((type == 1) ? x : (x + y)); //根据type的类型设置当前块的最小值,1表示x<y则x是键值，否则x+y为键值
 		metaData->haveNextPage = false;
 		metaData->NextPageNo = 0;
 		metaData->usedSpace = 0;
-
-		memcpy(meta->endPtr[type - 1] + sizeof(MetaData), temp, len);
-		meta->endPtr[type - 1] = meta->endPtr[type - 1] + sizeof(MetaData) + len;
-		meta->usedSpace[type - 1] = sizeof(MetaData) + len;
+		
+		memcpy(meta->endPtr[type - 1] + sizeof(MetaData), temp, len); //将数据拷贝到head区域的后面len个字节中去
+		meta->endPtr[type - 1] = meta->endPtr[type - 1] + sizeof(MetaData) + len;//重新定位endPtr[type-1]的位置
+		meta->usedSpace[type - 1] = sizeof(MetaData) + len; //更新usedSpace的大小,包括MetaData的大小在内。
 		tripleCountAdd(type);
-	} else {
+	} else { 	//如果不是新的块，则直接将数据拷贝到endPtr[type-1]的后len个字节中去。
 		memcpy(meta->endPtr[type - 1], temp, len);
 
 		meta->endPtr[type - 1] = meta->endPtr[type - 1] + len;

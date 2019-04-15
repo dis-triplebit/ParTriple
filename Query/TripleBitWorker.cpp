@@ -75,7 +75,7 @@ Status TripleBitWorker::Execute(string& queryString) {
 	}
 
 	if (parser->getOperationType() == SPARQLParser::QUERY) {
-		cout << "come 2018" << endl;
+		cout << "come 2017" << endl;
 		queryGraph->Clear();
 		uriMutex->lock();
 		if (!this->semAnalysis->transform(*parser, *queryGraph)) {
@@ -83,12 +83,11 @@ Status TripleBitWorker::Execute(string& queryString) {
 		}
 		uriMutex->unlock();
 
-		// empty query
 		if (queryGraph->knownEmpty() == true) {
 			cout << "Empty result" << endl;
 			return OK;
 		}
-        // only support const predicate
+
 		if (queryGraph->isPredicateConst() == false) {
 			resultSet.push_back("-1");
 			resultSet.push_back("predicate should be constant");

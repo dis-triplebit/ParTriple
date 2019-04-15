@@ -28,7 +28,6 @@
 #include <tbb/tbb.h>
 
 #define BLOCK_SIZE 1024
-
 //#define PRINT_RESULT
 #define COLDCACHE
 
@@ -978,7 +977,6 @@ Status TripleBitWorkerQuery::singleVariableJoin() {
 	// fountain.resize(_query->joinVariables.size() + 1);
 	fountain.resize(this->_queryGraph->variableCount);
 	cout << fountain.size() << endl;
-
 	// TripleBitQueryGraph::JoinVariableNode* node = NULL;
 	// getVariableNodeByID(node, 0);
 
@@ -2931,12 +2929,8 @@ Status TripleBitWorkerQuery::cyclicJoin() {
 		// }
 		res[x.tripleNodeID] = findEntityIDByTriple(&x, var_min_max[firstVar].first, var_min_max[firstVar].second);
 		// res[x.tripleNodeID] = findEntityIDByTriple(&x, minID, maxID);
-
-		#ifdef TEST_ENTITYIDBUFFER
-			EntityIDBuffer* testbuffer = NULL;
-			testbuffer=res[x.tripleNodeID]->getEntityIDBuffer();
-			testbuffer->sig();
-		#endif
+		
+        
 
 
 		ID a_min = UINT_MAX;

@@ -27,9 +27,10 @@ using namespace std;
 #include <boost/shared_ptr.hpp>
 #include "MessageEngine.h"
 
-#define DEBUG
-#define MYDEBUG
-#define RESULT_TIME
+
+#define TEST_ENTITYIDBUFFER
+//#define MYDEBUG
+//#define RESULT_TIME
 #define PATTERN_TIME
 #define TOTAL_TIME
 //#define TTDEBUG
@@ -91,13 +92,10 @@ extern char* DATABASE_PATH;
 const unsigned int WORKERNUM = 1;
 // const unsigned int WORK_THREAD_NUMBER = 8; //should be 2^n;
 const unsigned int WORK_THREAD_NUMBER = 1; //should be 2^n;
-//const unsigned int WORK_THREAD_NUMBER = 8;
 
 const unsigned int PARTITION_THREAD_NUMBER = 1;
-//const unsigned int PARTITION_THREAD_NUMBER = 6;
-
 const unsigned int CHUNK_THREAD_NUMBER = 1;
-const unsigned int TEST_THREAD_NUMBER = 16;
+const unsigned int TEST_THREAD_NUMBER = 2;
 
 // const unsigned int CHUNK_THREAD_NUMBER = 2;
 // const unsigned int CHUNK_THREAD_NUMBER = 1;

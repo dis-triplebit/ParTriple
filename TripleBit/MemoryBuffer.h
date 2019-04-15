@@ -66,6 +66,7 @@ public:
 	void save(ofstream& ofile);
 	void load(ifstream& ifile);
 private:
+
 	//获得id应该扄1�7在的Buffer坄1�7.
 	unsigned short*  getBuffer(ID id);
 
