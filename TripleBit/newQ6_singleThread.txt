@@ -1,0 +1,486 @@
+load complete!
+>>>queryLUBM6
+>>>before 0
+after 0x7f657000185c
+1 0x7f657000185c
+in subtrans 0x7f657000185c
+in subtrans2 0x7f6570001cc8
+?? 0x7f6570001ca0
+ @triple 0x7f6570001cc8
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:2 taskEnqueue time elapsed: 0 s
+#######find pattern 1 time elapsed: 0.000342
+getTaskResult xBuffer size 0
+getTaskResult xyBuffer size 0
+in mergeBuffer 0
+in mergeBuffer 0
+size 125
+before 0
+after 0x7f6570001878
+2 0x7f6570001878
+in subtrans 0x7f6570001878
+in subtrans2 0x7f6570001cc8
+?? 0x7f6570001ca0
+ @triple 0x7f6570001cc8
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:3 taskEnqueue time elapsed: 0 s
+#######find pattern 2 time elapsed: 0.00035
+size 828
+0
+before 0x7f657000185c
+after 0x7f65700018cc
+in subtrans 0x7f65700018cc
+in subtrans2 0x7f6570001cc8
+?? 0x7f6570001ca0
+ @triple 0x7f6570001cc8
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:5 taskEnqueue time elapsed: 0 s
+#######find pattern 5 time elapsed: 0.000935
+size 125
+125before 0x7f65700018cc
+after 0x7f6570001840
+in subtrans 0x7f6570001840
+in subtrans2 0x7f6570001cc8
+?? 0x7f6570001ca0
+ @triple 0x7f6570001cc8
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:3 taskEnqueue time elapsed: 0 s
+#######find pattern 0 time elapsed: 0.000487
+size 125
+125
+before 0x7f6570001840
+after 0x7f65700018b0
+in subtrans 0x7f65700018b0
+in subtrans2 0x7f6570001cc8
+?? 0x7f6570001ca0
+ @triple 0x7f6570001cc8
+@pattern 4 find chunks time elapsed: 0 s
+ChunkCount:8 taskEnqueue time elapsed: 0 sgot chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+
+#######find pattern 4 time elapsed: 0.001122
+size 125
+0
+before 0x7f65700018b0
+after 0x7f6570001894
+in subtrans 0x7f6570001894
+in subtrans2 0x7f6570001cc8
+?? 0x7f6570001ca0
+ @triple 0x7f6570001cc8
+@pattern 3 find chunks time elapsed: 0 s
+got chunk 000
+got chunkTask
+got chunk 1
+ChunkCount:24 taskEnqueue time elapsed: 0 sgot chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+
+#######find pattern 3 time elapsed: 0.003982
+size 125
+42
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+
+
+9 12 
+22 24 
+31 33 
+41 43 
+51 53 
+60 62 
+70 72 
+79 81 
+88 90 
+96 98 
+2510 2511 
+2519 2520 
+2526 2527 
+2534 2535 
+2541 2542 
+2549 2550 
+2557 2558 
+2565 2566 
+2573 2574 
+2581 2582 
+4437 4438 
+4443 4444 
+4449 4450 
+4456 4457 
+4463 4464 
+4469 4470 
+4476 4477 
+5861 5862 
+5868 5869 
+5875 5876 
+5880 5881 
+5886 5887 
+5893 5894 
+5900 5901 
+5905 5906 
+5912 5913 
+5919 5920 
+7345 7346 
+7351 7352 
+7356 7357 
+7362 7363 
+7369 7370 
+7377 7378 
+7384 7385 
+7391 7392 
+7398 7399 
+7404 7405 
+9635 9636 
+9642 9643 
+9646 9647 
+9651 9652 
+9657 9658 
+9662 9663 
+9670 9671 
+11224 11225 
+11229 11230 
+11235 11236 
+11242 11243 
+11248 11249 
+11255 11256 
+11262 11263 
+11267 11268 
+11274 11275 
+12827 12828 
+12834 12835 
+12840 12841 
+12845 12846 
+12850 12851 
+12856 12857 
+12862 12863 
+12868 12869 
+14727 14728 
+14731 14732 
+14736 14737 
+14741 14742 
+14747 14748 
+14753 14754 
+14758 14759 
+14763 14764 
+14769 14770 
+16318 16319 
+16323 16324 
+16327 16328 
+16334 16335 
+16341 16342 
+16346 16347 
+16353 16354 
+18148 18149 
+18154 18155 
+18160 18161 
+18165 18166 
+18171 18172 
+18177 18178 
+18184 18185 
+18190 18191 
+18195 18196 
+19958 19959 
+19962 19963 
+19967 19968 
+19973 19974 
+19978 19979 
+19983 19984 
+19990 19991 
+21387 21388 
+21393 21394 
+21397 21398 
+21402 21403 
+21407 21408 
+21412 21413 
+21418 21419 
+23091 23092 
+23096 23097 
+23100 23101 
+23105 23106 
+23110 23111 
+23115 23116 
+23119 23120 
+24729 24730 
+24734 24735 
+24738 24739 
+24743 24744 
+24748 24749 
+24754 24755 
+24759 24760 
+24765 24766 
+
+
+506 12 
+614 33 
+560 43 
+779 53 
+377 62 
+404 72 
+815 81 
+2834 2511 
+3456 2550 
+2784 2558 
+2898 2574 
+4816 4464 
+6092 5862 
+6202 5894 
+6210 5901 
+6108 5920 
+7910 7357 
+7720 7378 
+7642 7399 
+10088 9658 
+10216 9671 
+11692 11225 
+11446 11230 
+11562 11236 
+11700 11249 
+11434 11263 
+13120 12835 
+14975 14728 
+14963 14742 
+15033 14770 
+16541 16342 
+18464 18166 
+18552 18172 
+20239 19959 
+20157 19968 
+20387 19991 
+21895 21403 
+21651 21408 
+23449 23101 
+23361 23106 
+24935 24730 
+25253 24739 
+
+
+377 88 
+404 22 
+506 51 
+560 60 
+611 31 
+614 96 
+779 9 
+797 41 
+815 70 
+1271 79 
+2784 2534 
+2788 2557 
+2834 2519 
+2842 2565 
+2860 2526 
+2862 2581 
+2898 2510 
+3024 2573 
+3456 2541 
+3881 2549 
+4700 4443 
+4708 4437 
+4782 4449 
+4816 4469 
+4820 4463 
+4992 4476 
+5207 4456 
+6092 5868 
+6108 5900 
+6202 5919 
+6210 5905 
+6346 5861 
+6687 5912 
+6691 5886 
+6698 5875 
+6736 5880 
+6750 5893 
+7642 7391 
+7664 7384 
+7668 7362 
+7720 7404 
+7782 7377 
+7842 7351 
+7910 7369 
+8048 7398 
+8070 7356 
+8204 7345 
+9856 9651 
+9914 9670 
+10088 9657 
+10148 9642 
+10168 9635 
+10216 9662 
+10426 9646 
+11434 11229 
+11446 11242 
+11562 11255 
+11654 11248 
+11692 11262 
+11700 11224 
+11862 11274 
+11958 11235 
+12046 11267 
+13036 12827 
+13062 12840 
+13120 12862 
+13124 12850 
+13200 12834 
+13224 12856 
+13278 12845 
+13304 12868 
+14953 14736 
+14963 14769 
+14975 14741 
+14983 14731 
+15033 14727 
+15037 14753 
+15071 14758 
+15123 14763 
+15717 14747 
+16539 16341 
+16541 16318 
+16561 16327 
+16777 16334 
+16791 16353 
+16805 16323 
+17135 16346 
+18392 18195 
+18422 18160 
+18464 18190 
+18480 18184 
+18482 18165 
+18552 18148 
+18682 18154 
+18802 18171 
+19245 18177 
+20147 19990 
+20157 19958 
+20187 19967 
+20207 19983 
+20239 19973 
+20253 19962 
+20387 19978 
+21627 21393 
+21649 21418 
+21651 21412 
+21733 21407 
+21823 21397 
+21895 21387 
+21975 21402 
+23361 23096 
+23381 23091 
+23413 23100 
+23449 23110 
+23493 23119 
+23683 23105 
+23783 23115 
+24935 24765 
+24945 24738 
+24949 24734 
+24983 24748 
+25215 24743 
+25253 24754 
+25359 24759 
+25485 24729 
+
+
+
+------------before getJoin------------
+---buffer sig---
+rows : 125
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 9 12 
+last row : 24765 24766 
+---buffer sig---
+rows : 42
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 506 12 
+last row : 25253 24739 
+---buffer sig---
+rows : 125
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 377 88 
+last row : 25485 24729 
+9657 9658 10088 9657 
+
+------------after getJoin------------
+ans: 1
+ time elapsed: 0.010118 s

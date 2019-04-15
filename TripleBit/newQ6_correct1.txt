@@ -1,0 +1,244 @@
+>>>queryLUBM6
+>>>before 0
+after 0x7fafdc00185c
+1 0x7fafdc00185c
+in subtrans 0x7fafdc00185c
+in subtrans2 0x7fafdc001cc8
+?? 0x7fafdc001ca0
+ @triple 0x7fafdc001cc8
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:2 taskEnqueue time elapsed: 0 s
+#######find pattern 1 time elapsed: 0.000342
+getTaskResult xBuffer size 0
+getTaskResult xyBuffer size 0
+in mergeBuffer 0
+in mergeBuffer 0
+size 125
+@var y height 0
+-----correct! @height 0 @col 0
+before 0
+after 0x7fafdc001878
+2 0x7fafdc001878
+in subtrans 0x7fafdc001878
+in subtrans2 0x7fafdc001cc8
+?? 0x7fafdc001ca0
+ @triple 0x7fafdc001cc8
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:3 taskEnqueue time elapsed: 0 s
+#######find pattern 2 time elapsed: 0.00036
+size 828
+0
+@var z height 0
+-----correct! @height 0 @col 1
+before 0x7fafdc00185c
+after 0x7fafdc0018cc
+in subtrans 0x7fafdc0018cc
+in subtrans2 0x7fafdc001cc8
+?? 0x7fafdc001ca0
+ @triple 0x7fafdc001cc8
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:5 taskEnqueue time elapsed: 0 s-------------------
+in 2976
+2510
+count 1
+height 1
+
+#######find pattern 5 time elapsed: 0.001496
+size 1032
+1032@var x height 0, @var y height 1
+-----correct! @height 1 @col 0
+-----correct! @height 0 @col 2
+before 0x7fafdc0018cc
+after 0x7fafdc001840
+in subtrans 0x7fafdc001840
+in subtrans2 0x7fafdc001cc8
+?? 0x7fafdc001ca0
+ @triple 0x7fafdc001cc8
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:3 taskEnqueue time elapsed: 0 s
+#######find pattern 0 time elapsed: 0.0006
+size 125
+195
+@var y height 2, @var z height 1
+-----correct! @height 1 @col 1
+-----correct! @height 2 @col 0
+before 0x7fafdc001840
+after 0x7fafdc0018b0
+in subtrans 0x7fafdc0018b0
+in subtrans2 0x7fafdc001cc8
+?? 0x7fafdc001ca0
+ @triple 0x7fafdc001cc8
+@pattern 4 find chunks time elapsed: 0 s
+ChunkCount:8 taskEnqueue time elapsed: 0 sgot chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+got chunk 000
+
+#######find pattern 4 time elapsed: 0.001296
+size 1032
+0
+@var x height 1
+-----correct! @height 1 @col 2
+before 0x7fafdc0018b0
+after 0x7fafdc001894
+in subtrans 0x7fafdc001894
+in subtrans2 0x7fafdc001cc8
+?? 0x7fafdc001ca0
+ @triple 0x7fafdc001cc8
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:24 taskEnqueue time elapsed: 0 sgot chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+-------------------
+in 2976
+2512
+count 0
+height 0
+-------------------
+in 2976
+2762
+count 0
+height 0
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+got chunk 000
+got chunkTask
+got chunk 1
+
+#######find pattern 3 time elapsed: 0.00492
+size 1032
+280
+@var x height 2, @var z height 2
+-----correct! @height 2 @col 1
+-----correct! @height 2 @col 2
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+
+------------before getJoin------------
+---buffer sig---
+rows : 195
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 9 12 
+last row : 24765 24767 
+---buffer sig---
+rows : 280
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 506 12 
+last row : 24967 24767 
+---buffer sig---
+rows : 1032
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 377 88 
+last row : 25996 24748 
+9 13 779 9 
+79 81 1271 79 
+2510 2512 2976 2510 
+5868 5869 6092 5868 
+5868 5869 6292 5868 
+7351 7352 8156 7351 
+7404 7405 8412 7404 
+9635 9637 10506 9635 
+9651 9652 10454 9651 
+9657 9658 10088 9657 
+11242 11244 11940 11242 
+12827 12829 13862 12827 
+12868 12869 13478 12868 
+14731 14732 14991 14731 
+14731 14732 15209 14731 
+14736 14738 15203 14736 
+18160 18161 18782 18160 
+18165 18167 18600 18165 
+18190 18191 18620 18190 
+19962 19964 20253 19962 
+19983 19984 20277 19983 
+19990 19992 20325 19990 
+19990 19992 20147 19990 
+21418 21420 21649 21418 
+23091 23093 23887 23091 
+23105 23107 23683 23105 
+24738 24740 24967 24738 
+24743 24745 25319 24743 
+24748 24749 25463 24748 
+24765 24766 25407 24765 
+
+------------after getJoin------------
+ans: 30
+ time elapsed: 0.013307 s

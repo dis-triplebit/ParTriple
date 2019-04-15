@@ -1,0 +1,22 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geo: <http://aims.fao.org/aos/geopolitical.owl#>
+PREFIX collect: <http://purl.org/collections/nl/am/>
+PREFIX ore: <http://www.openarchives.org/ore/terms/>
+PREFIX fbase: <http://rdf.freebase.com/ns/>
+
+SELECT ?p1 ?p2 ?p1n ?p2n ?loc WHERE {
+?p1 fbase:people.place_lived.person ?p1n .
+?p1 fbase:people.place_lived.location ?loc .
+?p2 fbase:people.place_lived.person ?p2n .
+?p2 fbase:people.place_lived.location ?loc .
+?loc fbase:location.location.containedby fbase:en.iraq .
+}
+
+
+
+
+
+
+
+

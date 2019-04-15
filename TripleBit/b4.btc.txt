@@ -1,0 +1,14 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geo: <http://aims.fao.org/aos/geopolitical.owl#>
+PREFIX collect: <http://purl.org/collections/nl/am/>
+PREFIX ore: <http://www.openarchives.org/ore/terms/>
+PREFIX fbase: <http://rdf.freebase.com/ns/>
+
+SELECT ?s ?x ?y ?z ?w ?t WHERE {
+?s fbase:location.location.events ?x .
+?s fbase:location.location.geolocation ?y .
+?s fbase:location.location.people_born_here ?z .
+?s fbase:location.location.people_born_here ?w .
+?s fbase:location.location.containedby ?t .
+}

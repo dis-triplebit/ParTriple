@@ -1,0 +1,90 @@
+load complete!
+>>>queryLUBM6
+>>>1 0x7fc6b800185c
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:1046 taskEnqueue time elapsed: 0.003 s
+#######find pattern 1 time elapsed: 0.354144
+getTaskResult xBuffer size 0
+getTaskResult xyBuffer size 0
+in mergeBuffer 0
+in mergeBuffer 0
+size 850215
+@var y height 0
+2 0x7fc6b8001878
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:7960 taskEnqueue time elapsed: 0.026 s
+#######find pattern 2 time elapsed: 2.39554
+size 5399518
+0
+@var z height 0
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:13264 taskEnqueue time elapsed: 0.047 s
+#######find pattern 0 time elapsed: 4.67012
+size 850215
+1275283
+@var y height 2, @var z height 1
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:30181 taskEnqueue time elapsed: 0.101 s
+#######find pattern 5 time elapsed: 13.1413
+size 6837786
+6837974@var x height 0, @var y height 1
+@pattern 4 find chunks time elapsed: 0.001 s
+ChunkCount:58396 taskEnqueue time elapsed: 0.207 s
+#######find pattern 4 time elapsed: 12.8515
+size 6837786
+0
+@var x height 1
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:209529 taskEnqueue time elapsed: 0.727 s-------------------
+in 2976
+0
+count 0
+height 0
+-------------------
+in 2976
+0
+count 1
+height 0
+-------------------
+in 2976
+0
+count 1
+height 0
+
+#######find pattern 3 time elapsed: 58.8856
+size 6837786
+1868314
+@var x height 2, @var z height 2
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+
+------------before getJoin------------
+---buffer sig---
+rows : 1275283
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 10 104 
+last row : 164415416 164415418 
+---buffer sig---
+rows : 1868314
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 12535 24 
+last row : 164415930 164415418 
+---buffer sig---
+rows : 6837974
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 14 10 
+last row : 164416388 164415406 
+
+------------after getJoin------------
+ans: 219674
+ time elapsed: 103.566 s

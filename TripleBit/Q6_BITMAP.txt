@@ -1,0 +1,77 @@
+[root@localhost bM_fountain]# bin/lrelease/triplebitQuery /home/data/XTriplebit_LUBM500M/ ./Query/
+load complete!
+>>>queryLUBM6
+>>>1
+0
+1
+0
+0
+1 0x7f0ca000167c
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:1046 taskEnqueue time elapsed: 0.001 s
+#######find pattern 1 time elapsed: 0.036133
+0@var y height 0
+2 0x7f0ca0001698
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:7960 taskEnqueue time elapsed: 0.004 s
+#######find pattern 2 time elapsed: 0.219085
+0
+@var z height 0
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:13264 taskEnqueue time elapsed: 0.005 s
+#######find pattern 0 time elapsed: 0.363683
+1275283
+@var y height 2, @var z height 1
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:30181 taskEnqueue time elapsed: 0.01 s
+#######find pattern 5 time elapsed: 0.828982
+6837974zMax: 0 zMin: 4294967295
+@pattern 4 find chunks time elapsed: 0.001 s
+ChunkCount:58396 taskEnqueue time elapsed: 0.02 s
+#######find pattern 4 time elapsed: 1.58044
+0
+@var x height 1
+----x min 4294967295
+----x max 0
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:209529 taskEnqueue time elapsed: 0.084 s
+#######find pattern 3 time elapsed: 5.71295
+1868314
+@var x height 2, @var z height 2
+after reduce p5 , got size
+1446986
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+ready get result join time:0.838
+
+------------before getJoin------------
+---buffer sig---
+rows : 1275283
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 10 13 
+last row : 164415416 164415418 
+---buffer sig---
+rows : 1868314
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 1225 24 
+last row : 164415930 164415418 
+---buffer sig---
+rows : 1446986
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 454 81 
+last row : 164414488 164413502 
+
+------------after getJoin------------
+ans: 219673
+getResult_Join time:0.707
+time elapsed: 11.8043 s

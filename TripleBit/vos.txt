@@ -1,0 +1,110 @@
+
+../../../../bin/isql 1111 dba dba exec = "
+SPARQL
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ub: <http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#>
+SELECT ?x FROM <LUBM500M.graph> WHERE
+{ 
+	?x ub:subOrganizationOf <http://www.Department0.University0.edu> .
+	?x rdf:type ub:ResearchGroup .
+};"
+
+
+/home/wlei/virtuoso/bin/isql 1111 dba dba exec = ""
+
+SPARQL
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ub: <http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#>
+SELECT ?x ?y ?z FROM <LUBM500M.graph> WHERE {
+ ?z ub:subOrganizationOf ?y .
+ ?y rdf:type ub:University .
+ ?z rdf:type ub:Department .
+ ?x ub:memberOf ?z .
+ ?x rdf:type ub:GraduateStudent .
+ ?x ub:undergraduateDegreeFrom ?y .
+};
+
+SPARQL
+SELECT ?v0  ?v2  ?v3 FROM <WATDIV1000M.graph> WHERE {
+	?v0 <http://db.uwaterloo.ca/~galuc/wsdbm/subscribes> <http://db.uwaterloo.ca/~galuc/wsdbm/Website16661> .
+	?v2 <http://schema.org/caption> ?v3 .
+	?v0 <http://db.uwaterloo.ca/~galuc/wsdbm/likes> ?v2 .
+};
+
+
+sed -i "s/WHERE/FROM <LUBM500M.graph> WHERE/g" `grep WHERE -rl ./queryLUBM`
+
+
+
+
+
+SPARQL
+PREFIX geo: <http://www.geonames.org/>
+PREFIX pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX dbpedia: <http://dbpedia.org/property/>
+PREFIX dbpediares: <http://dbpedia.org/resource/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+select ?lat ?long FROM <btc.graph> where  {
+	?a [] "Bro-C'hall" .
+	?a <http://www.geonames.org/ontology#inCountry> <http://www.geonames.org/countries/#FR> .
+	?a pos:lat ?lat .
+	?a pos:long ?long .
+};
+
+
+
+SPARQL
+PREFIX geo: <http://www.geonames.org/>
+PREFIX pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX dbpedia: <http://dbpedia.org/property/>
+PREFIX dbpediares: <http://dbpedia.org/resource/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+select distinct ?d FROM <btc.graph> where {
+	?a dbpedia:senators ?c .
+	?a dbpedia:name ?d .
+	?c dbpedia:profession dbpediares:Politician .
+	?a owl:sameAs ?b .
+	?b <http://www.geonames.org/ontology#inCountry> <http://www.geonames.org/countries/#US> .
+};
+
+
+SPARQL
+SELECT ?v2  ?v3 FROM <watdvi10M.graph> WHERE {
+	?v2 <http://schema.org/caption> ?v3 .
+};
+
+
+select min(ll_started) as start, max(ll_done) as finish, datediff('second', min(ll_started), max(ll_done)) as delta from load_list where ll_graph like 'LUBM500M.graph';
+
+select min(ll_started) as start, max(ll_done) as finish, datediff('second', min(ll_started), max(ll_done)) as delta from load_list where ll_graph like 'btc.graph';
+
+WATDIV1000M.graph
+LUBM1000M.graph 
+
+select min(ll_started) as start, max(ll_done) as finish, datediff('second', min(ll_started), max(ll_done)) as delta from load_list where ll_graph like 'WATDIV1000M.graph';
+
+select * from DB.DBA.load_list;
+
+
+select min(ll_started) as start, max(ll_done) as finish, datediff('second', min(ll_started), max(ll_done)) as delta from load_list where ll_graph like 'LUBM1000M.graph';
+
+
+ld_dir ('/home/wlei', 'btc1e.n3', 'btc1e.graph');
+
+ld_dir('/home/wlei','watdiv.10M.nt','watdiv10M.graph');
+
+
+ld_dir ('/home/wlei', 'btc10e.n3', 'btc10e.graph');
+
+ld_dir ('/home/wlei', 'btc_analysis', 'btc_analysis.graph');
+
+ld_dir ('/home/wlei', 'btc_out', 'btc_out.graph');
+
+
+rdf_loader_run();
+
+
+
+
+
+

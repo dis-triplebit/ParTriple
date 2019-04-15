@@ -1,0 +1,403 @@
+[root@localhost oldX]# bin/lrelease/triplebitQuery /home/data/XTriplebit_LUBM500M/ ./Query/
+load complete!
+>>>queryLUBM6
+>>>what !!!
+65536
+@pattern 1 find chunks time elapsed: 0 s
+chunkCount 1046
+get one
+get two
+ChunkCount:1046 taskEnqueue time elapsed: 0.001 s
+#######find pattern 1 time elapsed: 0.025551
+---buffer sig---
+rows : 850215
+cols : 1
+sorted : 1
+sortKey : 0
+first row : 10 
+last row : 164415416 
+>>>>>>>>>>>sort time:0
+
+
+case 3
+var: 2 @minID 10 @maxID 164415416
+@pattern 0 find chunks time elapsed: 0 s
+chunkCount 13264
+get one
+get two
+ChunkCount:13264 taskEnqueue time elapsed: 0.024 s
+#######find pattern 0 time elapsed: 0.4863
+***merge join : 1 and 0 type @ 1
+------------before join--------
+pattern 1 buffer size: 850215
+pattern 0 buffer size: 10796943
+sig-> pattern : 1
+---buffer sig---
+rows : 850215
+cols : 1
+sorted : 1
+sortKey : 0
+first row : 10 
+last row : 164415416 
+------------after join----------
+>>>>>>>merge Join time:0.144
+pattern 1 buffer size: 850215
+pattern 0 buffer size: 2550694
+sig-> pattern : 1
+---buffer sig---
+rows : 850215
+cols : 1
+sorted : 1
+sortKey : 0
+first row : 10 
+last row : 164415416 
+sig-> pattern : 0
+---buffer sig---
+rows : 2550694
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 10 13 
+last row : 164415416 164415420 
+
+
+
+
+case 3
+var: 2 @minID 10 @maxID 164415416
+@pattern 5 find chunks time elapsed: 0 s
+chunkCount 30178
+get one
+get two
+ChunkCount:30178 taskEnqueue time elapsed: 0.049 s
+#######find pattern 5 time elapsed: 0.882559
+***merge join : 1 and 5 type @ 1
+------------before join--------
+pattern 1 buffer size: 850215
+pattern 5 buffer size: 20517244
+sig-> pattern : 1
+---buffer sig---
+rows : 850215
+cols : 1
+sorted : 1
+sortKey : 0
+first row : 10 
+last row : 164415416 
+------------after join----------
+>>>>>>>merge Join time:0.304
+pattern 1 buffer size: 849783
+pattern 5 buffer size: 6837167
+sig-> pattern : 1
+---buffer sig---
+rows : 849783
+cols : 1
+sorted : 1
+sortKey : 0
+first row : 10 
+last row : 164415416 
+sig-> pattern : 5
+---buffer sig---
+rows : 6837167
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 10 1297 
+last row : 164415416 164416378 
+
+
+--------------stage1 time:1.871
+>>>>>>>>>>>sort time:0.245
+
+
+case 1
+var: 3 @minID 13 @maxID 164415420
+@pattern 2 find chunks time elapsed: 0 s
+chunkCount 7960
+get one
+get two
+ChunkCount:7960 taskEnqueue time elapsed: 0.02 s
+#######find pattern 2 time elapsed: 0.164016
+***merge join : 0 and 2 type @ 0
+--------before join-----------
+pattern 0 buffer size(before join): 2550694
+pattern 2 buffer size(before join): 5399482
+--------after join-----------
+>>>>>>>>>>>merge Join time:0.165
+pattern 0 buffer size: 1275242
+pattern 2 buffer size(before join): 5399482
+
+
+case 3
+var: 3 @minID 13 @maxID 164415418
+@pattern 3 find chunks time elapsed: 0 s
+chunkCount 210716
+get one
+get two
+ChunkCount:210716 taskEnqueue time elapsed: 0.34 s
+#######find pattern 3 time elapsed: 6.66697
+***merge join : 0 and 3 type @ 1
+------------before join--------
+pattern 0 buffer size: 1275242
+pattern 3 buffer size: 144039551
+sig-> pattern : 0
+---buffer sig---
+rows : 1275242
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 10 13 
+last row : 164415416 164415418 
+------------after join----------
+>>>>>>>merge Join time:1.632
+pattern 0 buffer size: 1275242
+pattern 3 buffer size: 28067323
+sig-> pattern : 0
+---buffer sig---
+rows : 1275242
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 10 13 
+last row : 164415416 164415418 
+sig-> pattern : 3
+---buffer sig---
+rows : 28067323
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 13 430 
+last row : 164415418 164416148 
+
+
+>>>>>>>>>>>sort time:0.926
+
+
+case 1
+var: 1 @minID 454 @maxID 164416388
+@pattern 4 find chunks time elapsed: 0.001 s
+chunkCount 58395
+get one
+get two
+ChunkCount:58395 taskEnqueue time elapsed: 0.162 s
+#######find pattern 4 time elapsed: 1.18454
+***merge join : 5 and 4 type @ 0
+--------before join-----------
+pattern 5 buffer size(before join): 6837167
+pattern 4 buffer size(before join): 39616769
+--------after join-----------
+>>>>>>>>>>>merge Join time:0.79
+pattern 5 buffer size: 2639952
+pattern 4 buffer size(before join): 39616769
+case 2
+***merge join : 5 and 3 type @ 1
+---------before join----------
+sig-> pattern : 5
+---buffer sig---
+rows : 2639952
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 81 454 
+last row : 164415387 164416134 
+sig-> pattern : 3
+---buffer sig---
+rows : 28067323
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 13 430 
+last row : 164415418 164416148 
+
+
+>>>>>on sort # merge Join time:4.269
+---------after join----------
+>>>>>>>>>merge Join time:4.456
+pattern 5 buffer size: 1446939
+pattern 3 buffer size: 1869196
+---buffer sig---
+rows : 1446939
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 81 454 
+last row : 164415387 164416134 
+---buffer sig---
+rows : 1869196
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 93 454 
+last row : 164415412 164416134 
+-------------stage2 time:16.395
+
+
+------------------------------------
+***hash join : 0 and 5
+--------before join--------
+pattern 0 buffer size: 1275242
+pattern 5 buffer size: 1446939
+sig-> pattern : 0
+---buffer sig---
+rows : 1275242
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 10 13 
+last row : 164415416 164415418 
+sig-> pattern : 5
+---buffer sig---
+rows : 1446939
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 81 454 
+last row : 164415387 164416134 
+
+
+-------after join--------
+>>>>>>>>>>>>>>>>>>>Hash Join time:0.339
+pattern 0 buffer size: 1035464
+pattern 5 buffer size: 1446939
+sig-> pattern : 0
+---buffer sig---
+rows : 1035464
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1818625 
+last row : 157622271 157622273 
+sig-> pattern : 5
+---buffer sig---
+rows : 1446939
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1819118 
+last row : 157622271 157622812 
+
+
+------------------------------------
+***hash join : 0 and 5
+--------before join--------
+pattern 0 buffer size: 1035464
+pattern 5 buffer size: 1446939
+sig-> pattern : 0
+---buffer sig---
+rows : 1035464
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1818625 
+last row : 157622271 157622273 
+sig-> pattern : 5
+---buffer sig---
+rows : 1446939
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1819118 
+last row : 157622271 157622812 
+
+
+-------after join--------
+>>>>>>>>>>>>>>>>>>>Hash Join time:0.289
+pattern 0 buffer size: 1035464
+pattern 5 buffer size: 1446939
+sig-> pattern : 0
+---buffer sig---
+rows : 1035464
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1818625 
+last row : 157622271 157622273 
+sig-> pattern : 5
+---buffer sig---
+rows : 1446939
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1819118 
+last row : 157622271 157622812 
+
+
+------------------------------------
+***hash join : 0 and 5
+--------before join--------
+pattern 0 buffer size: 1035464
+pattern 5 buffer size: 1446939
+sig-> pattern : 0
+---buffer sig---
+rows : 1035464
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1818625 
+last row : 157622271 157622273 
+sig-> pattern : 5
+---buffer sig---
+rows : 1446939
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1819118 
+last row : 157622271 157622812 
+
+
+-------after join--------
+>>>>>>>>>>>>>>>>>>>Hash Join time:0.288
+pattern 0 buffer size: 1035464
+pattern 5 buffer size: 1446939
+sig-> pattern : 0
+---buffer sig---
+rows : 1035464
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1818625 
+last row : 157622271 157622273 
+sig-> pattern : 5
+---buffer sig---
+rows : 1446939
+cols : 2
+sorted : 0
+sortKey : 0
+first row : 1818624 1819118 
+last row : 157622271 157622812 
+-----------------stage3 time:0.919
+ready get result join time:0.628
+keyPos
+1
+2
+verify
+0
+3
+
+------------before getJoin------------
+---buffer sig---
+rows : 1035464
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 10 13 
+last row : 164415416 164415418 
+---buffer sig---
+rows : 1869196
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 24 1225 
+last row : 164415418 164415930 
+---buffer sig---
+rows : 1446939
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 81 454 
+last row : 164415387 164416134 
+
+------------after getJoin------------
+ans: 219771
+getResult_Join time:1.357
+cyclic join time:21.17
+ time elapsed: 21.1703 s

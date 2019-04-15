@@ -1,0 +1,590 @@
+load complete!
+>>>queryLUBM5
+>>>tripleID 0 selectivity : 3199424
+tripleID 1 selectivity : 5001
+tripleID 2 selectivity : 99987
+tripleID 3 selectivity : 104426368
+tripleID 4 selectivity : 12596397
+tripleID 5 selectivity : 32390686
+TripleNodeID: 1 Selectivity: 5001
+TripleNodeID: 2 Selectivity: 99987
+TripleNodeID: 0 Selectivity: 3199424
+TripleNodeID: 4 Selectivity: 12596397
+TripleNodeID: 5 Selectivity: 32390686
+TripleNodeID: 3 Selectivity: 104426368
+TripleNodeID: 1
+scanOp: 0
+varHeight 
+2 0
+
+TripleNodeID: 2
+scanOp: 0
+varHeight 
+3 0
+
+TripleNodeID: 0
+scanOp: 14
+varHeight 
+3 1
+2 1
+
+TripleNodeID: 4
+scanOp: 0
+varHeight 
+1 0
+
+TripleNodeID: 5
+scanOp: 14
+varHeight 
+1 1
+2 2
+
+TripleNodeID: 3
+scanOp: 14
+varHeight 
+1 2
+3 2
+
+varHeight 1
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:8 taskEnqueue time elapsed: 0 s
+#######find pattern 1 time elapsed: 0.015099
+tripleNodeID 1 SIZE: 0
+varHeight 1
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:125 taskEnqueue time elapsed: 0.001 s
+#######find pattern 2 time elapsed: 0.004671
+tripleNodeID 2 SIZE: 0
+varHeight 2
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:2369 taskEnqueue time elapsed: 0.001 s
+#######find pattern 0 time elapsed: 0.060069
+tripleNodeID 0 SIZE: 99987
+varHeight 1
+@pattern 4 find chunks time elapsed: 0 s
+ChunkCount:18568 taskEnqueue time elapsed: 0.007 s
+#######find pattern 4 time elapsed: 0.509466
+tripleNodeID 4 SIZE: 0
+varHeight 2
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:24248 taskEnqueue time elapsed: 0.008 s
+#######find pattern 5 time elapsed: 0.914928
+tripleNodeID 5 SIZE: 12596534
+varHeight 2
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:76961 taskEnqueue time elapsed: 0.028 s
+#######find pattern 3 time elapsed: 2.07067
+tripleNodeID 3 SIZE: 12596396
+after reduce p5 , got size
+12596534
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+ready get result join time:5.968
+
+------------before getJoin------------
+---buffer sig---
+rows : 99987
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 7 4 
+last row : 164415381 164377846 
+---buffer sig---
+rows : 12596396
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 1996 7 
+last row : 164416388 164415381 
+---buffer sig---
+rows : 12596534
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 1996 68 
+last row : 164416388 7734 
+
+------------after getJoin------------
+ans: 0
+getResult_Join time:0.023
+ time elapsed: 9.76323 s
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------0 5 3--------------------------------
+load complete!
+>>>queryLUBM5
+>>>tripleID 0 selectivity : 3199424
+tripleID 1 selectivity : 5001
+tripleID 2 selectivity : 99987
+tripleID 3 selectivity : 104426368
+tripleID 4 selectivity : 12596397
+tripleID 5 selectivity : 32390686
+TripleNodeID: 1 Selectivity: 5001
+TripleNodeID: 2 Selectivity: 99987
+TripleNodeID: 0 Selectivity: 3199424
+TripleNodeID: 4 Selectivity: 12596397
+TripleNodeID: 5 Selectivity: 32390686
+TripleNodeID: 3 Selectivity: 104426368
+TripleNodeID: 1
+scanOp: 0
+varHeight 
+2 0
+
+TripleNodeID: 2
+scanOp: 0
+varHeight 
+3 0
+
+TripleNodeID: 0
+scanOp: 14
+varHeight 
+3 1
+2 1
+
+TripleNodeID: 4
+scanOp: 0
+varHeight 
+1 0
+
+TripleNodeID: 5
+scanOp: 14
+varHeight 
+1 1
+2 2
+
+TripleNodeID: 3
+scanOp: 14
+varHeight 
+1 2
+3 2
+
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:8 taskEnqueue time elapsed: 0 s
+#######find pattern 1 time elapsed: 0.007884
+tripleNodeID 1 SIZE: 0
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:125 taskEnqueue time elapsed: 0.001 s
+#######find pattern 2 time elapsed: 0.006333
+tripleNodeID 2 SIZE: 0
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:2369 taskEnqueue time elapsed: 0.001 s
+#######find pattern 0 time elapsed: 0.0597
+tripleNodeID 0 SIZE: 99987
+@pattern 4 find chunks time elapsed: 0 s
+ChunkCount:18568 taskEnqueue time elapsed: 0.007 s
+#######find pattern 4 time elapsed: 0.505743
+tripleNodeID 4 SIZE: 0
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:24248 taskEnqueue time elapsed: 0.008 s
+#######find pattern 5 time elapsed: 0.896399
+tripleNodeID 5 SIZE: 12596534
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:76961 taskEnqueue time elapsed: 0.029 s
+#######find pattern 3 time elapsed: 2.07857
+tripleNodeID 3 SIZE: 12596396
+after reduce p5 , got size
+12596534
+after reduce p0 , got size
+20020
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+ready get result join time:7.442
+
+------------before getJoin------------
+---buffer sig---
+rows : 20020
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 7 4 
+last row : 31655864 45130 
+---buffer sig---
+rows : 12596534
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 37877 4 
+last row : 164411205 45130 
+---buffer sig---
+rows : 12596396
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 1996 7 
+last row : 164416388 164415381 
+
+------------after getJoin------------
+ans: 2529
+getResult_Join time:257.352
+ time elapsed: 268.546 s
+
+ -----------------------------------------不可思议---------------------
+
+ load complete!
+>>>queryLUBM5
+>>>tripleID 0 selectivity : 3199424
+tripleID 1 selectivity : 5001
+tripleID 2 selectivity : 99987
+tripleID 3 selectivity : 104426368
+tripleID 4 selectivity : 12596397
+tripleID 5 selectivity : 32390686
+TripleNodeID: 1 Selectivity: 5001
+TripleNodeID: 2 Selectivity: 99987
+TripleNodeID: 0 Selectivity: 3199424
+TripleNodeID: 4 Selectivity: 12596397
+TripleNodeID: 5 Selectivity: 32390686
+TripleNodeID: 3 Selectivity: 104426368
+TripleNodeID: 1
+scanOp: 0
+varHeight 
+2 0
+
+TripleNodeID: 2
+scanOp: 0
+varHeight 
+3 0
+
+TripleNodeID: 0
+scanOp: 14
+varHeight 
+3 1
+2 1
+
+TripleNodeID: 4
+scanOp: 0
+varHeight 
+1 0
+
+TripleNodeID: 5
+scanOp: 14
+varHeight 
+1 1
+2 2
+
+TripleNodeID: 3
+scanOp: 14
+varHeight 
+1 2
+3 2
+
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:8 taskEnqueue time elapsed: 0 s
+#######find pattern 1 time elapsed: 0.005378
+tripleNodeID 1 SIZE: 0
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:125 taskEnqueue time elapsed: 0.001 s
+#######find pattern 2 time elapsed: 0.003646
+tripleNodeID 2 SIZE: 0
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:2369 taskEnqueue time elapsed: 0.001 s
+#######find pattern 0 time elapsed: 0.059748
+tripleNodeID 0 SIZE: 99987
+@pattern 4 find chunks time elapsed: 0 s
+ChunkCount:18568 taskEnqueue time elapsed: 0.007 s
+#######find pattern 4 time elapsed: 0.507809
+tripleNodeID 4 SIZE: 0
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:24248 taskEnqueue time elapsed: 0.008 s
+#######find pattern 5 time elapsed: 0.963785
+tripleNodeID 5 SIZE: 12596534
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:76961 taskEnqueue time elapsed: 0.029 s
+#######find pattern 3 time elapsed: 2.05461
+tripleNodeID 3 SIZE: 12596396
+after reduce p5 , got size
+12596534
+after reduce p0 , got size
+20020
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+ready get result join time:6.039
+
+------------before getJoin------------
+---buffer sig---
+rows : 20020
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 7 4 
+last row : 31655864 45130 
+---buffer sig---
+rows : 12596396
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 1996 7 
+last row : 164416388 164415381 
+---buffer sig---
+rows : 12596534
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 1996 68 
+last row : 164416388 7734 
+
+------------after getJoin------------
+ans: 2529
+getResult_Join time:0.616
+ time elapsed: 10.4535 s
+
+
+
+
+
+
+ -------------------------------5 0 3-------------------------full join------------------------
+ [root@localhost thunder]# bin/lrelease/triplebitQuery /home/data/XTriplebit_LUBM500M/ ./Query/
+load complete!
+>>>queryLUBM5
+>>>tripleID 0 selectivity : 3199424
+tripleID 1 selectivity : 5001
+tripleID 2 selectivity : 99987
+tripleID 3 selectivity : 104426368
+tripleID 4 selectivity : 12596397
+tripleID 5 selectivity : 32390686
+TripleNodeID: 1 Selectivity: 5001
+TripleNodeID: 2 Selectivity: 99987
+TripleNodeID: 0 Selectivity: 3199424
+TripleNodeID: 4 Selectivity: 12596397
+TripleNodeID: 5 Selectivity: 32390686
+TripleNodeID: 3 Selectivity: 104426368
+TripleNodeID: 1
+scanOp: 0
+varHeight 
+2 0
+
+TripleNodeID: 2
+scanOp: 0
+varHeight 
+3 0
+
+TripleNodeID: 0
+scanOp: 14
+varHeight 
+3 1
+2 1
+
+TripleNodeID: 4
+scanOp: 0
+varHeight 
+1 0
+
+TripleNodeID: 5
+scanOp: 14
+varHeight 
+1 1
+2 2
+
+TripleNodeID: 3
+scanOp: 14
+varHeight 
+1 2
+3 2
+
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:8 taskEnqueue time elapsed: 0 s
+#######find pattern 1 time elapsed: 0.005771
+tripleNodeID 1 SIZE: 0
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:125 taskEnqueue time elapsed: 0 s
+#######find pattern 2 time elapsed: 0.003121
+tripleNodeID 2 SIZE: 0
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:2369 taskEnqueue time elapsed: 0.001 s
+#######find pattern 0 time elapsed: 0.061015
+tripleNodeID 0 SIZE: 99987
+@pattern 4 find chunks time elapsed: 0 s
+ChunkCount:18568 taskEnqueue time elapsed: 0.007 s
+#######find pattern 4 time elapsed: 0.508455
+tripleNodeID 4 SIZE: 0
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:24248 taskEnqueue time elapsed: 0.007 s
+#######find pattern 5 time elapsed: 1.03611
+tripleNodeID 5 SIZE: 12596534
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:76961 taskEnqueue time elapsed: 0.029 s
+#######find pattern 3 time elapsed: 2.09836
+tripleNodeID 3 SIZE: 12596396
+after reduce p5 , got size
+12596534
+after reduce p0 , got size
+20020
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+get sort : 1.41
+ready get result join time:2.397
+
+------------before getJoin------------
+---buffer sig---
+rows : 12596534
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 2000 2003 
+last row : 164416388 7734 
+---buffer sig---
+rows : 20020
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 7 4 
+last row : 31655864 45130 
+---buffer sig---
+rows : 12596396
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 1996 7 
+last row : 164416388 164415381 
+
+------------after getJoin------------
+ans: 22
+getResult_Join time:467.224
+ time elapsed: 473.535 s
+
+
+
+
+
+ -----------0 5 3----------
+ load complete!
+>>>queryLUBM5
+>>>tripleID 0 selectivity : 3199424
+tripleID 1 selectivity : 5001
+tripleID 2 selectivity : 99987
+tripleID 3 selectivity : 104426368
+tripleID 4 selectivity : 12596397
+tripleID 5 selectivity : 32390686
+TripleNodeID: 1 Selectivity: 5001
+TripleNodeID: 2 Selectivity: 99987
+TripleNodeID: 0 Selectivity: 3199424
+TripleNodeID: 4 Selectivity: 12596397
+TripleNodeID: 5 Selectivity: 32390686
+TripleNodeID: 3 Selectivity: 104426368
+TripleNodeID: 1
+scanOp: 0
+varHeight 
+2 0
+
+TripleNodeID: 2
+scanOp: 0
+varHeight 
+3 0
+
+TripleNodeID: 0
+scanOp: 14
+varHeight 
+3 1
+2 1
+
+TripleNodeID: 4
+scanOp: 0
+varHeight 
+1 0
+
+TripleNodeID: 5
+scanOp: 14
+varHeight 
+1 1
+2 2
+
+TripleNodeID: 3
+scanOp: 14
+varHeight 
+1 2
+3 2
+
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:8 taskEnqueue time elapsed: 0 s
+#######find pattern 1 time elapsed: 0.005245
+tripleNodeID 1 SIZE: 0
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:125 taskEnqueue time elapsed: 0.001 s
+#######find pattern 2 time elapsed: 0.007689
+tripleNodeID 2 SIZE: 0
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:2369 taskEnqueue time elapsed: 0.001 s
+#######find pattern 0 time elapsed: 0.059753
+tripleNodeID 0 SIZE: 99987
+@pattern 4 find chunks time elapsed: 0.001 s
+ChunkCount:18568 taskEnqueue time elapsed: 0.006 s
+#######find pattern 4 time elapsed: 0.501191
+tripleNodeID 4 SIZE: 0
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:24248 taskEnqueue time elapsed: 0.008 s
+#######find pattern 5 time elapsed: 0.965133
+tripleNodeID 5 SIZE: 12596534
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:76961 taskEnqueue time elapsed: 0.03 s
+#######find pattern 3 time elapsed: 2.07218
+tripleNodeID 3 SIZE: 12596396
+after reduce p5 , got size
+12596534
+after reduce p0 , got size
+20020
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+get sort : 4.689
+keyPos 1 2
+verifyPos 0 3
+ready get result join time:7.9
+
+------------before getJoin------------
+---buffer sig---
+rows : 20020
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 7 4 
+last row : 31655864 45130 
+---buffer sig---
+rows : 12596534
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 37877 4 
+last row : 164411205 45130 
+---buffer sig---
+rows : 12596396
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 1996 7 
+last row : 164416388 164415381 
+
+------------after getJoin------------
+ans: 2529
+gR: 252191923
+getResult_Join time:256.75
+ time elapsed: 268.461 s

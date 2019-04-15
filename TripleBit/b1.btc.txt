@@ -1,0 +1,27 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geo: <http://aims.fao.org/aos/geopolitical.owl#>
+PREFIX collect: <http://purl.org/collections/nl/am/>
+PREFIX ore: <http://www.openarchives.org/ore/terms/>
+PREFIX fbase: <http://rdf.freebase.com/ns/>
+
+SELECT ?s1 ?o1 ?s2 WHERE {
+?s1 collect:acquisitionDate "1980-05-16" .
+?s1 collect:acquisitionMethod collect:t-14382 .
+?s1 collect:associationSubject ?o1 .
+?s1 collect:contentMotifGeneral collect:t-8782 .
+?s1 collect:creditLine collect:t-14773 .
+?s1 collect:material collect:t-3249 .
+?s1 collect:objectCategory collect:t-15606 .
+?s1 collect:objectName collect:t-10444 .
+?s1 collect:objectNumber "KA 17150" .
+?s1 collect:priref "23182" .
+?s1 collect:productionDateEnd "1924" .
+?s1 collect:productionDateStart "1924" .
+?s1 collect:productionPlace collect:t-624 .
+?s1 collect:title "Plate commemorating the first Amsterdam-Batavia flight"@en .
+?s1 ore:proxyFor collect:physical-23182 .
+?s1 ore:proxyIn collect:aggregation-23182 .
+?s1 collect:relatedObjectReference ?s2 .
+?s2 collect:relatedObjectReference ?s1 .
+}

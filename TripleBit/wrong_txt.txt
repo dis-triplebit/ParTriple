@@ -1,0 +1,147 @@
+load complete!
+>>>queryLUBM6
+>>>1 0x7ff22800167c
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:1046 taskEnqueue time elapsed: 0.002 s
+#######find pattern 1 time elapsed: 0.095076
+getTaskResult xBuffer size 0
+getTaskResult xyBuffer size 0
+in mergeBuffer 0
+in mergeBuffer 0
+@var y height 0
+2 0x7ff228001698
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:7960 taskEnqueue time elapsed: 0.017 s
+#######find pattern 2 time elapsed: 0.615388
+0
+@var z height 0
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:13264 taskEnqueue time elapsed: 0.186 s
+#######find pattern 0 time elapsed: 0.841172
+1275283
+@var y height 2, @var z height 1
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:30181 taskEnqueue time elapsed: 0.333 s
+#######find pattern 5 time elapsed: 1.7621
+6837974@var x height 0, @var y height 1
+@pattern 4 find chunks time elapsed: 0.001 s
+ChunkCount:58396 taskEnqueue time elapsed: 0.212 s
+#######find pattern 4 time elapsed: 5.33996
+0
+@var x height 1
+----x min 454
+----x max 164416134
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:209528 taskEnqueue time elapsed: 2.344 s
+#######find pattern 3 time elapsed: 8.22381
+143243865
+@var x height 2, @var z height 2
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+
+------------before getJoin------------
+---buffer sig---
+rows : 1275283
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 10 13 
+last row : 164415416 164415418 
+---buffer sig---
+rows : 143243865
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 466 13 
+last row : 164416132 164415546 
+---buffer sig---
+rows : 6837974
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 14 10 
+last row : 164416388 164415406 
+
+------------after getJoin------------
+ans: 219674
+ time elapsed: 63.7646 s
+
+/*wrong 1*/
+
+>>>queryLUBM6
+>>>1 0x7fb9ac00167c
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:1046 taskEnqueue time elapsed: 0.002 s
+#######find pattern 1 time elapsed: 0.107224
+getTaskResult xBuffer size 0
+getTaskResult xyBuffer size 0
+in mergeBuffer 0
+in mergeBuffer 0
+@var y height 0
+2 0x7fb9ac001698
+@pattern 2 find chunks time elapsed: 0.001 s
+ChunkCount:7960 taskEnqueue time elapsed: 0.016 s
+#######find pattern 2 time elapsed: 0.614527
+0
+@var z height 0
+@pattern 0 find chunks time elapsed: 0.001 s
+ChunkCount:13264 taskEnqueue time elapsed: 0.034 s
+#######find pattern 0 time elapsed: 2.38036
+1275283
+@var y height 2, @var z height 1
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:30181 taskEnqueue time elapsed: 0.075 s
+#######find pattern 5 time elapsed: 14.8169
+6837974@var x height 0, @var y height 1
+zMax: 164415418 zMin: 10
+@pattern 4 find chunks time elapsed: 0 s
+ChunkCount:58396 taskEnqueue time elapsed: 0.387 s
+#######find pattern 4 time elapsed: 4.65972
+0
+@var x height 1
+----x min 454
+----x max 164416134
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:210716 taskEnqueue time elapsed: 2.339 s
+#######find pattern 3 time elapsed: 8.21414
+144039551
+@var x height 2, @var z height 2
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+
+------------before getJoin------------
+---buffer sig---
+rows : 1275283
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 10 13 
+last row : 164415416 164415418 
+---buffer sig---
+rows : 144039551
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 34 399 
+last row : 164415413 164416388 
+---buffer sig---
+rows : 6837974
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 14 10 
+last row : 164416388 164415406 
+
+------------after getJoin------------
+ans: 0
+ time elapsed: 74.9267 s
+
+ /*wrong 2*/

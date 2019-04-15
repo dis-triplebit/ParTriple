@@ -1,0 +1,17 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geo: <http://aims.fao.org/aos/geopolitical.owl#>
+PREFIX collect: <http://purl.org/collections/nl/am/>
+PREFIX ore: <http://www.openarchives.org/ore/terms/>
+PREFIX fbase: <http://rdf.freebase.com/ns/>
+
+
+SELECT ?fperf ?actor ?film ?name ?rel ?lang ?gen ?star WHERE {
+?fperf fbase:film.performance.actor ?actor .
+?fperf fbase:film.performance.film ?film .
+?film fbase:type.object.name ?name .
+?film fbase:film.film.initial_release_date ?rel .
+?film fbase:film.film.language ?lang .
+?film fbase:film.film.genre ?gen .
+?film fbase:film.film.starring ?star .
+}

@@ -1,0 +1,130 @@
+load complete!
+>>>queryLUBM6
+>>>1 0x7f25e000185c
+@pattern 1 find chunks time elapsed: 0 s
+ChunkCount:1046 taskEnqueue time elapsed: 0.003 s
+#######find pattern 1 time elapsed: 0.781869
+getTaskResult xBuffer size 0
+getTaskResult xyBuffer size 0
+in mergeBuffer 0
+in mergeBuffer 0
+size 850215
+@var y height 0
+2 0x7f25e0001878
+@pattern 2 find chunks time elapsed: 0 s
+ChunkCount:7960 taskEnqueue time elapsed: 0.027 s
+#######find pattern 2 time elapsed: 9.48129
+size 5399518
+0
+@var z height 0
+@pattern 0 find chunks time elapsed: 0 s
+ChunkCount:13264 taskEnqueue time elapsed: 0.042 s
+#######find pattern 0 time elapsed: 5.00459
+size 850215
+1275283
+@var y height 2, @var z height 1
+@pattern 5 find chunks time elapsed: 0 s
+ChunkCount:30181 taskEnqueue time elapsed: 0.096 s
+#######find pattern 5 time elapsed: 19.0438
+size 6837786
+6837974@var x height 0, @var y height 1
+@pattern 4 find chunks time elapsed: 0 s
+ChunkCount:58396 taskEnqueue time elapsed: 0.197 s
+#######find pattern 4 time elapsed: 20.4326
+size 6837786
+0
+@var x height 1
+@pattern 3 find chunks time elapsed: 0 s
+ChunkCount:209529 taskEnqueue time elapsed: 0.7 s
+#######find pattern 3 time elapsed: 50.4064
+size 6837786
+1868314
+@var x height 2, @var z height 2
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+-----------------x part------------
+-----------------xy part------------
+
+------------before getJoin------------
+---buffer sig---
+rows : 1275283
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 10 104 
+last row : 164415416 164415418 
+---buffer sig---
+rows : 1868314
+cols : 2
+sorted : 1
+sortKey : 1
+first row : 12535 24 
+last row : 164415930 164415418 
+---buffer sig---
+rows : 6837974
+cols : 2
+sorted : 1
+sortKey : 0
+first row : 14 10 
+last row : 164416388 164415406 
+
+------------after getJoin------------
+ans: 219674
+ time elapsed: 115.81 s
+
+
+
+[root@localhost fountain]# gprof bin/lrelease/triplebitQuery gmon.out -p
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 28.43     30.99    30.99 255627457     0.00     0.00  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::lock_two(cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::TableInfo const*, unsigned long, unsigned long)
+ 22.76     55.81    24.82 14071735     0.00     0.00  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::cuckoo_insert(unsigned int const&, int const&, unsigned long, cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::TableInfo*, unsigned long, unsigned long)
+ 22.40     80.22    24.42 225234490     0.00     0.00  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::find(unsigned int const&, int&)
+  3.37     83.89     3.67  1758347     0.00     0.00  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::slot_search(cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::TableInfo const*, unsigned long, unsigned long)
+  2.88     87.03     3.14 273015411     0.00     0.00  StringIDSegment::findStringById(LengthString*, unsigned int const&)
+  2.72     90.00     2.97 273015411     0.00     0.00  FixedObjectPool::get_by_id(unsigned int, unsigned long*, void**)
+  2.44     92.66     2.66  1899052     0.00     0.00  Chunk::readXId(unsigned char const*, unsigned int&)
+  2.25     95.11     2.45 164416781     0.00     0.00  URITable::getURIById(std::string&, unsigned int)
+  2.16     97.46     2.35 221031886     0.00     0.00  Chunk::readXYId(unsigned char const*, unsigned int&, unsigned int&)
+  1.23     98.80     1.34 273015410     0.00     0.00  ObjectPool<unsigned int>::get_by_offset(unsigned long, unsigned long*, void**)
+  0.89     99.77     0.97   252803     0.00     0.00  PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer*, unsigned char const*, int)
+  0.79    100.63     0.86                             FixedObjectPool::next_offset(unsigned long)
+  0.67    101.37     0.74 15756301     0.00     0.00  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::update(unsigned int const&, int const&)
+  0.66    102.09     0.72  3143645     0.00     0.00  EntityIDBuffer::getEntityIDPos(unsigned int)
+  0.54    102.67     0.59  1758352     0.00     0.00  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::run_cuckoo(cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::TableInfo*, unsigned long, unsigned long, unsigned long&, unsigned long&)
+  0.47    103.18     0.51  1899036     0.00     0.00  std::map<unsigned int, TempBuffer*, std::less<unsigned int>, std::allocator<std::pair<unsigned int const, TempBuffer*> > >::operator[](unsigned int const&)
+  0.46    103.68     0.50        1     0.50    14.22  TripleBitRepository::create(std::string const&)
+  0.41    104.13     0.45 14058274     0.00     0.00  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::insert(unsigned int const&, int const&)
+  0.39    104.56     0.43       18     0.02     0.06  PartitionMaster::PartitionMaster(TripleBitRepository*&, unsigned int)
+  0.34    104.93     0.37       39     0.01     0.01  SortTask::Run(unsigned int*, unsigned long, int, int)
+  0.34    105.30     0.37                             StringIDSegment::findStringById(std::string&, unsigned int const&)
+  0.33    105.66     0.36                             SortTask::qcompareLongByFirst32(void const*, void const*)
+  0.32    106.01     0.35                             ObjectPool<unsigned int>::first_offset()
+  0.26    106.29     0.28        9     0.03     0.03  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::TableInfo::TableInfo(unsigned long)
+  0.24    106.55     0.26       13     0.02     0.02  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::TableInfo::~TableInfo()
+  0.23    106.80     0.25        6     0.04     0.04  std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<subTaskPackage*>(subTaskPackage*)
+  0.22    107.03     0.24        9     0.03     0.08  cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::cuckoo_expand_simple(unsigned long)
+  0.20    107.25     0.22   320219     0.00     0.00  subTaskPackage::completeSubTask(unsigned int, EntityIDBuffer*, unsigned char)
+  0.18    107.45     0.20 39916633     0.00     0.00  EntityIDBuffer::insertID(unsigned int)
+  0.16    107.62     0.17    67374     0.00     0.00  PartitionMaster::findObjectIDByPredicateAndSubject(unsigned int, EntityIDBuffer*, unsigned char const*, int)
+  0.15    107.78     0.16  1275283     0.00     0.00  TripleBitWorkerQuery::getResult_join(unsigned int, std::vector<EntityIDBuffer*, std::allocator<EntityIDBuffer*> >&, unsigned long)
+  0.11    107.90     0.12   320299     0.00     0.00  PartitionMaster::handleTasksQueueChunk(TasksQueueChunk*)
+  0.09    108.00     0.10        6     0.02     0.07  PartitionMaster::executeQuery(SubTrans*)
+  0.09    108.10     0.10        3     0.03     0.07  ResultIDBuffer::print2ID(EntityIDBuffer*)
+  0.09    108.20     0.10                             SortTask::qcompareInt(void const*, void const*)
+  0.07    108.28     0.08                             URITable::insertTable(char const*, unsigned int&)
+  0.06    108.35     0.07       72     0.00     0.04  LineHashIndex::load(ChunkManager&, LineHashIndex::IndexType, LineHashIndex::XYType, char*, unsigned long&)
+  0.06    108.42     0.07                             EntityIDBuffer::operator[](unsigned long)
+  0.06    108.48     0.06                             cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::insert_into_table(cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >&, cuckoohash_map<unsigned int, int, std::hash<unsigned int>, std::equal_to<unsigned int> >::TableInfo const*, unsigned long, unsigned long)
+  0.06    108.54     0.06                             SortTask::qcompareLongBySecond32(void const*, void const*)
+  0.05    108.59     0.05        2     0.03     0.04  OneConstantStatisticsBuffer::load(StatisticsBuffer::StatisticsType, std::string, char*&)
+  0.04    108.63     0.04  1899072     0.00     0.00  TempBuffer::TempBuffer()
+  0.04    108.67     0.04   234504     0.00     0.00  PartitionMaster::taskEnQueue(ChunkTask*, TasksQueueChunk*)
+  0.04    108.71     0.04        5     0.01     0.01  ResultIDBuffer::getSize()
+  0.03    108.74     0.03  1400775     0.00     0.00  boost::detail::function::functor_manager<boost::_bi::bind_t<void, boost::_mfi::mf1<void, PartitionMaster, TasksQueueChunk*>, boost::_bi::list2<boost::_bi::value<PartitionMaster*>, boost::_bi::value<TasksQueueChunk*> > > >::manage(boost::detail::function::function_buffer const&, boost::detail::function::function_buffer&, boost::detail::function::functor_manager_operation_type)
+  0.03    108.77     0.03   320234     0.00     0.00  ThreadPool::moveToIdle(unsigned long)
