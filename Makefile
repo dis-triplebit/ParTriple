@@ -5,13 +5,8 @@ COMPILER := g++
 
 # release
 BINARY_DIR := bin/lrelease
-<<<<<<< HEAD
 CPPFLAGS := -Wall  -O3 -g
-LIBS := -L/usr/local/lib -ltcmalloc -lboost_thread -lpthread -lboost_system
-=======
-CPPFLAGS := -Wall  -O3 
-LIBS := -L/usr/local/lib -ltcmalloc -L/home/software_install/boost_1_46_1/stage/lib/ -L/usr/local/lib -lboost_system -lboost_thread -lpthread
->>>>>>> 3b7ac37b57e8fbd77c252b820e37878d3f8d819c
+LIBS := -L/usr/local/lib -ltcmalloc -L/usr/local/lib -lboost_system -lboost_thread -lpthread
 #LIBS := -L/usr/local/jemalloc/lib -ljemalloc -L/home/software_install/boost_1_46_1/stage/lib/ -L/usr/local/lib -lboost_system -lboost_thread -lpthread 
 
 # debug
@@ -65,11 +60,7 @@ define make-program
   sources   += $3
   
   $(BINARY_DIR)/$1: $(call source-dir-to-binary-dir, $(subst .cpp,.o,$3) $2 )
-<<<<<<< HEAD
-	$(LINK.cpp) -o $$@ $$^ -lpthread -lboost_system -ltcmalloc -lboost_thread
-=======
-	$(LINK.cpp) -o $$@ $$^ -lpthread
->>>>>>> 3b7ac37b57e8fbd77c252b820e37878d3f8d819c
+	$(LINK.cpp) -o $$@ $$^ -lpthread -lboost_system -lboost_thread
 
 endef
 
