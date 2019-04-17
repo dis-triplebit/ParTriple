@@ -9,7 +9,6 @@
 #include "MemoryBuffer.h"
 
 SynchronousBuffer::SynchronousBuffer() {
-	// TODO Auto-generated constructor stub
 	pthread_cond_init(&bufferNotEmpty,NULL);
 	pthread_cond_init(&bufferFull,NULL);
 	pthread_cond_init(&bufferNotFull,NULL);
@@ -28,7 +27,6 @@ SynchronousBuffer::SynchronousBuffer() {
 }
 
 SynchronousBuffer::~SynchronousBuffer() {
-	// TODO Auto-generated destructor stub
 	delete buffer;
 }
 

@@ -11,12 +11,10 @@
 #include <math.h>
 
 HashJoin::HashJoin() {
-	// TODO Auto-generated constructor stub
 	//pool = new CThreadPool(THREAD_NUMBER);
 }
 
 HashJoin::~HashJoin() {
-	// TODO Auto-generated destructor stub
 }
 
 void HashJoin::SortMergeJoin(ID* buffer1, ID* buffer2, int IDCount1, int IDCount2,

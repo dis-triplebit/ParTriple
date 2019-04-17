@@ -16,7 +16,6 @@ URITable::URITable() {
 }
 
 URITable::URITable(const string dir) : SINGLE("single") {
-	// TODO Auto-generated constructor stub
 	prefix_segment = StringIDSegment::create(dir, "uri_prefix");
 	suffix_segment = StringIDSegment::create(dir, "uri_suffix");
 
@@ -24,7 +23,6 @@ URITable::URITable(const string dir) : SINGLE("single") {
 }
 
 URITable::~URITable() {
-	// TODO Auto-generated destructor stub
 #ifdef DEBUG
 	cout<<"destroy URITable"<<endl;
 #endif

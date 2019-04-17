@@ -53,11 +53,9 @@ static bool isUnused(const TripleBitQueryGraph& graph, const TripleNode& node, u
 }
 
 PlanGenerator::PlanGenerator(IRepository& _repo):repo(_repo) {
-	// TODO Auto-generated constructor stub
 }
 
 PlanGenerator::~PlanGenerator() {
-	// TODO Auto-generated destructor stub
 }
 
 Status PlanGenerator::generatePlan(TripleBitQueryGraph& _graph)

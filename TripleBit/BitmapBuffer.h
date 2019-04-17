@@ -79,6 +79,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////////
 struct ChunkManagerMeta
 {
+    //usedPage[0].size() * MemoryBuffer::pagesize;
 	size_t length[2];	  //length[0],记录整个x<=y分块的已经申请的空间长度,1表示x>y
 	size_t usedSpace[2];  //usedSpace[0],记录整个x<=y分块除了chunkManagerMeta之外已经使用的空间
 	int tripleCount[2];	  //tripleCount[0],记录整个x<=y分块的三元组个数

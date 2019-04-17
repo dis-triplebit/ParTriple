@@ -13,7 +13,6 @@
 
 SortMergeJoin::SortMergeJoin()
 {
-	// TODO Auto-generated constructor stub
 	//pool = new CThreadPool(THREAD_NUMBER);
 	temp1 = (ID*) malloc(4096 * sizeof(ID));
 	temp2 = (ID*) malloc(4096 * sizeof(ID));
@@ -21,7 +20,6 @@ SortMergeJoin::SortMergeJoin()
 
 SortMergeJoin::~SortMergeJoin()
 {
-	// TODO Auto-generated destructor stub
 	if (temp1 != NULL)
 		free(temp1);
 	temp1 = NULL;

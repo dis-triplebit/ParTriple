@@ -10,7 +10,6 @@
 #include <boost/thread/mutex.hpp>
 
 PartitionBufferManager::PartitionBufferManager() {
-	// TODO Auto-generated constructor stub
 	bufferCnt = INIT_PARTITION_BUFFERS;
 	for(int i = 0; i < bufferCnt; i++)
 	 {
@@ -34,7 +33,6 @@ PartitionBufferManager::PartitionBufferManager(int initBufferNum)
 }
 
 PartitionBufferManager::~PartitionBufferManager() {
-	// TODO Auto-generated destructor stub
 }
 
 EntityIDBuffer* PartitionBufferManager::getNewBuffer()

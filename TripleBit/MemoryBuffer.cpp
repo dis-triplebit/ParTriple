@@ -10,7 +10,6 @@
 unsigned MemoryBuffer::pagesize = 4096; //4KB
 
 MemoryBuffer::MemoryBuffer(unsigned _size) :size(_size) {
-	// TODO Auto-generated constructor stub
 	buffer = NULL;
 	buffer = (char*)malloc(size * sizeof(char));
 	if(buffer == NULL) {
@@ -21,7 +20,6 @@ MemoryBuffer::MemoryBuffer(unsigned _size) :size(_size) {
 }
 
 MemoryBuffer::~MemoryBuffer() {
-	// TODO Auto-generated destructor stub
 	//free the buffer
 	if(buffer != NULL)
 		free(buffer);
@@ -145,14 +143,12 @@ void MemoryBuffer::load(ifstream& ifile)
 /////// class StatementReificationTable
 /////////////////////////////////////////////////////////////////////////////////////////
 StatementReificationTable::StatementReificationTable() {
-	// TODO Auto-generated constructor stub
 	buffer = new MemoryBuffer(REIFICATION_INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 	currentBuffer = (ID*)buffer->getBuffer();
 	pos = 0;
 }
 
 StatementReificationTable::~StatementReificationTable() {
-	// TODO Auto-generated destructor stub
 	if(buffer != NULL)
 		delete buffer;
 	buffer = NULL;

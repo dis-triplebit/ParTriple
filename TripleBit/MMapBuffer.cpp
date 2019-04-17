@@ -17,7 +17,6 @@
 * @param initSize memory init size
 */
 MMapBuffer::MMapBuffer(const char* _filename, size_t initSize) : filename(_filename) {
-	// TODO Auto-generated constructor stub
 	fd = open(filename.c_str(), O_CREAT | O_RDWR, 0666);
 	if(fd < 0) {
 		perror(_filename);
@@ -46,7 +45,6 @@ MMapBuffer::MMapBuffer(const char* _filename, size_t initSize) : filename(_filen
 }
 
 MMapBuffer::~MMapBuffer() {
-	// TODO Auto-generated destructor stub
 	flush();
 	munmap((char*)mmap_addr, size);
 	close(fd);

@@ -9,12 +9,11 @@
 #include "TripleBit.h"
 
 MessageEngine::MessageEngine() {
-	// TODO Auto-generated constructor stub
 
 }
 
 MessageEngine::~MessageEngine() {
-	// TODO Auto-generated destructor stub
+
 }
 
 void MessageEngine::showMessage(const char* msg, MessageType type /* = DEFAULT*/)

@@ -11,7 +11,6 @@
 #include <pthread.h>
 
 TempBuffer::TempBuffer() {
-	// TODO Auto-generated constructor stub
 	buffer = (ID*)malloc(TEMPBUFFER_INIT_PAGE_COUNT * getpagesize());
 	usedSize = 0;
 	totalSize = TEMPBUFFER_INIT_PAGE_COUNT * getpagesize() / sizeof(ID);
@@ -22,7 +21,6 @@ TempBuffer::TempBuffer() {
 }
 
 TempBuffer::~TempBuffer() {
-	// TODO Auto-generated destructor stub
 	if(buffer != NULL)
 		free(buffer);
 	buffer = NULL;

@@ -9,7 +9,6 @@
 #include "StringIDSegment.h"
 
 PredicateTable::PredicateTable(const string dir) : SINGLE("single"){
-	// TODO Auto-generated constructor stub
 	prefix_segment = StringIDSegment::create(dir, "predicate_prefix");
 	suffix_segment = StringIDSegment::create(dir, "predicate_suffix");
 
@@ -17,7 +16,6 @@ PredicateTable::PredicateTable(const string dir) : SINGLE("single"){
 }
 
 PredicateTable::~PredicateTable() {
-	// TODO Auto-generated destructor stub
 	if(prefix_segment != NULL)
 		delete prefix_segment;
 	prefix_segment = NULL;

@@ -33,7 +33,6 @@ static int getCharPos(const char* data, char ch)
 }
 
 TripleBitBuilder::TripleBitBuilder(string _dir) : dir(_dir) {
-	// TODO Auto-generated constructor stub
 	preTable = new PredicateTable(dir);
 	uriTable = new URITable(dir);
 	bitmap = new BitmapBuffer(dir);
@@ -54,7 +53,6 @@ TripleBitBuilder::TripleBitBuilder() {
 }
 
 TripleBitBuilder::~TripleBitBuilder() {
-	// TODO Auto-generated destructor stub
 #ifdef TRIPLEBITBUILDER_DEBUG
 	cout << "Bit map builder destroyed begin " << endl;
 #endif
@@ -99,7 +97,7 @@ bool TripleBitBuilder::isStatementReification(const char* object) {
 
 	return false;
 }
-
+// TODO: function need to be changed
 bool TripleBitBuilder::generateXY(ID& subjectID, ID& objectID)
 {
 	if(subjectID > objectID)

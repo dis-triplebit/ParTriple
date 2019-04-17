@@ -11,7 +11,6 @@
 #include <pthread.h>
 
 EntityIDBuffer::EntityIDBuffer() {
-	// TODO Auto-generated constructor stub
 	buffer = (ID*) malloc(ENTITY_BUFFER_INIT_PAGE_COUNT * getpagesize());
 	p = buffer;
 	usedSize = 0;
@@ -60,7 +59,6 @@ ID& EntityIDBuffer::operator [](const size_t index) {
 }
 
 EntityIDBuffer::~EntityIDBuffer() {
-	// TODO Auto-generated destructor stub
 	if(buffer != NULL)
 		free(buffer);
 	buffer = NULL;

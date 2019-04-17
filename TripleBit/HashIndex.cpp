@@ -12,7 +12,6 @@
 #include "MMapBuffer.h"
 
 HashIndex::HashIndex(ChunkManager& _chunkManager, IndexType type) : chunkManager(_chunkManager), type(type) {
-	// TODO Auto-generated constructor stub
 	//how to init two-dim vector
 	hashTable = NULL;
 	hashTableSize = 0;
@@ -23,7 +22,6 @@ HashIndex::HashIndex(ChunkManager& _chunkManager, IndexType type) : chunkManager
 }
 
 HashIndex::~HashIndex() {
-	// TODO Auto-generated destructor stub
 	if(hashTable != NULL) {
 		//删除临时文件＄1�7
 		//hashTable->discard();

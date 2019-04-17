@@ -55,12 +55,10 @@ static unsigned char* writeDelta0(unsigned char* buffer, unsigned value)
 }
 
 StatisticsBuffer::StatisticsBuffer() : HEADSPACE(2) {
-	// TODO Auto-generated constructor stub
-	
+
 }
 
 StatisticsBuffer::~StatisticsBuffer() {
-	// TODO Auto-generated destructor stub
 }
 
 /////////////////////////////////////////////////////////////////

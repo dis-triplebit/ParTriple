@@ -17,7 +17,6 @@ unsigned int ChunkManager::bufferCount = 0;
 
 BitmapBuffer::BitmapBuffer(const string _dir) :
 	dir(_dir) {
-	// TODO Auto-generated constructor stub
 	startColID = 1;
 	string filename(dir);
 	filename.append("/temp1");
@@ -40,7 +39,6 @@ BitmapBuffer::BitmapBuffer(const string _dir) :
 }
 
 BitmapBuffer::~BitmapBuffer() {
-	// TODO Auto-generated destructor stub
 	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin(); iter != predicate_managers[0].end(); iter++) {
 		if (iter->second != 0) {
 			delete iter->second;
@@ -149,8 +147,8 @@ unsigned char BitmapBuffer::getBytes(ID id) {
 
 /**
  * get page number by type and flag
- * @param type x < y or x > y
- * @param flag triples stored by so or os
+ * @param type triples stored by so or os
+ * @param flag x <= y or x > y
  * @param pageNo return by reference
  * @return the first unused page address
  */
@@ -159,7 +157,7 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 	bool tempresize = false;
 
 	//cout<<__FUNCTION__<<" begin"<<endl;
-	
+
 	if (type == 0) {  //如果按S排序
 		if (flag == 0) { //x<=y
 			if (usedPage1 * MemoryBuffer::pagesize >= temp1->getSize()) {
@@ -212,10 +210,13 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 				for (; iter != limit; iter++) {
 					if (iter->second == NULL)
 						continue;
-					iter->second->meta = (ChunkManagerMeta*) (temp1->get_address() + iter->second->usedPage[0][0] * MemoryBuffer::pagesize);
+					iter->second->meta = (ChunkManagerMeta*) (temp1->get_address()
+					        + iter->second->usedPage[0][0]/*page num where ChunkManagerMeta stored*/ * MemoryBuffer::pagesize);
 					if (iter->second->usedPage[0].size() == 1) {
-						iter->second->meta->endPtr[0] = temp1->get_address() + iter->second->usedPage[0].back() * MemoryBuffer::pagesize + MemoryBuffer::pagesize - (iter->second->meta->length[0]
-								- iter->second->meta->usedSpace[0] - sizeof(ChunkManagerMeta));
+						iter->second->meta->endPtr[0] = temp1->get_address()
+						        + iter->second->usedPage[0].back() * MemoryBuffer::pagesize
+						        + MemoryBuffer::pagesize
+						        - (iter->second->meta->length[0] - iter->second->meta->usedSpace[0] - sizeof(ChunkManagerMeta));
 					} else {
 						iter->second->meta->endPtr[0] = temp1->get_address() + iter->second->usedPage[0].back() * MemoryBuffer::pagesize + MemoryBuffer::pagesize - (iter->second->meta->length[0]
 								- iter->second->meta->usedSpace[0] - sizeof(ChunkManagerMeta));
@@ -274,6 +275,7 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 	return rt;
 }
 
+// TODO: need to be changed
 unsigned char BitmapBuffer::getLen(ID id) {
 	unsigned char len = 0;
 	while (id >= 128) {
@@ -293,7 +295,7 @@ void BitmapBuffer::save() {
 	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(), predicate_managers[0].size() * (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
 	char *predicateWriter = predicateBuffer->get_address();
 	char *bufferWriter = NULL;
-	
+
 	//iter指向predicate_managers[0]的map的第一个键值对,以S排序
 	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
 	size_t offset = 0;
@@ -307,13 +309,13 @@ void BitmapBuffer::save() {
 
 	//根据当前谓词(0表示x<=y)使用的页数量,遍历存储到buffer中
 	vector<size_t>::iterator pageNoIter = iter->second->usedPage[0].begin(), limit = iter->second->usedPage[0].end();
-
+    // store
 	for (; pageNoIter != limit; pageNoIter++) {
 		size_t pageNo = *pageNoIter;
 		memcpy(bufferWriter, temp1->get_address() + pageNo * MemoryBuffer::pagesize, MemoryBuffer::pagesize);
 		bufferWriter = bufferWriter + MemoryBuffer::pagesize;
 	}
-	
+
 	//BitmapBuffer_predicate生成
 	*((ID*) predicateWriter) = iter->first;   //写入谓词ID
 	predicateWriter += sizeof(ID);
@@ -338,10 +340,11 @@ void BitmapBuffer::save() {
 
 	assert(iter->second->meta->length[1] == iter->second->usedPage[1].size() * MemoryBuffer::pagesize);
 	offset += iter->second->meta->length[1];
-	
+
 	//iter++,操作下一个map元素，即下一个谓词对应的存储(同样以S排序)
 	iter++;
 	for (; iter != predicate_managers[0].end(); iter++) {
+	    // x<=y start
 		bufferWriter = buffer->resize(iter->second->meta->length[0]);
 		startPos = bufferWriter + offset;
 
@@ -363,7 +366,9 @@ void BitmapBuffer::save() {
 		offset += iter->second->meta->length[0];
 
 		assert(iter->second->usedPage[0].size() * MemoryBuffer::pagesize == iter->second->meta->length[0]);
+        // x<=y end
 
+        // x>y start
 		bufferWriter = buffer->resize(iter->second->meta->length[1]);
 		startPos = bufferWriter + offset;
 
@@ -377,6 +382,7 @@ void BitmapBuffer::save() {
 
 		offset += iter->second->meta->length[1];
 		assert(iter->second->usedPage[1].size() * MemoryBuffer::pagesize == iter->second->meta->length[1]);
+		// x>y end
 	}
 
 	buffer->flush();
@@ -424,7 +430,7 @@ void BitmapBuffer::save() {
 	}
 	buffer->flush();
 	predicateBuffer->flush();
-	
+
 	//这里之前有个疑惑就是temp1-4的buffer在discard之后ChunckManager中的ChunckManagerMeta中startPtr和endPtr
 	//的指向问题,也就是ChunckManagerMeta最终指向的内存地址是什么,下面425-428行对指针重新定位
 	//以S排序的关联矩阵的metadata计算
@@ -436,7 +442,7 @@ void BitmapBuffer::save() {
 		predicateWriter += sizeof(ID) + sizeof(SOType);
 		offset = *((size_t*) predicateWriter);
 		predicateWriter += sizeof(size_t) * 2;
-		
+
 		//计算chunkManagermeta中的属性值
 		char *base = buffer->get_address() + offset;
 		iter->second->meta = (ChunkManagerMeta*) base;
@@ -477,7 +483,7 @@ void BitmapBuffer::save() {
 			}
 		}
 	}
-	
+
 	//以O排序的关联矩阵的metadata计算
 	for (iter = predicate_managers[1].begin(); iter != predicate_managers[1].end(); iter++) {
 		id = *((ID*) predicateWriter);
@@ -569,7 +575,10 @@ void BitmapBuffer::save() {
 }
 
 BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage) {
-	BitmapBuffer *buffer = new BitmapBuffer();
+	// bitmapImage: file BitmapBuffer
+	// bitmapIndexImage: file BitmapBuffer_index
+	// bitmapPredicateImage: file BitmapBuffer_predicate
+    BitmapBuffer *buffer = new BitmapBuffer();
 	char *predicateReader = bitmapPredicateImage->get_address();
 
 	ID id;
@@ -584,6 +593,8 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapInd
 		predicateReader += sizeof(SOType);
 		offset = *((size_t*) predicateReader);
 		predicateReader += sizeof(size_t);
+		//TripleBit/BitmapBuffer.cpp:323: predicateWriter += sizeof(size_t) * 2;
+		// second size_t stores indexOffset
 		indexOffset = *((size_t*) predicateReader);
 		predicateReader += sizeof(size_t);
 		if (soType == 0) {
@@ -864,7 +875,6 @@ ChunkManager::ChunkManager(unsigned pid, unsigned _type, BitmapBuffer* _bitmapBu
 }
 
 ChunkManager::~ChunkManager() {
-	// TODO Auto-generated destructor stub
 	///free the buffer;
 	ptrs[0] = ptrs[1] = NULL;
 
@@ -876,6 +886,7 @@ ChunkManager::~ChunkManager() {
 	chunkIndex[1] = NULL;
 }
 
+// TODO: function need to be changed if storage changed
 static void getInsertChars(char* temp, unsigned x, unsigned y) {
 	char* ptr = temp;
 
@@ -898,6 +909,7 @@ static void getInsertChars(char* temp, unsigned x, unsigned y) {
 	ptr++;
 }
 
+// TODO: function need to be changed if storage changed
 void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char type)
 //x:xID, y:yID, len:len(xID + yID), (type: x<=y->1, x>y->2);
 {
@@ -956,7 +968,7 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 		metaData->haveNextPage = false;
 		metaData->NextPageNo = 0;
 		metaData->usedSpace = 0;
-		
+
 		memcpy(meta->endPtr[type - 1] + sizeof(MetaData), temp, len); //将数据拷贝到head区域的后面len个字节中去
 		meta->endPtr[type - 1] = meta->endPtr[type - 1] + sizeof(MetaData) + len;//重新定位endPtr[type-1]的位置
 		meta->usedSpace[type - 1] = sizeof(MetaData) + len; //更新usedSpace的大小,包括MetaData的大小在内。
@@ -1033,7 +1045,6 @@ ChunkManager* ChunkManager::load(unsigned pid, unsigned type, char* buffer, size
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Chunk::Chunk(unsigned char type, ID xMax, ID xMin, ID yMax, ID yMin, char* startPtr, char* endPtr) {
-	// TODO Auto-generated constructor stub
 	this->type = type;
 	this->xMax = xMax;
 	this->xMin = xMin;
@@ -1045,7 +1056,6 @@ Chunk::Chunk(unsigned char type, ID xMax, ID xMin, ID yMax, ID yMin, char* start
 }
 
 Chunk::~Chunk() {
-	// TODO Auto-generated destructor stub
 	this->startPtr = 0;
 	this->endPtr = 0;
 }

@@ -6,7 +6,6 @@ BufferManager* BufferManager::instance = NULL;
 
 BufferManager::BufferManager()
 {
-	// TODO Auto-generated constructor stub
 	for (int i = 0; i < INIT_BUFFERS; i++) {
 		EntityIDBuffer* buffer = new EntityIDBuffer;
 		bufferPool.push_back(buffer);
@@ -18,7 +17,7 @@ BufferManager::BufferManager()
 
 BufferManager::~BufferManager()
 {
-	// TODO Auto-generated destructor stub
+
 }
 
 bool BufferManager::expandBuffer()

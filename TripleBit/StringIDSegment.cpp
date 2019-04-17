@@ -12,11 +12,9 @@ const ID INVALID_ID = ID(-1);
 
 StringIDSegment::StringIDSegment():fillRate(0.5),stringPool(NULL),stringHashTable(NULL),idStroffPool(NULL)
 {
-	// TODO Auto-generated constructor stub
 }
 
 StringIDSegment::~StringIDSegment() {
-	// TODO Auto-generated destructor stub
 	if(stringPool != NULL)
 		delete stringPool;
 	stringPool = NULL;
