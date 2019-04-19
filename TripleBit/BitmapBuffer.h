@@ -19,11 +19,6 @@ class ChunkManager;
 #include "ThreadPool.h"
 
 #define objTypeNum 3
-enum objType {
-    strType = 0,
-    floatType,
-    doubleType
-};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///// class BitmapBuffer
@@ -131,7 +126,7 @@ public:
 	~ChunkManager();
 	Status resize(unsigned char type);
 	Status tripleCountAdd(unsigned char type) {
-		meta->tripleCount[type - 1]++;
+		meta->tripleCount[type]++;
 		return OK;
 	}
 
@@ -145,10 +140,14 @@ public:
 	bool isPtrFull(unsigned char type, unsigned len);
 
 	int getTripleCount() {
-		return meta->tripleCount[0] + meta->tripleCount[1];
+	    int count = 0;
+        for (int i = 0; i < objTypeNum; ++i) {
+            count += meta->tripleCount[i];
+        }
+		return count;
 	}
 	int getTripleCount(unsigned char type) {
-			return meta->tripleCount[type - 1];
+			return meta->tripleCount[type];
 	}
 	unsigned int getPredicateID() const {
 		return meta->pid;
@@ -159,16 +158,17 @@ public:
 	void insertXY(unsigned x, unsigned y, unsigned len, unsigned char type);
 
 	uchar* getStartPtr(unsigned char type) {
-		return reinterpret_cast<uchar*> (meta->startPtr[type -1]);
+		return reinterpret_cast<uchar*> (meta->startPtr[type]);
 	}
 
 	uchar* getEndPtr(unsigned char type) {
-		return reinterpret_cast<uchar*> (meta->endPtr[type -1]);
+		return reinterpret_cast<uchar*> (meta->endPtr[type]);
 	}
 
 	Status buildChunkIndex();
 	Status updateChunkIndex();
 	static ChunkManager* load(unsigned pid, unsigned type, char* buffer, size_t& offset);
+    size_t save(char* buffer, SOType type);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
