@@ -85,7 +85,6 @@ public:
 	bool N3Parse(istream& in, const char* name, TempFile&);
 	Status importFromMySQL(string db, string server, string username, string password);
 	void NTriplesParse(const char* subject, const char* predicate, const char* object, TempFile&);
-	bool generateXY(ID& subjectID, ID& objectID);
 	Status buildIndex();
 	Status endBuild();
 	

@@ -97,20 +97,6 @@ bool TripleBitBuilder::isStatementReification(const char* object) {
 
 	return false;
 }
-// TODO: function need to be changed
-bool TripleBitBuilder::generateXY(ID& subjectID, ID& objectID)
-{
-	if(subjectID > objectID)
-	{
-		ID temp = subjectID;
-		subjectID = objectID;
-		objectID = temp - objectID;
-		return true;
-	}else{
-		objectID = objectID - subjectID;
-		return false;
-	}
-}
 
 void TripleBitBuilder::NTriplesParse(const char* subject,  const char* predicate, const char* object, TempFile& facts) {
 	ID subjectID, objectID, predicateID;
@@ -205,6 +191,12 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	unsigned count0 = 0, count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
 
+	// Created by peng on 2019-04-19 09:09:58.
+	// v is objType.
+	// ************************************
+	unsigned v = 1;
+    // ************************************
+
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
 	{
 		//insert into chunk
@@ -216,7 +208,6 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		loadTriple(reader, subjectID, predicateID, objectID);
 		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
 		reader = skipIdIdId(reader);
-		bool v = generateXY(subjectID, objectID);
 
 		//s>o ture
 		bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
@@ -247,7 +238,6 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			}
 			
 			reader = reader + 12;
-			v = generateXY(subjectID, objectID);
 			//0 indicate the triple is sorted by subjects' id;
 			bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
 		}
@@ -269,7 +259,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		loadTriple(reader, subjectID, predicateID, objectID);
 		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
 		reader = skipIdIdId(reader);
-		bool v = generateXY(objectID, subjectID);
+
 		bitmap->insertTriple(predicateID, objectID, subjectID, v, 1);
 		count0 = count1 = 1;
 
@@ -295,7 +285,6 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 				count0++; count1++;
 			}
 			reader = skipIdIdId(reader);
-			v = generateXY(objectID, subjectID);
 			// 1 indicate the triple is sorted by objects' id;
 			bitmap->insertTriple(predicateID, objectID, subjectID, v, 1);
 		}
