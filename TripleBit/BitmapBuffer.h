@@ -19,7 +19,11 @@ class ChunkManager;
 #include "ThreadPool.h"
 
 #define objTypeNum 3
-
+union Element {
+    ID id;
+    float f;
+    double d;
+};
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///// class BitmapBuffer
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +54,8 @@ public:
 	// not implemented
 	Status insertTriple(ID, ID, unsigned char, ID, unsigned char,bool);
 	/// insert a triple;
-	Status insertTriple(ID predicateID, ID xID, ID yID, unsigned objType, unsigned char typeID);
+	Status insertTriple(ID predicateID, ID xID, Element yID, unsigned objType, unsigned char typeID);
+
 	/// get the chunk manager (i.e. the predicate) given the specified type and predicate id
 	ChunkManager* getChunkManager(ID, unsigned char);
 	/// get the count of chunk manager (i.e. the predicate count) given the specified type
@@ -155,7 +160,7 @@ public:
 
 	ID getChunkNumber(unsigned char type);
 
-	void insertXY(unsigned x, unsigned y, unsigned len, unsigned char type);
+	void insertXY(unsigned x, Element y, unsigned len, unsigned char type);
 
 	uchar* getStartPtr(unsigned char type) {
 		return reinterpret_cast<uchar*> (meta->startPtr[type]);

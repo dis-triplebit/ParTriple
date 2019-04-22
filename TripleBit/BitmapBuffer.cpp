@@ -102,13 +102,21 @@ ChunkManager* BitmapBuffer::getChunkManager(ID id, unsigned char type) {
  *         flag: objType;
  */
 // TODO: this function may need to be modified if the way id coded changed
-Status BitmapBuffer::insertTriple(ID predicateId, ID xId, ID yId, unsigned flag, unsigned char f) {
+Status BitmapBuffer::insertTriple(ID predicateID, ID xID, Element yID, unsigned objType, unsigned char typeID) {
 	unsigned char len;
 
-	len = getLen(xId);
-	len += getLen(yId);
+	len = sizeof(xID);
+	switch (objType % objTypeNum){
+        case 0:
+            len += sizeof(yID.id);
+            break;
+        case 1:
+            len += sizeof(yID.f);
+            break;
+        default:len += sizeof(yID.d);
+	}
 
-	getChunkManager(predicateId, f)->insertXY(xId, yId, len, flag);
+	getChunkManager(predicateID, typeID)->insertXY(xID, yID, len, objType);
 
 	//	cout<<getChunkManager(1, 0)->meta->length[0]<<" "<<getChunkManager(1, 0)->meta->tripleCount[0]<<endl;
 	return OK;
@@ -228,9 +236,13 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
             iter = predicate_managers[0].begin();
             limit = predicate_managers[0].end();
             MMapBuffer *temp = NULL;
-            switch (flag){
-                case 0: temp = temp1;
-                case 1: temp = temp2;
+            switch (flag % objTypeNum){
+                case 0:
+                    temp = temp1;
+                    break;
+                case 1:
+                    temp = temp2;
+                    break;
                 default:temp = temp3;
             }
             for (; iter != limit; iter++) {
@@ -256,13 +268,15 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
             iter = predicate_managers[1].begin();
             limit = predicate_managers[1].end();
             MMapBuffer *temp = NULL;
-            switch (flag){
-                case 0: temp = temp4;
-                case 1: temp = temp5;
-                case 2: temp = temp6;
+            switch (flag % objTypeNum){
+                case 0:
+                    temp = temp4;
+                    break;
+                case 1:
+                    temp = temp5;
+                    break;
                 default:
-                    cerr << "ERROR: TripleBit/BitmapBuffer.cpp:263" << endl;
-                    system("pause");
+                    temp = temp6;
             }
             for (; iter != limit; iter++) {
                 if (iter->second == NULL)
@@ -292,12 +306,7 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 
 // TODO: need to be changed
 unsigned char BitmapBuffer::getLen(ID id) {
-	unsigned char len = 0;
-	while (id >= 128) {
-		len++;
-		id >>= 7;
-	}
-	return len + 1;
+		return sizeof(id);
 }
 
 // TODO: need to be changed
@@ -763,13 +772,41 @@ static void getInsertChars(char* temp, unsigned x, unsigned y) {
 }
 
 // TODO: function need to be changed if storage changed
-void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char type)
+void ChunkManager::insertXY(unsigned x, Element y, unsigned len, unsigned char type)
 //x:xID, y:yID, len:len(xID + yID), (type: objType);
 {
-	char temp[10];
-	//标志位设置,以128为进制单位,分解x,y,最高位为0表示x,1表示y
-	getInsertChars(temp, x, y);
-
+	char temp[15];
+	// Created by peng on 2019-04-22 09:57:40.
+	// I think we don't need it now.
+	// origin: 标志位设置,以128为进制单位,分解x,y,最高位为0表示x,1表示y
+	// getInsertChars(temp, x, y);
+    switch (type){
+        case 0:
+            memcpy(temp,&x, sizeof(x));
+            memcpy(temp+ sizeof(x),&y.id, sizeof(y.id));
+            break;
+        case 1:
+            memcpy(temp,&x, sizeof(x));
+            memcpy(temp+ sizeof(x),&y.f, sizeof(y.f));
+            break;
+        case 2:
+            memcpy(temp,&x, sizeof(x));
+            memcpy(temp+ sizeof(x),&y.d, sizeof(y.d));
+            break;
+        case 3:
+            memcpy(temp,&y.id, sizeof(y.id));
+            memcpy(temp + sizeof(y.id),&x, sizeof(x));
+            break;
+        case 4:
+            memcpy(temp,&y.f, sizeof(y.f));
+            memcpy(temp + sizeof(y.f),&x, sizeof(x));
+            break;
+        case 5:
+            memcpy(temp,&y.d, sizeof(y.d));
+            memcpy(temp + sizeof(y.d),&x, sizeof(x));
+            break;
+    }
+    type = type % objTypeNum;
 	//如果当前空间不够存放新的<x,y>对
 	if (isPtrFull(type, len) == true) {
             if (meta->length[type] == MemoryBuffer::pagesize) {//第一个chunk,在第一个chunk被写满(存放不下下一个元组的时候，回溯指针，写metadata的信息)
