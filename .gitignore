@@ -10,3 +10,7 @@ bin
 *.txt
 Makefile
 .vs/
+*.sln
+*.vcxproj
+*.filters
+*.user
