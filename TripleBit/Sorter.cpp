@@ -10,57 +10,58 @@ using namespace std;
 static const unsigned memoryLimit = sizeof(void*) * (1 << 27);
 //---------------------------------------------------------------------------
 namespace {
-//---------------------------------------------------------------------------
-/// A memory range
-struct Range {
-	const char* from, *to;
+	/// A memory range
+	struct Range {
+		const char* from, *to;
 
-	/// Constructor
-	Range(const char* from, const char* to) :
-		from(from), to(to) {
-	}
-
-	/// Some content?
-	bool equals(const Range& o) {
-		return ((to - from) == (o.to - o.from)) && (memcmp(from, o.from, to - from) == 0);
-	}
-};
-//---------------------------------------------------------------------------
-/// Sort wrapper that colls the comparison function
-struct CompareSorter {
-	/// Comparison function
-	typedef int (*func)(const char*, const char*);
-
-	/// Comparison function
-	const func compare;
-
-	/// Constructor
-	CompareSorter(func compare) :
-		compare(compare) {
-	}
-
-	/// Compare two entries
-	bool operator()(const Range& a, const Range& b) const {
-		return compare(a.from, b.from) < 0;
-	}
-};
-//---------------------------------------------------------------------------
-static char* spool(char* ofs, TempFile& out, const vector<Range>& items, bool eliminateDuplicates)
-// Spool items to disk
-{
-	Range last(0, 0);
-	for (vector<Range>::const_iterator iter = items.begin(), limit = items.end(); iter != limit; ++iter) {
-		if ((!eliminateDuplicates) || (!last.equals(*iter))) {
-			last = *iter;
-			out.write(last.to - last.from, last.from);
-			ofs += last.to - last.from;
+		/// Constructor
+		Range(const char* from, const char* to) :
+			from(from), to(to) {
 		}
+
+		/// Some content?
+		bool equals(const Range& o) {
+			return ((to - from) == (o.to - o.from)) && (memcmp(from, o.from, to - from) == 0);
+		}
+	};
+	//---------------------------------------------------------------------------
+	/// Sort wrapper that colls the comparison function
+	struct CompareSorter {
+		/// Comparison function
+		typedef int (*func)(const char*, const char*);
+
+		/// Comparison function
+		const func compare;
+
+		/// Constructor
+		CompareSorter(func compare) :
+			compare(compare) {
+		}
+
+		/// Compare two entries
+		bool operator()(const Range& a, const Range& b) const {
+			return compare(a.from, b.from) < 0;
+		}
+	};
+	//---------------------------------------------------------------------------
+	/// Spool items to disk
+	static char* spool(char* ofs, TempFile& out, const vector<Range>& items, bool eliminateDuplicates)
+	{
+		Range last(0, 0);
+		for (vector<Range>::const_iterator iter = items.begin(), limit = items.end(); iter != limit; ++iter) {
+			if ((!eliminateDuplicates) || (!last.equals(*iter))) {
+				last = *iter;
+				out.write(last.to - last.from, last.from);
+				ofs += last.to - last.from;
+			}
+		}
+		return ofs;
 	}
-	return ofs;
-}
-//---------------------------------------------------------------------------
-}
-//---------------------------------------------------------------------------
+}//namespace end
+
+
+
+
 void Sorter::sort(TempFile& in, TempFile& out, const char* (*skip)(const char*), int(*compare)(const char*, const char*), bool eliminateDuplicates)
 // Sort a temporary file
 {
@@ -105,7 +106,7 @@ void Sorter::sort(TempFile& in, TempFile& out, const char* (*skip)(const char*),
 	intermediate.close();
 	mappedIn.close();
 
-	// Do we habe to merge runs?
+	// Do we have to merge runs?
 	if (!runs.empty()) {
 		// Map the ranges
 		MemoryMappedFile tempIn;
@@ -172,5 +173,4 @@ void Sorter::sort(TempFile& in, TempFile& out, const char* (*skip)(const char*),
 
 	intermediate.discard();
 	out.close();
-}
-//---------------------------------------------------------------------------
+}//sort end

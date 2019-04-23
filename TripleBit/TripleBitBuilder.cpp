@@ -98,15 +98,30 @@ bool TripleBitBuilder::isStatementReification(const char* object) {
 	return false;
 }
 
+//已作废
+bool TripleBitBuilder::generateXY(ID& subjectID, ID& objectID)
+{
+	if (subjectID > objectID)
+	{
+		ID temp = subjectID;
+		subjectID = objectID;
+		objectID = temp - objectID;
+		return true;
+	}
+	else {
+		objectID = objectID - subjectID;
+		return false;
+	}
+}
+
 void TripleBitBuilder::NTriplesParse(const char* subject,  const char* predicate, const char* object, TempFile& facts) {
 	ID subjectID, objectID, predicateID;
 
 	if (isStatementReification(object) == false && isStatementReification(predicate) == false) {
-		if (preTable->getIDByPredicate(predicate, predicateID) == PREDICATE_NOT_BE_FINDED) {
+
+		//得到S，P，O的ID
+		if (preTable->getIDByPredicate(predicate, predicateID) == PREDICATE_NOT_BE_FINDED)
 			preTable->insertTable(predicate, predicateID);
-		}
-
-
 		if (uriTable->getIdByURI(subject, subjectID) == URI_NOT_FOUND)
 			uriTable->insertTable(subject, subjectID);
 		if (uriTable->getIdByURI(object, objectID) == URI_NOT_FOUND)
@@ -137,9 +152,12 @@ bool TripleBitBuilder::N3Parse(istream& in, const char* name, TempFile& rawFacts
 			}
 			//Construct IDs
 			//and write the triples
-			if(subject.length() && predicate.length() && object.length())
-				NTriplesParse((char*) subject.c_str(), (char*) predicate.c_str(), (char*) object.c_str(), rawFacts);
+			if (subject.length() && predicate.length() && object.length())
+				//也可以在这里转，代替parse函数的转换，将S和O根据情况转换成ID（不做修改），flaot和double
 
+
+
+				NTriplesParse((char*)subject.c_str(), (char*)predicate.c_str(), (char*)object.c_str(), rawFacts);
 		}
 	} catch (const TurtleParser::Exception&) {
 		return false;
@@ -186,9 +204,9 @@ int TripleBitBuilder::compare321(const char* left, const char* right) {
 Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	cout<<"Sort by Subject"<<endl;
 	ID subjectID, objectID, predicateID;
-
 	ID lastSubject = 0, lastObject = 0, lastPredicate = 0;
 	unsigned count0 = 0, count1 = 0;
+
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
 
 	// Created by peng on 2019-04-19 09:09:58.
@@ -196,8 +214,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	// ************************************
 	unsigned v = 1;
     // ************************************
-
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
+
 	{
 		//insert into chunk
 		sortedBySubject.close();
@@ -300,14 +318,16 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 }
 
 Status TripleBitBuilder::startBuildN3(string fileName) {
-	TempFile rawFacts("./test");
+	TempFile rawFacts("./test");//解析之后的原始数据（未排序），里边全都是ID，一个ID接一个ID存储，没有分隔符
 
-	ifstream in((char*) fileName.c_str());
+	ifstream in((char*)fileName.c_str());
 	if (!in.is_open()) {
 		cerr << "Unable to open " << fileName << endl;
 		return ERROR;
 	}
-	if (!N3Parse(in, fileName.c_str(), rawFacts)) {
+
+
+	if (!N3Parse(in, fileName.c_str(), rawFacts)) {//判断条件为一个三元组的解析过程
 		in.close();
 		return ERROR;
 	}
@@ -324,7 +344,7 @@ Status TripleBitBuilder::startBuildN3(string fileName) {
 	cout<<"over"<<endl;
 
 	//sort by s,o
-	TempFile facts(fileName);
+	TempFile facts(fileName);//fact是最原始的数据，也就是下载的数据集文件
 	resolveTriples(rawFacts, facts);
 	facts.discard();
 	return OK;

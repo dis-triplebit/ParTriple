@@ -89,6 +89,10 @@ public:
 	Status endBuild();
 	
 	static bool isStatementReification(const char* object);
+	bool generateXY(ID& subjectID, ID& objectID);//ÒÑ×÷·Ï
+	//bool generateXY(ID& subjectID, float f);
+	//bool generateXY(ID& subjectID, double d);
+	//
 	virtual ~TripleBitBuilder();
 };
 #endif /* TRIPLEBITBUILDER_H_ */

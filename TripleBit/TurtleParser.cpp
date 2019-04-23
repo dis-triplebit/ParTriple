@@ -638,8 +638,13 @@ bool TurtleParser::parse(std::string& subject,std::string& predicate,std::string
    if (triplesReader<triples.size()) {
       subject=triples[triplesReader].subject;
       predicate=triples[triplesReader].predicate;
-      object=triples[triplesReader].object;
-      if ((++triplesReader)>=triples.size()) {
+	  object = triples[triplesReader].object;
+	  //在这里做文章，将S和O根据情况转换成ID（不做修改），flaot和double
+
+
+
+
+	  if ((++triplesReader) >= triples.size()) {
          triples.clear();
          triplesReader=0;
       }

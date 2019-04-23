@@ -5,20 +5,20 @@
  *      Author: root
  */
 
-#include "SPARQLLexer.h"
-#include "SPARQLParser.h"
-#include "QuerySemanticAnalysis.h"
-#include "PlanGenerator.h"
-#include "TripleBitQueryGraph.h"
+#include "../TripleBit/SPARQLLexer.h"
+#include "../TripleBit/SPARQLParser.h"
+#include "../TripleBit/QuerySemanticAnalysis.h"
+#include "../TripleBit/PlanGenerator.h"
+#include "../TripleBit/TripleBitQueryGraph.h"
 #include "MemoryBuffer.h"
-#include "BitmapBuffer.h"
+#include "../TripleBit/BitmapBuffer.h"
 #include "TripleBitRepository.h"
-#include "URITable.h"
-#include "PredicateTable.h"
+#include "../TripleBit/URITable.h"
+#include "../TripleBit/PredicateTable.h"
 #include "EntityIDBuffer.h"
-#include "util/BufferManager.h"
+#include "../TripleBit/util/BufferManager.h"
 #include "TripleBitWorker.h"
-#include "comm/TransQueueSW.h"
+#include "../TripleBit/comm/TransQueueSW.h"
 #include "TripleBitWorkerQuery.h"
 
 //#define MYDEBUG
