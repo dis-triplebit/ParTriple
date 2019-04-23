@@ -267,6 +267,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	//sort
 	cerr << "Sort by Object" << endl;
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
+	
 	{
 		//insert into chunk
 		sortedByObject.close();
@@ -345,7 +346,7 @@ Status TripleBitBuilder::startBuildN3(string fileName) {
 
 	//sort by s,o
 	TempFile facts(fileName);//fact是最原始的数据，也就是下载的数据集文件
-	resolveTriples(rawFacts, facts);
+	resolveTriples(rawFacts, facts);//我其实可以在resolve里边再把不需要映射成id的数字和浮点数，映射回来，把原来的ID删掉
 	facts.discard();
 	return OK;
 }

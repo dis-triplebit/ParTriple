@@ -38,7 +38,6 @@ using namespace std;
 
 class TripleBitBuilder {
 private:
-	//MySQL* mysql;
 	BitmapBuffer* bitmap;
 	PredicateTable* preTable;
 	URITable* uriTable;
