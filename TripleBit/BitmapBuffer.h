@@ -87,13 +87,13 @@ private:
 struct ChunkManagerMeta
 {
     //usedPage[0].size() * MemoryBuffer::pagesize;
-	size_t length[objTypeNum];	  //length[0],记录整个x<=y分块的已经申请的空间长度,1表示x>y
-	size_t usedSpace[objTypeNum];  //usedSpace[0],记录整个x<=y分块除了chunkManagerMeta之外已经使用的空间
-	int tripleCount[objTypeNum];	  //tripleCount[0],记录整个x<=y分块的三元组个数
+	size_t length[objTypeNum];	  //length[objTypeNum],记录整个obj分块的已经申请的空间长度
+	size_t usedSpace[objTypeNum];  //usedSpace[objTypeNum],记录整个obj分块除了chunkManagerMeta之外已经使用的空间
+	int tripleCount[objTypeNum];	  //tripleCount[objTypeNum],记录整个obj分块的三元组个数
 	unsigned type;		  //type表示分块的类型,0表示orderByS,1表示orderByO
 	unsigned pid;		  //谓词ID
-	char* startPtr[objTypeNum];	  //startPtr[0],记录不同obj分块的起始地址
-	char* endPtr[objTypeNum];	  //endPtr[0],记录不同obj分块的结束地址
+	char* startPtr[objTypeNum];	  //startPtr[objTypeNum],记录不同obj分块的起始地址
+	char* endPtr[objTypeNum];	  //endPtr[objTypeNum],记录不同obj分块的结束地址
 };
 
 struct MetaData
@@ -162,12 +162,12 @@ public:
 
 	void insertXY(unsigned x, Element y, unsigned len, unsigned char type);
 
-	uchar* getStartPtr(unsigned char type) {
-		return reinterpret_cast<uchar*> (meta->startPtr[type]);
+	char* getStartPtr(unsigned char type) {
+		return meta->startPtr[type];
 	}
 
-	uchar* getEndPtr(unsigned char type) {
-		return reinterpret_cast<uchar*> (meta->endPtr[type]);
+	char* getEndPtr(unsigned char type) {
+		return meta->endPtr[type];
 	}
 
 	Status buildChunkIndex();
