@@ -1,5 +1,5 @@
-.vscode
-.idea
+.vscode/
+.idea/
 compile_commands.json
 database
 documents
@@ -9,3 +9,4 @@ bin
 *.nt
 *.txt
 Makefile
+.vs/
