@@ -61,8 +61,8 @@ namespace {
 
 
 
-
-void Sorter::sort(TempFile& in, TempFile& out, const char* (*skip)(const char*), int(*compare)(const char*, const char*), bool eliminateDuplicates)
+//输入，输出，不知道，判断条件，是否去重(默认否)
+void Sorter::sort(TempFile& in, TempFile& out, const char* (*skip)(const char*), int(*compare)(const char*, const char*), bool eliminateDuplicates = false)
 // Sort a temporary file
 {
 	// Open the input

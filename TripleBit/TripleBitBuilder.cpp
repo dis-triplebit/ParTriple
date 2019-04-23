@@ -215,6 +215,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	unsigned v = 1;
     // ************************************
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
+	//此时sortedBySubject已经有了排序之后的数据，该排序属于保存原序列的排序
+	//原文件rawFacts没有任何改变，排序之后的数据存在sortedBySubject
 
 	{
 		//insert into chunk
@@ -267,7 +269,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	//sort
 	cerr << "Sort by Object" << endl;
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
-	
+	//此时sortedByObject已经有了排序之后的数据，该排序属于保存原序列的排序
+	//原文件rawFacts没有任何改变，排序之后的数据存在sortedByObject
+
 	{
 		//insert into chunk
 		sortedByObject.close();
