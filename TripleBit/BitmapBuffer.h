@@ -18,6 +18,12 @@ class ChunkManager;
 #include "LineHashIndex.h"
 #include "ThreadPool.h"
 
+#define objTypeNum 3
+union Element {
+    ID id;
+    float f;
+    double d;
+};
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///// class BitmapBuffer
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +36,7 @@ public:
 	//  string filename(dir);
     //	filename.append("/temp1");
     //	temp1 = new MMapBuffer(filename.c_str(), INIT_PAGE_COUNT * MemoryBuffer::pagesize);
-	MMapBuffer *temp1, *temp2, *temp3, *temp4;
+	MMapBuffer *temp1, *temp2, *temp3, *temp4, *temp5, *temp6;
 	/**
 	 * usedPage1: x < y && so
 	 * usedPage2: x < y && os
@@ -38,7 +44,7 @@ public:
 	 * usedPage4: x > y && os
 	 * tempX store the triples corresponding to these four types
 	 */
-	size_t usedPage1, usedPage2, usedPage3, usedPage4;
+	size_t usedPage1, usedPage2, usedPage3, usedPage4, usedPage5, usedPage6;
 public:
 	BitmapBuffer(const string dir);
 	BitmapBuffer() : startColID(0), dir("") {}
@@ -48,7 +54,8 @@ public:
 	// not implemented
 	Status insertTriple(ID, ID, unsigned char, ID, unsigned char,bool);
 	/// insert a triple;
-	Status insertTriple(ID predicateID, ID xID, ID yID, bool isBigger, unsigned char typeID);
+	Status insertTriple(ID predicateID, ID xID, Element yID, unsigned objType, unsigned char typeID);
+
 	/// get the chunk manager (i.e. the predicate) given the specified type and predicate id
 	ChunkManager* getChunkManager(ID, unsigned char);
 	/// get the count of chunk manager (i.e. the predicate count) given the specified type
@@ -80,13 +87,13 @@ private:
 struct ChunkManagerMeta
 {
     //usedPage[0].size() * MemoryBuffer::pagesize;
-	size_t length[2];	  //length[0],记录整个x<=y分块的已经申请的空间长度,1表示x>y
-	size_t usedSpace[2];  //usedSpace[0],记录整个x<=y分块除了chunkManagerMeta之外已经使用的空间
-	int tripleCount[2];	  //tripleCount[0],记录整个x<=y分块的三元组个数
+	size_t length[objTypeNum];	  //length[0],记录整个x<=y分块的已经申请的空间长度,1表示x>y
+	size_t usedSpace[objTypeNum];  //usedSpace[0],记录整个x<=y分块除了chunkManagerMeta之外已经使用的空间
+	int tripleCount[objTypeNum];	  //tripleCount[0],记录整个x<=y分块的三元组个数
 	unsigned type;		  //type表示分块的类型,0表示orderByS,1表示orderByO
 	unsigned pid;		  //谓词ID
-	char* startPtr[2];	  //startPtr[0],记录整个x<=y分块的起始地址
-	char* endPtr[2];	  //endPtr[0],记录整个x<=y分块的结束地址
+	char* startPtr[objTypeNum];	  //startPtr[0],记录不同obj分块的起始地址
+	char* endPtr[objTypeNum];	  //endPtr[0],记录不同obj分块的结束地址
 };
 
 struct MetaData
@@ -99,7 +106,7 @@ struct MetaData
 
 class ChunkManager {
 private:
-	char* ptrs[2];
+	char* ptrs[objTypeNum];
 
 	ChunkManagerMeta* meta;
 	///the No. of buffer
@@ -110,7 +117,7 @@ private:
 
 	BitmapBuffer* bitmapBuffer;
 
-	vector<size_t> usedPage[2]; //在构造ChunkManager的时候，getpage会获取pageNo，并且将usedpage++
+	vector<size_t> usedPage[objTypeNum]; //在构造ChunkManager的时候，getpage会获取pageNo，并且将usedpage++
 public:
 	friend class BuildSortTask;
 	friend class BuildMergeTask;
@@ -124,7 +131,7 @@ public:
 	~ChunkManager();
 	Status resize(unsigned char type);
 	Status tripleCountAdd(unsigned char type) {
-		meta->tripleCount[type - 1]++;
+		meta->tripleCount[type]++;
 		return OK;
 	}
 
@@ -138,10 +145,14 @@ public:
 	bool isPtrFull(unsigned char type, unsigned len);
 
 	int getTripleCount() {
-		return meta->tripleCount[0] + meta->tripleCount[1];
+	    int count = 0;
+        for (int i = 0; i < objTypeNum; ++i) {
+            count += meta->tripleCount[i];
+        }
+		return count;
 	}
 	int getTripleCount(unsigned char type) {
-			return meta->tripleCount[type - 1];
+			return meta->tripleCount[type];
 	}
 	unsigned int getPredicateID() const {
 		return meta->pid;
@@ -149,19 +160,20 @@ public:
 
 	ID getChunkNumber(unsigned char type);
 
-	void insertXY(unsigned x, unsigned y, unsigned len, unsigned char type);
+	void insertXY(unsigned x, Element y, unsigned len, unsigned char type);
 
 	uchar* getStartPtr(unsigned char type) {
-		return reinterpret_cast<uchar*> (meta->startPtr[type -1]);
+		return reinterpret_cast<uchar*> (meta->startPtr[type]);
 	}
 
 	uchar* getEndPtr(unsigned char type) {
-		return reinterpret_cast<uchar*> (meta->endPtr[type -1]);
+		return reinterpret_cast<uchar*> (meta->endPtr[type]);
 	}
 
 	Status buildChunkIndex();
 	Status updateChunkIndex();
 	static ChunkManager* load(unsigned pid, unsigned type, char* buffer, size_t& offset);
+    size_t save(char* buffer, SOType type);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
