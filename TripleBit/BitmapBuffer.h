@@ -18,12 +18,7 @@ class ChunkManager;
 #include "LineHashIndex.h"
 #include "ThreadPool.h"
 
-#define objTypeNum 3
-union Element {
-    ID id;
-    float f;
-    double d;
-};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///// class BitmapBuffer
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,11 +33,13 @@ public:
     //	temp1 = new MMapBuffer(filename.c_str(), INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 	MMapBuffer *temp1, *temp2, *temp3, *temp4, *temp5, *temp6;
 	/**
-	 * usedPage1: x < y && so
-	 * usedPage2: x < y && os
-	 * usedPage3: x > y && so
-	 * usedPage4: x > y && os
-	 * tempX store the triples corresponding to these four types
+	 * usedPage1: objType=string && so
+	 * usedPage2: objType=float && so
+	 * usedPage3: objType=double && so
+	 * usedPage4: objType=string && os
+     * usedPage5: objType=float && os
+     * usedPage6: objType=double && os
+	 * tempX store the triples corresponding to these six types
 	 */
 	size_t usedPage1, usedPage2, usedPage3, usedPage4, usedPage5, usedPage6;
 public:
@@ -86,7 +83,6 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////////
 struct ChunkManagerMeta
 {
-    //usedPage[0].size() * MemoryBuffer::pagesize;
 	size_t length[objTypeNum];	  //length[objTypeNum],记录整个obj分块的已经申请的空间长度
 	size_t usedSpace[objTypeNum];  //usedSpace[objTypeNum],记录整个obj分块除了chunkManagerMeta之外已经使用的空间
 	int tripleCount[objTypeNum];	  //tripleCount[objTypeNum],记录整个obj分块的三元组个数
@@ -173,6 +169,9 @@ public:
 	Status buildChunkIndex();
 	Status updateChunkIndex();
 	static ChunkManager* load(unsigned pid, unsigned type, char* buffer, size_t& offset);
+	// Created by peng on 2019-04-23 14:48:23.
+	// this function is used to save a ChunkManager
+	// called by BitmapBuffer::save
     size_t save(char* buffer, SOType type);
 };
 

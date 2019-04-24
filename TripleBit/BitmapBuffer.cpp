@@ -163,7 +163,7 @@ unsigned char BitmapBuffer::getBytes(ID id) {
 /**
  * get page number by type and flag
  * @param type triples stored by so or os
- * @param flag objType
+ * @param flag objType(valued from [0, 5])
  * @param pageNo return by reference
  * @return the first unused page address
  */
@@ -321,6 +321,8 @@ unsigned char BitmapBuffer::getLen(ID id) {
     return sizeof(id);
 }
 
+// Created by peng on 2019-04-24 09:33:41.
+// this function will be called only once when executing buildTriplebitFromN3
 // TODO: need to be changed
 void BitmapBuffer::save() {
     string filename = dir + "/BitmapBuffer";
@@ -454,8 +456,8 @@ void BitmapBuffer::save() {
 
 // TODO: need to be changed
 BitmapBuffer *BitmapBuffer::load(MMapBuffer *bitmapImage,
-                                MMapBuffer *&bitmapIndexImage,
-                                MMapBuffer *bitmapPredicateImage) {
+                                 MMapBuffer *&bitmapIndexImage,
+                                 MMapBuffer *bitmapPredicateImage) {
     // bitmapImage: file BitmapBuffer
     // bitmapIndexImage: file BitmapBuffer_index
     // bitmapPredicateImage: file BitmapBuffer_predicate
@@ -513,12 +515,19 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
     size_t predicateSize = bitmapPredicateImage->get_length();
 
     // Created by peng on 2019-04-22 16:48:26.
-    // temp buffer, initialized pagesize
-    string bitmapName = dir + "/BitmapBuffer_Temp";
-    MMapBuffer *buffer = new MMapBuffer(bitmapName.c_str(), MemoryBuffer::pagesize);
-    char *predicateReader = bitmapPredicateImage->get_address();
+    // temp buffer, initialized pagesize in origin code.
+    // Then increment pagesize after copying one page to buffer.
+
     // Created by peng on 2019-04-23 13:29:54.
     // TODO: buffer expand unfinished
+    // Updated by peng on 2019-04-24 09:27:41.
+    // But now I want to directly alloc enough memory that can store all pages(chunks)
+    size_t bufferSize = bitmapOld->getSize()
+                        + TempMMapBuffer::getInstance().getUsedPage() * MemoryBuffer::pagesize;
+    string bitmapName = dir + "/BitmapBuffer_Temp";
+    MMapBuffer *buffer = new MMapBuffer(bitmapName.c_str(), bufferSize);
+    char *predicateReader = bitmapPredicateImage->get_address();
+
     while (predicateOffset < predicateSize) {
         char *bufferWriter = buffer->get_address() + bufferOffsetPage * MemoryBuffer::pagesize;
 
@@ -1017,23 +1026,6 @@ const uchar *Chunk::readXId(const uchar *reader, register ID &id) {
 }
 
 const uchar *Chunk::readXYId(const uchar *reader, register ID &xid, register ID &yid) {
-    // xid = yid = 0;
-    // while((*reader) & 128){
-    // 	cout<<"@read xid"<<endl;
-    // 	cout<<*reader<<endl;
-    // 	xid <<= 7;
-    // 	xid |= (*reader & 0x7F);
-    // 	reader++;
-    // }
-
-    // while(!((*reader) & 128)){
-    // 	cout<<"@read yid"<<endl;
-    // 	cout<<*reader<<endl;
-    // 	yid <<= 7;
-    // 	yid |= (*reader & 0x7F);
-    // 	reader++;
-    // }
-    // return reader;
 
     register unsigned shift = 0;
     xid = 0;
