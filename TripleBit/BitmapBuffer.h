@@ -94,7 +94,7 @@ struct ChunkManagerMeta
 
 struct MetaData
 {
-	ID minID;
+	double minID;
 	size_t usedSpace;
 	bool haveNextPage;
 	size_t NextPageNo;
@@ -132,10 +132,7 @@ public:
 	}
 
 	LineHashIndex* getChunkIndex(int type) {
-		if(type > 2 || type < 1) {
-			return NULL;
-		}
-		return chunkIndex[type - 1];
+		return chunkIndex[type];
 	}
 
 	bool isPtrFull(unsigned char type, unsigned len);
@@ -222,21 +219,21 @@ public:
 		return type;
 	}
 	///Read x y
-	static const uchar* readXYId(const uchar* reader,register ID& xid,register ID &yid);
+	static const uchar* readXYId(const uchar* reader, double& xid, double &yid, unsigned objType);
 	/// Read a subject id
-	static const uchar* readXId(const uchar* reader, register ID& id);
+	static const uchar* readXId(const uchar* reader, double& id, unsigned objType);
 	/// Read an object id
-	static const uchar* readYId(const uchar* reader, register ID& id);
+	static const uchar* readYId(const uchar* reader, double& id, unsigned objType);
 	/// Delete a subject id (just set the id to 0)
-	static uchar* deleteXId(uchar* reader);
+	static uchar* deleteXId(uchar* reader, unsigned objType);
 	/// Delete a object id (just set the id to 0)
-	static uchar* deleteYId(uchar* reader);
+	static uchar* deleteYId(uchar* reader, unsigned objType);
 	/// Skip a s or o
-	static const uchar* skipId(const uchar* reader, unsigned char flag);
+	static const uchar* skipId(const uchar* reader, unsigned char flag, unsigned objType);
 	/// Skip backward to s
 	static const uchar* skipBackward(const uchar* reader);
 	static const uchar* skipBackward(const uchar* reader, const uchar* begin, unsigned type);
-	static const uchar* skipForward(const uchar* reader);
+	static const uchar* skipForward(const uchar* reader, unsigned objType);
 	ID getXMax(void) {
 		return xMax;
 	}
