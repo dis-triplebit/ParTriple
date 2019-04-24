@@ -227,7 +227,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 		loadTriple(reader, subjectID, predicateID, objectID);
 		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
-		reader = skipIdIdId(reader);
+		reader = skipIdIdId(reader);//reader往后跳12个字节
 
 		//s>o ture
 		bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
@@ -242,9 +242,11 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 			if ( subjectID != lastSubject ) {
 				//statBuffer[0]统计的是subject对应的三元组个数,例如subjectID是4的三元组个数有多少个
-				((OneConstantStatisticsBuffer*)statBuffer[0])->addStatis(lastSubject, count0);//statBuffer[0] subject statistics buffer
+				((OneConstantStatisticsBuffer*)statBuffer[0])->addStatis(lastSubject, count0);
+
 				//statBuffer[2]统计的是subject-predicate对应的三元组个数,例如subjectID是4且predicateID是1的三元组个数有多少个
-				statBuffer[2]->addStatis(lastSubject, lastPredicate, count1);//statBuffer[2] subject-predicate statistics buffer
+				statBuffer[2]->addStatis(lastSubject, lastPredicate, count1);
+
 				lastPredicate = predicateID;
 				lastSubject = subjectID;
 				count0 = count1 = 1;
@@ -268,6 +270,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 	//sort
 	cerr << "Sort by Object" << endl;
+
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
 	//此时sortedByObject已经有了排序之后的数据，该排序属于保存原序列的排序
 	//原文件rawFacts没有任何改变，排序之后的数据存在sortedByObject
@@ -292,10 +295,11 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 				reader = skipIdIdId(reader);
 				continue;
 			}
-
 			if ( objectID != lastObject ) {
+				//statBuffer内存储的内容同上
 				((OneConstantStatisticsBuffer*)statBuffer[1])->addStatis(lastObject, count0);//statBuffer[1] object statistics buffer
 				statBuffer[3]->addStatis(lastObject, lastPredicate, count1); //statBuffer[3] object-predicate statistics buffer
+
 				lastPredicate = predicateID;
 				lastObject = objectID;
 				count0 = count1 = 1;
