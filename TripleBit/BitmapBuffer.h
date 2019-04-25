@@ -231,8 +231,8 @@ public:
 	/// Skip a s or o
 	static const uchar* skipId(const uchar* reader, unsigned char flag, unsigned objType);
 	/// Skip backward to s
-	static const uchar* skipBackward(const uchar* reader);
-	static const uchar* skipBackward(const uchar* reader, const uchar* begin, unsigned type);
+	static const uchar* skipBackward(const uchar* reader, unsigned objType);
+	static const uchar* skipBackward(const uchar* reader, const uchar* begin, unsigned objType);
 	static const uchar* skipForward(const uchar* reader, unsigned objType);
 	ID getXMax(void) {
 		return xMax;
