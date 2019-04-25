@@ -342,18 +342,19 @@ void BitmapBuffer::save() {
     char *bufferWriter = buffer->get_address();
     size_t chunkManagerOffset = 0;
     for (SOType i = 0; i < 2; ++i) {
-        const map<ID, ChunkManager *> &map = predicate_managers[i];
-        for (auto &entry: map) {
+        map<ID, ChunkManager *> &m = predicate_managers[i];
+        map<ID, ChunkManager *>::iterator iter;
+        for (iter = m.begin(); iter != m.end(); ++iter) {
             // Created by peng on 2019-04-19 15:40:30.
             // firstly save predicate info
-            *(ID *) predicateWriter = entry.first;
+            *(ID *) predicateWriter = iter->first;
             predicateWriter += sizeof(ID);
             // i indicate order type(so or os)
             *(SOType *) predicateWriter = i;
             predicateWriter += sizeof(SOType);
             *(size_t *) predicateWriter = chunkManagerOffset;
             predicateWriter += sizeof(size_t) * 2;
-            size_t increment = entry.second->save(bufferWriter, i) * MemoryBuffer::pagesize;
+            size_t increment = iter->second->save(bufferWriter, i) * MemoryBuffer::pagesize;
             chunkManagerOffset += increment;
             bufferWriter += increment;
         }
@@ -367,14 +368,15 @@ void BitmapBuffer::save() {
     //以S排序的关联矩阵的metadata计算
     predicateWriter = predicateBuffer->get_address();
     for (int i = 0; i < 2; ++i) {
-        const map<ID, ChunkManager *> &map = predicate_managers[i];
-        for (auto &entry : map) {
+        map<ID, ChunkManager *> &m = predicate_managers[i];
+        map<ID, ChunkManager *>::iterator iter;
+        for (iter = m.begin(); iter!= m.end();++iter) {
             ID id = *((ID *) predicateWriter);
-            assert(entry.first == id);
+            assert(iter->first == id);
             chunkManagerOffset = *(size_t *) (predicateWriter + sizeof(ID) + sizeof(SOType));
             char *base = buffer->get_address() + chunkManagerOffset;
-            entry.second->meta = (ChunkManagerMeta *) base;
-            ChunkManagerMeta *meta = entry.second->meta;
+            iter->second->meta = (ChunkManagerMeta *) base;
+            ChunkManagerMeta *meta = iter->second->meta;
             for (int j = 0; j < objTypeNum; ++j) {
                 meta->startPtr[j] = base + (j == 0 ? sizeof(ChunkManagerMeta) : 0);
                 meta->endPtr[j] = meta->startPtr[j] + meta->usedSpace[j];

@@ -13,8 +13,8 @@
 #include "URITable.h"
 #include "MemoryBuffer.h"
 
-extern char* writeData(char* writer, unsigned data);
-extern const char* readData(const char* reader, unsigned int& data);
+extern char* writeData(char* writer, double data);
+extern const char* readData(const char* reader, double & data);
 
 static inline unsigned readDelta1(const unsigned char* pos) { return pos[0]; }
 static unsigned readDelta2(const unsigned char* pos) { return (pos[0]<<8)|pos[1]; }
@@ -488,15 +488,15 @@ OneConstantStatisticsBuffer* OneConstantStatisticsBuffer::load(StatisticsType ty
 	OneConstantStatisticsBuffer* statBuffer = new OneConstantStatisticsBuffer(path, type);
 
 	unsigned size, first;
-	indexBuffer = (char*)readData(indexBuffer, statBuffer->usedSpace);
-	indexBuffer = (char*)readData(indexBuffer, size);
+	indexBuffer = (char*)readData(indexBuffer, (double &)statBuffer->usedSpace);
+	indexBuffer = (char*)readData(indexBuffer, (double &)size);
 
 	statBuffer->index.resize(0);
 
 	statBuffer->indexSize = size;
 
 	for( unsigned i = 0; i < size; i++ ) {
-		indexBuffer = (char*)readData(indexBuffer, first);
+		indexBuffer = (char*)readData(indexBuffer, (double &)first);
 		statBuffer->index.push_back(first);
 	}
 
@@ -1132,8 +1132,8 @@ TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType ty
 {
 	TwoConstantStatisticsBuffer* statBuffer = new TwoConstantStatisticsBuffer(path, type);
 
-	indexBuffer = (char*)readData(indexBuffer, statBuffer->usedSpace);
-	indexBuffer = (char*)readData(indexBuffer, statBuffer->indexPos);
+	indexBuffer = (char*)readData(indexBuffer, (double &)statBuffer->usedSpace);
+	indexBuffer = (char*)readData(indexBuffer, (double &)statBuffer->indexPos);
 #ifdef DEBUG
 	cout<<__FUNCTION__<<"indexPos: "<<statBuffer->indexPos<<endl;
 #endif
