@@ -423,7 +423,8 @@ void BitmapBuffer::save() {
 #endif
             //索引建立2018年11月6日19:27:02
             iter->second->buildChunkIndex();
-            chunkManagerOffset = iter->second->getChunkIndex(1)->save(bitmapIndex);
+            chunkManagerOffset = iter->second->getChunkIndex(0)->save(bitmapIndex);
+            iter->second->getChunkIndex(1)->save(bitmapIndex);
             iter->second->getChunkIndex(2)->save(bitmapIndex);
             predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType) + sizeof(size_t);
             *((size_t *) predicateWriter) = chunkManagerOffset;
@@ -441,7 +442,8 @@ void BitmapBuffer::save() {
             cout<<iter->first<<endl;
 #endif
             iter->second->buildChunkIndex();
-            chunkManagerOffset = iter->second->getChunkIndex(1)->save(bitmapIndex);
+            chunkManagerOffset = iter->second->getChunkIndex(0)->save(bitmapIndex);
+            iter->second->getChunkIndex(1)->save(bitmapIndex);
             iter->second->getChunkIndex(2)->save(bitmapIndex);
             predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType) + sizeof(size_t);
             *((size_t *) predicateWriter) = chunkManagerOffset;
@@ -485,7 +487,7 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer *bitmapImage,
         if (soType == 0) {
             ChunkManager *manager = ChunkManager::load(id, 0, bitmapImage->get_address(), offset);
             manager->chunkIndex[0] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX,
-                                                         LineHashIndex::ID, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::INT, bitmapIndexImage->get_address(),
                                                          indexOffset);
             manager->chunkIndex[1] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX,
                                                          LineHashIndex::FLOAT, bitmapIndexImage->get_address(),
@@ -497,7 +499,7 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer *bitmapImage,
         } else if (soType == 1) {
             ChunkManager *manager = ChunkManager::load(id, 1, bitmapImage->get_address(), offset);
             manager->chunkIndex[0] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX,
-                                                         LineHashIndex::ID, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::INT, bitmapIndexImage->get_address(),
                                                          indexOffset);
             manager->chunkIndex[1] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX,
                                                          LineHashIndex::FLOAT, bitmapIndexImage->get_address(),
@@ -552,7 +554,7 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
             lastOffsetPage = bufferOffsetPage;
             int currentChunkNum = 0;
             int totalChunkNum = chunkManager->getChunkNumber(j);
-            char *chunkBegin = chunkManager->getStartPtr(j);
+            uchar *chunkBegin = chunkManager->getStartPtr(j);
             if (j == 0) chunkBegin -= sizeof(ChunkManagerMeta);
             while (currentChunkNum < totalChunkNum) {
                 chunkBegin += currentChunkNum * MemoryBuffer::pagesize;
@@ -677,11 +679,13 @@ ChunkManager::ChunkManager(unsigned pid, unsigned _type, BitmapBuffer *_bitmapBu
 
     // TODO: @youyujie, the code beneath should be modified by youyujie
     if (meta->type == 0) {
-        chunkIndex[0] = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX, LineHashIndex::YBIGTHANX);
-        chunkIndex[1] = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX, LineHashIndex::XBIGTHANY);
+        chunkIndex[0] = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX, LineHashIndex::INT);
+        chunkIndex[1] = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX, LineHashIndex::FLOAT);
+        chunkIndex[2] = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX, LineHashIndex::DOUBLE);
     } else {
-        chunkIndex[0] = new LineHashIndex(*this, LineHashIndex::OBJECT_INDEX, LineHashIndex::YBIGTHANX);
-        chunkIndex[1] = new LineHashIndex(*this, LineHashIndex::OBJECT_INDEX, LineHashIndex::XBIGTHANY);
+        chunkIndex[0] = new LineHashIndex(*this, LineHashIndex::OBJECT_INDEX, LineHashIndex::INT);
+        chunkIndex[1] = new LineHashIndex(*this, LineHashIndex::OBJECT_INDEX, LineHashIndex::FLOAT);
+        chunkIndex[2] = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX, LineHashIndex::DOUBLE);
     }
 }
 
@@ -697,41 +701,14 @@ ChunkManager::~ChunkManager() {
     if (chunkIndex[1] != NULL)
         delete chunkIndex[1];
     chunkIndex[1] = NULL;
+    if (chunkIndex[2] != NULL)
+        delete chunkIndex[2];
+    chunkIndex[2] = NULL;
 }
 
 // TODO: function need to be changed if storage changed
-static void getInsertChars(char *temp, unsigned x, unsigned y) {
-    char *ptr = temp;
-
-    while (x >= 128) {
-        unsigned char c = static_cast<unsigned char> (x & 127);
-        *ptr = c;
-        ptr++;
-        x >>= 7;
-    }
-    *ptr = static_cast<unsigned char> (x & 127);
-    ptr++;
-
-    while (y >= 128) {
-        unsigned char c = static_cast<unsigned char> (y | 128);
-        *ptr = c;
-        ptr++;
-        y >>= 7;
-    }
-    *ptr = static_cast<unsigned char> (y | 128);
-    ptr++;
-}
-
-// TODO: function need to be changed if storage changed
-void ChunkManager::insertXY(unsigned x, Element y, unsigned len, unsigned char type)
-//x:xID, y:yID, len:len(xID + yID), (type: objType);
-{
-    char temp[15];
-    // Created by peng on 2019-04-22 09:57:40.
-    // I think we don't need it now.
-    // origin: 标志位设置,以128为进制单位,分解x,y,最高位为0表示x,1表示y
-    // getInsertChars(temp, x, y);
-    switch (type) {
+static void getInsertChars(char *temp, unsigned x, Element y, unsigned objType) {
+    switch (objType) {
         case 0:
             memcpy(temp, &x, sizeof(x));
             memcpy(temp + sizeof(x), &y.id, sizeof(y.id));
@@ -757,6 +734,18 @@ void ChunkManager::insertXY(unsigned x, Element y, unsigned len, unsigned char t
             memcpy(temp + sizeof(y.d), &x, sizeof(x));
             break;
     }
+}
+
+// TODO: function need to be changed if storage changed
+void ChunkManager::insertXY(unsigned x, Element y, unsigned len, unsigned char type)
+//x:xID, y:yID, len:len(xID + yID), (type: objType);
+{
+    char temp[15];
+    // Created by peng on 2019-04-22 09:57:40.
+    // I think we don't need it now.
+    // origin: 标志位设置,以128为进制单位,分解x,y,最高位为0表示x,1表示y
+    // getInsertChars(temp, x, y);
+    getInsertChars(temp, x, y, type);
     unsigned char aType = type;
     type = type % objTypeNum;
     //如果当前空间不够存放新的<x,y>对
@@ -857,9 +846,9 @@ Status ChunkManager::resize(unsigned char type) {
 
 /// build the hash index for query;
 Status ChunkManager::buildChunkIndex() {
-    chunkIndex[0]->buildIndex(1);
-    chunkIndex[1]->buildIndex(2);
-
+    chunkIndex[0]->buildIndex(0);
+    chunkIndex[1]->buildIndex(1);
+    chunkIndex[2]->buildIndex(2);
     return OK;
 }
 

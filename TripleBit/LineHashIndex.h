@@ -11,7 +11,7 @@ class MMapBuffer;
 
 #include "TripleBit.h"
 
-class LineHashIndexEnhance {
+class LineHashIndex {
 public:
 	struct Point{
 		double x;
@@ -25,12 +25,14 @@ public:
 	{
 		double minIDx;    //The minIDx of a chunk
 		double minIDy;		//The minIDy of a chunk
-		unsigned offsetBegin;	//The beginoffset of a chunk(not include MetaData and relative to the startPtr)
+        unsigned long offsetBegin;	//The beginoffset of a chunk(not include MetaData and relative to the startPtr)
 	};
 
 	enum IndexType { SUBJECT_INDEX, OBJECT_INDEX};
-	enum ObjectType {ID,FLOAT,DOUBLE};
+    enum ObjectType {INT,FLOAT,DOUBLE};
+
 private:
+
 	//TODO
 	MemoryBuffer* idTable;
 	double* idTableEntries;
@@ -60,7 +62,7 @@ private:
 	double MetaID(size_t index);
 	double MetaYID(size_t index);
 public:
-	LineHashIndexEnhance(ChunkManager& _chunkManager, IndexType index_type, ObjectType xy_type);
+	LineHashIndex(ChunkManager& _chunkManager, IndexType index_type, ObjectType xy_type);
 	//TODO 根据ChunkType的不同,然后创建不同的索引
 	Status buildIndex(unsigned chunkType);
 	void getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd);
@@ -70,14 +72,14 @@ public:
 	unsigned int getTableSize() { return tableSize; }
 	size_t save(MMapBuffer*& indexBuffer);
 	void saveDelta(MMapBuffer*& indexBuffer, size_t& offset ,const size_t predicateSize);
-	virtual ~LineHashIndexEnhance();
-	void updateChunkMetaData(int offsetId);
+	virtual ~LineHashIndex();
+	void updateChunkMetaData(int offsetId, unsigned chunkType);
 	void updateLineIndex();
 private:
 	//判断Buffer已经被写满
 	bool isBufferFull();
 public:
-	static LineHashIndexEnhance* load(ChunkManager& manager, IndexType index_type, ObjectType xy_type, char* buffer, size_t& offset);
+	static LineHashIndex* load(ChunkManager& manager, IndexType index_type, ObjectType xy_type, char* buffer, size_t& offset);
 };
 
 #endif /* LineHashIndexEnhance_H_ */

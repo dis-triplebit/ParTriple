@@ -27,7 +27,7 @@ HashIndex::~HashIndex() {
 //	secondaryHashTableSize = 0;
 }
 
-Status HashIndex::hashInsert(ID id, unsigned int offset) {
+Status HashIndex::hashInsert(double id, unsigned int offset) {
 	id = id - firstValue;
 	for(; id / HASH_RANGE >= hashTableSize; ) {
 		hashTableEntries[hashTableSize] = 0;
@@ -38,7 +38,7 @@ Status HashIndex::hashInsert(ID id, unsigned int offset) {
 	}
 
 	if(id >= nextHashValue) {
-		hashTableEntries[id / HASH_RANGE] = offset;
+		hashTableEntries[(ID)id / HASH_RANGE] = offset;
 		while(nextHashValue <= id) nextHashValue += HASH_RANGE;
 	}
 
@@ -64,7 +64,7 @@ static void getTempIndexFilename(string& filename, int pid, unsigned type, unsig
 	sprintf(temp, "%d", type);
 	filename.append(temp);
 	filename.append("_");
-	sprintf(temp, "%d", chunkType<3"SO":"OS");
+	sprintf(temp, "%d", chunkType<3?"SO":"OS");
 	filename.append(temp);
 }
 
@@ -141,7 +141,7 @@ Status HashIndex::buildIndex(unsigned chunkType)
 	return OK;
 }
 
-Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned chunkType)
+Status HashIndex::getOffsetByID(double id, unsigned& offset, unsigned chunkType)
 {
 	unsigned pBegin = hash(id);
 	unsigned pEnd = next(id);
@@ -150,7 +150,7 @@ Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned chunkType)
 	int low = 0, high = 0, mid = 0, lastmid = 0;
 	double x,y;
 
-	if(chunkManager.getTripleCount(typeID) == 0)
+	if(chunkManager.getTripleCount(chunkType%objTypeNum) == 0)
 		return NOT_FOUND;
 
 	if (chunkType < 3 ) {
@@ -164,7 +164,7 @@ Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned chunkType)
 		}
 		reader = chunkManager.getStartPtr(chunkType) + low;
 		beginPtr = chunkManager.getStartPtr(chunkType);
-		Chunk::readXId(reader, x);
+		Chunk::readXId(reader, x,chunkType);
 
 		if ( x == id ) {
 			offset = low;
@@ -245,7 +245,7 @@ Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned chunkType)
 		while(low <= high) {
 			x = 0;
 			mid = low + (high - low) / 2;//(low + high) / 2;
-			reader = Chunk::skipBackward(beginPtr + mid);
+			reader = Chunk::skipBackward(beginPtr + mid,chunkType);
 			lastmid = mid = reader - beginPtr;
 			reader = Chunk::readXId(reader, x,chunkType);
 			//reader = Chunk::readYId(reader, y,chunkType);
@@ -269,7 +269,7 @@ Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned chunkType)
 					mid = 0;
 				while( mid <= lastmid) {
 					x = y = 0;
-					reader = Chunk::readxId(Chunk::readXId(beginPtr + mid, x,chunkType), y,chunkType);
+					reader = Chunk::readXId(Chunk::readXId(beginPtr + mid, x,chunkType), y,chunkType);
 					if( x >= id) {
 						offset = mid;
 						return OK;
@@ -296,7 +296,7 @@ Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned chunkType)
 	return OK;
 }
 
-unsigned HashIndex::hash(ID id)
+unsigned HashIndex::hash(double id)
 {
 	id = id - firstValue;
 	if((int)id < 0)
@@ -309,7 +309,7 @@ unsigned HashIndex::hash(ID id)
 	return hashTableEntries[firstHash];
 }
 
-unsigned HashIndex::next(ID id)
+unsigned HashIndex::next(double id)
 {
 	id = id - firstValue;
 	if((int)id < 0)
@@ -345,7 +345,7 @@ void HashIndex::save(MMapBuffer*& buffer)
 	char* writeBuf;
 
 	if(buffer == NULL) {
-		buffer = MMapBuffer::create(string(string(DATABASE_PATH) + "BitmapBuffer_index").c_str(), hashTable->getSize() + 4);
+		buffer = MMapBuffer::create(string(string(DATABASE_PATH) + "BitmapBuffer_index").c_str(), hashTable->getSize() + sizeof(double));
 		writeBuf = buffer->get_address();
 	} else {
 		size_t size = buffer->getSize();
@@ -367,7 +367,7 @@ HashIndex* HashIndex::load(ChunkManager& manager, unsigned chunkType, char* buff
 {
 	HashIndex* index = new HashIndex(manager, type);
 	size_t size = ((ID*)(buffer + offset))[0];
-	index->hashTableEntries = (ID*)(buffer + offset + sizeof(double));
+	index->hashTableEntries = (double*)(buffer + offset + sizeof(double));
 	index->hashTableSize = size / sizeof(double) - 1;
 	index->firstValue = index->hashTableEntries[index->hashTableSize];
 

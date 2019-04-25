@@ -2,7 +2,7 @@
 // Created by Administrator on 2019/4/23.
 //
 
-#include "LineHashIndexEnhance.h"
+#include "LineHashIndex.h"
 #include "MMapBuffer.h"
 #include "MemoryBuffer.h"
 #include "BitmapBuffer.h"
@@ -14,7 +14,7 @@
  * f(x)=kx + b;
  * used to calculate the parameter k and b;
  */
-static bool calculateLineKB(vector<LineHashIndexEnhance::Point>& a, double& k, double& b, int pointNo)
+static bool calculateLineKB(vector<LineHashIndex::Point>& a, double& k, double& b, int pointNo)
 {
 	//如果点的个数是小于2的，当然不能画线啦
 	if (pointNo < 2)
@@ -39,7 +39,7 @@ static bool calculateLineKB(vector<LineHashIndexEnhance::Point>& a, double& k, d
 	return true;
 }
 
-LineHashIndexEnhance::LineHashIndexEnhance(ChunkManager& _chunkManager, IndexType index_type, XYType xy_type) :
+LineHashIndex::LineHashIndex(ChunkManager& _chunkManager, IndexType index_type, ObjectType xy_type) :
 		chunkManager(_chunkManager), indexType(index_type), xyType(xy_type)
 {
 	// MemoryBuffer* idTable
@@ -52,7 +52,7 @@ LineHashIndexEnhance::LineHashIndexEnhance(ChunkManager& _chunkManager, IndexTyp
 	startID[0] = startID[1] = startID[2] = startID[3] = UINT_MAX;
 }
 
-LineHashIndexEnhance::~LineHashIndexEnhance()
+LineHashIndex::~LineHashIndex()
 {
 	idTable = NULL;
 	idTableEntries = NULL;
@@ -67,7 +67,7 @@ LineHashIndexEnhance::~LineHashIndexEnhance()
  * @param lineNo: the lineNo-th line to be build;
  */
 //这个函数的用意是建立论文中的线
-bool LineHashIndexEnhance::buildLine(int startEntry, int endEntry, int lineNo)
+bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 {
 	vector<Point> vpt;
 	Point pt;
@@ -140,7 +140,7 @@ bool LineHashIndexEnhance::buildLine(int startEntry, int endEntry, int lineNo)
 static ID splitID[3] =
 		{ 255, 65535, 16777215 };
 
-Status LineHashIndexEnhance::buildIndex(unsigned chunkType) // chunkType: 1: x>y ; 2: x<y
+Status LineHashIndex::buildIndex(unsigned chunkType) // chunkType: 1: x>y ; 2: x<y
 {
 	//如果这个MemoryBuffer是空，就分配内存同时初始化它
 	if (idTable == NULL)
@@ -154,7 +154,7 @@ Status LineHashIndexEnhance::buildIndex(unsigned chunkType) // chunkType: 1: x>y
 
 	const uchar* begin, *limit, *reader;
 	//用于表subject和object
-	double x,double y;
+	double x;//double y;
 
 	int lineNo = 0;
 	int startEntry = 0, endEntry = 0;
@@ -241,11 +241,11 @@ Status LineHashIndexEnhance::buildIndex(unsigned chunkType) // chunkType: 1: x>y
 			}
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
-		x = y = 0;
+		x = 0;
 		//TODO @ganpeng,
 		reader = Chunk::skipBackward(limit, begin,chunkType);
 		//TODO @ganpeng
-		Chunk::readXId(limit,begin,chunkType)
+		Chunk::readXId(limit,x,chunkType);
 		insertEntries(x);
 		startEntry = endEntry;
 		endEntry = tableSize;
@@ -258,13 +258,13 @@ Status LineHashIndexEnhance::buildIndex(unsigned chunkType) // chunkType: 1: x>y
 }
 
 //TODO 这里需要改变因为ID的类型改变了，所以idTable的长度就应该根据不同的类型来改变
-bool LineHashIndexEnhance::isBufferFull()
+bool LineHashIndex::isBufferFull()
 {
 	return tableSize >= idTable->getSize() / sizeof(double);
 }
 
 //TODO 插入ID，这个应该改变
-void LineHashIndexEnhance::insertEntries(double id)
+void LineHashIndex::insertEntries(double id)
 {
 	//如果buffer已经满了那么
 	if (isBufferFull())
@@ -279,19 +279,19 @@ void LineHashIndexEnhance::insertEntries(double id)
 	tableSize++;
 }
 
-double LineHashIndexEnhance::MetaID(size_t index)
+double LineHashIndex::MetaID(size_t index)
 {
 	assert(index < chunkMeta.size());
 	return chunkMeta[index].minIDx;
 }
 
-double LineHashIndexEnhance::MetaYID(size_t index)
+double LineHashIndex::MetaYID(size_t index)
 {
 	assert(index < chunkMeta.size());
 	return chunkMeta[index].minIDy;
 }
 // 通过id搜索，返回offset
-size_t LineHashIndexEnhance::searchChunkFrank(double id)
+size_t LineHashIndex::searchChunkFrank(double id)
 {
 	size_t low = 0, mid = 0, high = tableSize - 1;
 
@@ -331,7 +331,7 @@ size_t LineHashIndexEnhance::searchChunkFrank(double id)
 	}
 }
 
-size_t LineHashIndexEnhance::searchChunk(double xID, double yID){
+size_t LineHashIndex::searchChunk(double xID, double yID){
 	//如果存储id的最小值或者没有索引那么直接返回0
 	if(MetaID(0) > xID || tableSize == 0){
 		return 0;
@@ -358,7 +358,7 @@ size_t LineHashIndexEnhance::searchChunk(double xID, double yID){
 	return offsetID;
 }
 
-bool LineHashIndexEnhance::searchChunk(double xID, double yID, size_t& offsetID)
+bool LineHashIndex::searchChunk(double xID, double yID, size_t& offsetID)
 //return the  exactly which chunk the triple(xID, yID) is in
 {
 	if(MetaID(0) > xID || tableSize == 0){
@@ -393,12 +393,12 @@ bool LineHashIndexEnhance::searchChunk(double xID, double yID, size_t& offsetID)
 	return true;
 }
 
-bool LineHashIndexEnhance::isQualify(size_t offsetId, double xID, double yID)
+bool LineHashIndex::isQualify(size_t offsetId, double xID, double yID)
 {
 	return (xID < MetaID(offsetId + 1) || (xID == MetaID(offsetId + 1) && yID < MetaYID(offsetId + 1))) && (xID > MetaID(offsetId) || (xID == MetaID(offsetId) && yID >= MetaYID(offsetId)));
 }
 
-void LineHashIndexEnhance::getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd)
+void LineHashIndex::getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd)
 //get the offset of the data begin and end of the offsetIDth Chunk to the startPtr
 {
 	if(tableSize == 0){
@@ -409,7 +409,7 @@ void LineHashIndexEnhance::getOffsetPair(size_t offsetID, unsigned& offsetBegin,
 	offsetEnd = offsetBegin - sizeof(MetaData) + metaData->usedSpace;
 }
 
-size_t LineHashIndexEnhance::save(MMapBuffer*& indexBuffer)
+size_t LineHashIndex::save(MMapBuffer*& indexBuffer)
 //tablesize , (startID, lowerk , lowerb, upperk, upperb) * 4
 {
 	char* writeBuf;
@@ -418,20 +418,20 @@ size_t LineHashIndexEnhance::save(MMapBuffer*& indexBuffer)
 	if (indexBuffer == NULL)
 	{
 		indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/BitmapBuffer_index").c_str(),
-										 sizeof(ID) + 16 * sizeof(double) + 4 * sizeof(double));
+										 sizeof(unsigned) + 16 * sizeof(double) + 4 * sizeof(double));
 		writeBuf = indexBuffer->get_address();
 		offset = 0;
 	}
 	else
 	{
 		size_t size = indexBuffer->get_length();
-		indexBuffer->resize(size + sizeof(ID) + 16 * sizeof(double) + 4 * sizeof(double), false);
+		indexBuffer->resize(size + sizeof(unsigned) + 16 * sizeof(double) + 4 * sizeof(double), false);
 		writeBuf = indexBuffer->get_address() + size;
 		offset = size;
 	}
 
-	*(ID*) writeBuf = tableSize;
-	writeBuf += sizeof(ID);
+	*(unsigned *) writeBuf = tableSize;
+	writeBuf += sizeof(unsigned);
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -456,12 +456,12 @@ size_t LineHashIndexEnhance::save(MMapBuffer*& indexBuffer)
 	return offset;
 }
 
-void LineHashIndexEnhance::updateLineIndex()
+void LineHashIndex::updateLineIndex()
 {
 	char* base = LineHashIndexEnhanceBase;
 
-	*(ID*) base = tableSize;
-	base += sizeof(ID);
+	*(unsigned *) base = tableSize;
+	base += sizeof(unsigned);
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -483,24 +483,24 @@ void LineHashIndexEnhance::updateLineIndex()
 	idTable = NULL;
 }
 
-void LineHashIndexEnhance::updateChunkMetaData(int offsetId, unsigned chunkType)
+void LineHashIndex::updateChunkMetaData(int offsetId, unsigned chunkType)
 {
 	if (offsetId == 0)
 	{
 		const uchar* reader = NULL;
-		register ID x = 0, y = 0;
+		register double x = 0, y = 0;
 
 		reader = startPtr + chunkMeta[offsetId].offsetBegin;
 		//TODO @ganpeng
 		reader = Chunk::readXYId(reader,x,y,chunkType);
 		chunkMeta[offsetId].minIDx = x;
 		chunkMeta[offsetId].minIDy = y;
-//        if (xyType == LineHashIndexEnhance::YBIGTHANX)
+//        if (xyType == LineHashIndex::YBIGTHANX)
 //        {
 //            chunkMeta[offsetId].minIDx = x;
 //            chunkMeta[offsetId].minIDy = x + y;
 //        }
-//        else if (xyType == LineHashIndexEnhance::XBIGTHANY)
+//        else if (xyType == LineHashIndex::XBIGTHANY)
 //        {
 //            chunkMeta[offsetId].minIDx = x + y;
 //            chunkMeta[offsetId].minIDy = x;
@@ -508,15 +508,15 @@ void LineHashIndexEnhance::updateChunkMetaData(int offsetId, unsigned chunkType)
 	}
 }
 
-LineHashIndexEnhance* LineHashIndexEnhance::load(ChunkManager& manager, IndexType index_type, ObjectType xy_type, char*buffer,
+LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, ObjectType xy_type, char*buffer,
 												 size_t& offset)
 {
-	LineHashIndexEnhance* index = new LineHashIndexEnhance(manager, index_type, xy_type);
+	LineHashIndex* index = new LineHashIndex(manager, index_type, xy_type);
 	char* base = buffer + offset;
 	index->LineHashIndexEnhanceBase = base;
 
-	index->tableSize = *((ID*) base);
-	base = base + sizeof(ID);
+	index->tableSize = *((unsigned *) base);
+	base = base + sizeof(unsigned);
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -533,14 +533,14 @@ LineHashIndexEnhance* LineHashIndexEnhance::load(ChunkManager& manager, IndexTyp
 		index->upperb[i] = *(double*) base;
 		base = base + sizeof(double);
 	}
-	offset = offset + sizeof(ID) + 16 * sizeof(double) + 4 * sizeof(double);
+	offset = offset + sizeof(unsigned) + 16 * sizeof(double) + 4 * sizeof(double);
 
 	//get something useful for the index
 	const uchar* reader;
 	const uchar* temp;
 	register double x, y;
 	unsigned OSFlag=3;
-	if (index->xyType == LineHashIndexEnhance::ID)
+	if (index->xyType == LineHashIndex::INT)
 	{
 		index->startPtr = index->chunkManager.getStartPtr(0);
 		index->endPtr = index->chunkManager.getEndPtr(0);
@@ -553,7 +553,7 @@ LineHashIndexEnhance* LineHashIndexEnhance::load(ChunkManager& manager, IndexTyp
 
 		temp = index->startPtr + sizeof(MetaData);
 
-		if(index_type==LineHashIndexEnhance::SUBJECT_INDEX)
+		if(index_type==LineHashIndex::SUBJECT_INDEX)
 			OSFlag=0;
 		//TODO @ganpeng
 		Chunk::readYId(Chunk::readXId(temp, x,OSFlag), y,OSFlag);
@@ -579,7 +579,7 @@ LineHashIndexEnhance* LineHashIndexEnhance::load(ChunkManager& manager, IndexTyp
 		index->chunkMeta.push_back(
 				{ x, y });
 	}
-	else if (index->xyType == LineHashIndexEnhance::FLOAT)
+	else if (index->xyType == LineHashIndex::FLOAT)
 	{
 		index->startPtr = index->chunkManager.getStartPtr(1);
 		index->endPtr = index->chunkManager.getEndPtr(1);
@@ -589,7 +589,7 @@ LineHashIndexEnhance* LineHashIndexEnhance::load(ChunkManager& manager, IndexTyp
 					{ 0, 0, sizeof(MetaData) });
 			return index;
 		}
-		if(index_type==LineHashIndexEnhance::SUBJECT_INDEX)
+		if(index_type==LineHashIndex::SUBJECT_INDEX)
 			OSFlag=0;
 		temp = index->startPtr + sizeof(MetaData);
 		//TODO @ganpeng
@@ -616,7 +616,7 @@ LineHashIndexEnhance* LineHashIndexEnhance::load(ChunkManager& manager, IndexTyp
 		Chunk::readXYId(reader,x,y,OSFlag);
 		index->chunkMeta.push_back(
 				{y, x });
-	}else if (index->xyType == LineHashIndexEnhance::DOUBLE)
+	}else if (index->xyType == LineHashIndex::DOUBLE)
 	{
 		index->startPtr = index->chunkManager.getStartPtr(2);
 		index->endPtr = index->chunkManager.getEndPtr(2);
@@ -626,7 +626,7 @@ LineHashIndexEnhance* LineHashIndexEnhance::load(ChunkManager& manager, IndexTyp
 					{ 0, 0, sizeof(MetaData) });
 			return index;
 		}
-		if(index_type==LineHashIndexEnhance::SUBJECT_INDEX)
+		if(index_type==LineHashIndex::SUBJECT_INDEX)
 			OSFlag=0;
 		temp = index->startPtr + sizeof(MetaData);
 		//TODO @ganpeng

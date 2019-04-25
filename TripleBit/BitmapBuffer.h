@@ -155,12 +155,12 @@ public:
 
 	void insertXY(unsigned x, Element y, unsigned len, unsigned char type);
 
-	char* getStartPtr(unsigned char type) {
-		return meta->startPtr[type];
+	uchar* getStartPtr(unsigned char type) {
+		return reinterpret_cast<uchar*> (meta->startPtr[type]);
 	}
 
-	char* getEndPtr(unsigned char type) {
-		return meta->endPtr[type];
+	uchar* getEndPtr(unsigned char type) {
+        return reinterpret_cast<uchar*> (meta->endPtr[type]);
 	}
 
 	Status buildChunkIndex();
