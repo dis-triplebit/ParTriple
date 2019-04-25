@@ -1230,63 +1230,71 @@ const uchar *Chunk::skipForward(const uchar *reader, unsigned objType) {
 
 // Created by peng on 2019-04-24 22:48:45.
 // TODO: remain to be changed
-const uchar *Chunk::skipBackward(const uchar *reader) {
+const uchar *Chunk::skipBackward(const uchar *reader, unsigned objType) {
     // skip backward to the last x,y;
-    while ((*reader) == 0)
-        --reader;
-    while ((*reader) & 128)
-        --reader;
-    while (!((*reader) & 128))
-        --reader;
-    return ++reader;
+    int decrement = 0;
+    switch (objType) {
+        case 0:
+        case 3:
+            decrement = sizeof(ID) * 2;
+            break;
+        case 1:
+        case 4:
+            decrement = sizeof(ID) + sizeof(float);
+            break;
+        case 2:
+        case 5:
+            decrement = sizeof(ID) + sizeof(double);
+            break;
+        default:
+            cout << "Chunk::skipBackward switch default error" << endl;
+    }
+    double x, y;
+    do {
+        reader -= decrement;
+        readXYId(reader, x, y, objType);
+    } while (x == 0 && y == 0);
+    return reader;
 }
 
 // Created by peng on 2019-04-24 22:49:11.
 // TODO: remain to be changed
-const uchar *Chunk::skipBackward(const uchar *reader, const uchar *begin, unsigned type) {
+const uchar *Chunk::skipBackward(const uchar *reader, const uchar *begin, unsigned objType) {
     //if is the begin of One Chunk
-    if (type == 1) {
-        if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize == 0 ||
-            (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize
-            == 0) {
-            if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) == MemoryBuffer::pagesize ||
-                (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta))
-                == MemoryBuffer::pagesize)
-                // if is the second Chunk
-            {
+    if (objType % objTypeNum == 0) {
+        if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize == 0) {
+            if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) == MemoryBuffer::pagesize) {
                 reader = begin;
                 MetaData *metaData = (MetaData *) reader;
                 reader = reader + metaData->usedSpace;
-                --reader;
-                return skipBackward(reader);
+                return skipBackward(reader, objType);
             }
-            reader = begin - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize *
-                                                        ((reader - begin + sizeof(ChunkManagerMeta)) /
-                                                         MemoryBuffer::pagesize - 1);
+            reader = begin - sizeof(ChunkManagerMeta)
+                     + MemoryBuffer::pagesize
+                       * ((reader - begin + sizeof(ChunkManagerMeta)) / MemoryBuffer::pagesize - 1);
             MetaData *metaData = (MetaData *) reader;
             reader = reader + metaData->usedSpace;
-            --reader;
-            return skipBackward(reader);
+            return skipBackward(reader, objType);
         } else if (reader <= begin + sizeof(MetaData)) {
+            // Created by peng on 2019-04-25 13:43:09.
+            // empty chunk
+            // TODO: how to generate return value? It should discuss with who need to access this function.
             return begin - 1;
         } else {
             //if is not the begin of one Chunk
-            return skipBackward(reader);
+            return skipBackward(reader, objType);
         }
-    }
-    if (type == 2) {
-        if ((reader - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0 ||
-            (reader + 1 - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0) {
+    } else {
+        if (reader <= begin + sizeof(MetaData)) {
+            return begin - 1;
+        } else if ((reader - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0) {
             reader = begin + MemoryBuffer::pagesize * ((reader - begin) / MemoryBuffer::pagesize - 1);
             MetaData *metaData = (MetaData *) reader;
             reader = reader + metaData->usedSpace;
-            --reader;
-            return skipBackward(reader);
-        } else if (reader <= begin + sizeof(MetaData)) {
-            return begin - 1;
+            return skipBackward(reader, objType);
         } else {
             //if is not the begin of one Chunk
-            return skipBackward(reader);
+            return skipBackward(reader, objType);
         }
     }
 }
