@@ -109,7 +109,7 @@ private:
 	static unsigned int bufferCount;
 
 	///hash index; index the subject and object
-	LineHashIndex* chunkIndex[2];
+	LineHashIndex* chunkIndex[objTypeNum];
 
 	BitmapBuffer* bitmapBuffer;
 

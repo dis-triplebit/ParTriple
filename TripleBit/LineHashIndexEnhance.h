@@ -36,7 +36,7 @@ private:
     double* idTableEntries;
     ChunkManager& chunkManager;
     IndexType indexType;
-    XYType xyType;
+    ObjectType xyType;
     size_t tableSize;   //chunk number plus 1,because the end edge
     char* LineHashIndexEnhanceBase; //used to do update
 
@@ -60,7 +60,7 @@ private:
     double MetaID(size_t index);
     double MetaYID(size_t index);
 public:
-    LineHashIndexEnhance(ChunkManager& _chunkManager, IndexType index_type, XYType xy_type);
+    LineHashIndexEnhance(ChunkManager& _chunkManager, IndexType index_type, ObjectType xy_type);
     //TODO 根据ChunkType的不同,然后创建不同的索引
     Status buildIndex(unsigned chunkType);
     void getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd);
@@ -77,7 +77,7 @@ private:
     //判断Buffer已经被写满
     bool isBufferFull();
 public:
-    static LineHashIndexEnhance* load(ChunkManager& manager, IndexType index_type, XYType xy_type, char* buffer, size_t& offset);
+    static LineHashIndexEnhance* load(ChunkManager& manager, IndexType index_type, ObjectType xy_type, char* buffer, size_t& offset);
 };
 
 #endif /* LineHashIndexEnhance_H_ */

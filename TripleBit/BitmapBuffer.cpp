@@ -485,19 +485,25 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer *bitmapImage,
         if (soType == 0) {
             ChunkManager *manager = ChunkManager::load(id, 0, bitmapImage->get_address(), offset);
             manager->chunkIndex[0] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX,
-                                                         LineHashIndex::YBIGTHANX, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::ID, bitmapIndexImage->get_address(),
                                                          indexOffset);
             manager->chunkIndex[1] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX,
-                                                         LineHashIndex::XBIGTHANY, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::FLOAT, bitmapIndexImage->get_address(),
+                                                         indexOffset);
+            manager->chunkIndex[2] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX,
+                                                         LineHashIndex::DOUBLE, bitmapIndexImage->get_address(),
                                                          indexOffset);
             buffer->predicate_managers[0][id] = manager;
         } else if (soType == 1) {
             ChunkManager *manager = ChunkManager::load(id, 1, bitmapImage->get_address(), offset);
             manager->chunkIndex[0] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX,
-                                                         LineHashIndex::YBIGTHANX, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::ID, bitmapIndexImage->get_address(),
                                                          indexOffset);
             manager->chunkIndex[1] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX,
-                                                         LineHashIndex::XBIGTHANY, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::FLOAT, bitmapIndexImage->get_address(),
+                                                         indexOffset);
+            manager->chunkIndex[2] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX,
+                                                         LineHashIndex::DOUBLE, bitmapIndexImage->get_address(),
                                                          indexOffset);
             buffer->predicate_managers[1][id] = manager;
         }
@@ -863,6 +869,7 @@ Status ChunkManager::buildChunkIndex() {
 Status ChunkManager::updateChunkIndex() {
     chunkIndex[0]->updateLineIndex();
     chunkIndex[1]->updateLineIndex();
+    chunkIndex[2]->updateLineIndex();
 
     return OK;
 }
