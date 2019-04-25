@@ -33,16 +33,16 @@ static int getCharPos(const char* data, char ch)
 }
 
 TripleBitBuilder::TripleBitBuilder(string _dir) : dir(_dir) {
-	preTable = new PredicateTable(dir);
-	uriTable = new URITable(dir);
+//	preTable = new PredicateTable(dir);
+//	uriTable = new URITable(dir);
 	bitmap = new BitmapBuffer(dir);
-
-	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/subject_statis"), StatisticsBuffer::SUBJECT_STATIS);			//subject statistics buffer;
-	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/object_statis"), StatisticsBuffer::OBJECT_STATIS);			//object statistics buffer;
-	statBuffer[2] = new TwoConstantStatisticsBuffer(string(dir + "/subjectpredicate_statis"), StatisticsBuffer::SUBJECTPREDICATE_STATIS);	//subject-predicate statistics buffer;
-	statBuffer[3] = new TwoConstantStatisticsBuffer(string(dir + "/objectpredicate_statis"), StatisticsBuffer::OBJECTPREDICATE_STATIS);	//object-predicate statistics buffer;
-
-	staReifTable = new StatementReificationTable();
+//
+//	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/subject_statis"), StatisticsBuffer::SUBJECT_STATIS);			//subject statistics buffer;
+//	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/object_statis"), StatisticsBuffer::OBJECT_STATIS);			//object statistics buffer;
+//	statBuffer[2] = new TwoConstantStatisticsBuffer(string(dir + "/subjectpredicate_statis"), StatisticsBuffer::SUBJECTPREDICATE_STATIS);	//subject-predicate statistics buffer;
+//	statBuffer[3] = new TwoConstantStatisticsBuffer(string(dir + "/objectpredicate_statis"), StatisticsBuffer::OBJECTPREDICATE_STATIS);	//object-predicate statistics buffer;
+//
+//	staReifTable = new StatementReificationTable();
 }
 
 TripleBitBuilder::TripleBitBuilder() {
@@ -337,27 +337,27 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 Status TripleBitBuilder::startBuildN3(string fileName) {
 	TempFile rawFacts("./test");
-
-	ifstream in((char*) fileName.c_str());
-	if (!in.is_open()) {
-		cerr << "Unable to open " << fileName << endl;
-		return ERROR;
-	}
-	if (!N3Parse(in, fileName.c_str(), rawFacts)) {
-		in.close();
-		return ERROR;
-	}
-
-	in.close();
-	delete uriTable;
-	uriTable = NULL;
-	delete preTable;
-	preTable = NULL;
-	delete staReifTable;
-	staReifTable = NULL;
-
-	rawFacts.flush();
-	cout<<"over"<<endl;
+//
+//	ifstream in((char*) fileName.c_str());
+//	if (!in.is_open()) {
+//		cerr << "Unable to open " << fileName << endl;
+//		return ERROR;
+//	}
+//	if (!N3Parse(in, fileName.c_str(), rawFacts)) {
+//		in.close();
+//		return ERROR;
+//	}
+//
+//	in.close();
+//	delete uriTable;
+//	uriTable = NULL;
+//	delete preTable;
+//	preTable = NULL;
+//	delete staReifTable;
+//	staReifTable = NULL;
+//
+//	rawFacts.flush();
+//	cout<<"over"<<endl;
 
 	//sort by s,o
 	TempFile facts(fileName);

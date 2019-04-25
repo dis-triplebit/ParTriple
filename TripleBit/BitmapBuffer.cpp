@@ -668,16 +668,20 @@ ChunkManager::ChunkManager(unsigned pid, unsigned _type, BitmapBuffer *_bitmapBu
     for (int i = 0; i < objTypeNum; ++i) {
         ptrs[i] = bitmapBuffer->getPage(_type, i, pageNo);
         usedPage[i].push_back(pageNo);
-        meta = (ChunkManagerMeta *) ptrs[i];
-        memset((char *) meta, 0, sizeof(ChunkManagerMeta));
-        meta->endPtr[i] = meta->startPtr[i] = ptrs[i] + sizeof(ChunkManagerMeta);
+        if (i == 0){
+            meta = (ChunkManagerMeta *) ptrs[i];
+            memset((char *) meta, 0, sizeof(ChunkManagerMeta));
+            meta->endPtr[i] = meta->startPtr[i] = ptrs[i] + sizeof(ChunkManagerMeta);
+        } else {
+            meta->startPtr[i] = meta->endPtr[i] = ptrs[i];
+        }
         //meta->length[type-1]的初始大小应该是1*MemoryBuffer::pagesize,即4KB
         meta->length[i] = usedPage[i].size() * MemoryBuffer::pagesize;
         meta->usedSpace[i] = 0;
         meta->tripleCount[i] = 0;
-        meta->pid = pid;
-        meta->type = _type;
     }
+    meta->pid = pid;
+    meta->type = _type;
 
     // TODO: @youyujie, the code beneath should be modified by youyujie
     if (meta->type == 0) {
