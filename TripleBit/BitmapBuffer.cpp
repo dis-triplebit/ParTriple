@@ -485,19 +485,25 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer *bitmapImage,
         if (soType == 0) {
             ChunkManager *manager = ChunkManager::load(id, 0, bitmapImage->get_address(), offset);
             manager->chunkIndex[0] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX,
-                                                         LineHashIndex::YBIGTHANX, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::ID, bitmapIndexImage->get_address(),
                                                          indexOffset);
             manager->chunkIndex[1] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX,
-                                                         LineHashIndex::XBIGTHANY, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::FLOAT, bitmapIndexImage->get_address(),
+                                                         indexOffset);
+            manager->chunkIndex[2] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX,
+                                                         LineHashIndex::DOUBLE, bitmapIndexImage->get_address(),
                                                          indexOffset);
             buffer->predicate_managers[0][id] = manager;
         } else if (soType == 1) {
             ChunkManager *manager = ChunkManager::load(id, 1, bitmapImage->get_address(), offset);
             manager->chunkIndex[0] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX,
-                                                         LineHashIndex::YBIGTHANX, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::ID, bitmapIndexImage->get_address(),
                                                          indexOffset);
             manager->chunkIndex[1] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX,
-                                                         LineHashIndex::XBIGTHANY, bitmapIndexImage->get_address(),
+                                                         LineHashIndex::FLOAT, bitmapIndexImage->get_address(),
+                                                         indexOffset);
+            manager->chunkIndex[2] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX,
+                                                         LineHashIndex::DOUBLE, bitmapIndexImage->get_address(),
                                                          indexOffset);
             buffer->predicate_managers[1][id] = manager;
         }
@@ -751,6 +757,7 @@ void ChunkManager::insertXY(unsigned x, Element y, unsigned len, unsigned char t
             memcpy(temp + sizeof(y.d), &x, sizeof(x));
             break;
     }
+    unsigned char aType = type;
     type = type % objTypeNum;
     //如果当前空间不够存放新的<x,y>对
     if (isPtrFull(type, len) == true) {
@@ -761,8 +768,8 @@ void ChunkManager::insertXY(unsigned x, Element y, unsigned len, unsigned char t
         } else {//不是第一个chunk
             //这个usedpage计算最后一个chunk使用了多少字节，length[0]存放的是当前谓词,x<=y的数据链表的已申请buffer大小
             size_t usedPage = MemoryBuffer::pagesize
-                              -
-                              (meta->length[type] - meta->usedSpace[type] - (type == 0 ? sizeof(ChunkManagerMeta) : 0));
+                              - (meta->length[type] - meta->usedSpace[type] -
+                                 (type == 0 ? sizeof(ChunkManagerMeta) : 0));
             //MetaData地址=尾指针-最后一个4KB字节使用的字节，即指向了最后一个4KB字节的首地址，也就是head区域
             MetaData *metaData = (MetaData *) (meta->endPtr[type] - usedPage);
             metaData->usedSpace = usedPage;
@@ -771,7 +778,24 @@ void ChunkManager::insertXY(unsigned x, Element y, unsigned len, unsigned char t
         resize(type);
         //为下一个4KB创建head信息，下一个chunk的metadata首地址是meta->endPtr[]
         MetaData *metaData = (MetaData *) (meta->endPtr[type]);
-        metaData->minID = x;
+
+        // Created by peng on 2019-04-24 20:18:25.
+        // origin minID stores the minimum id of chunk, but now the
+        // object have three types, so the type of minID should be
+        // changed from ID to double(double can hold ID and float)
+        if (aType < objTypeNum) metaData->minID = x;
+        else
+            switch (aType % objTypeNum) {
+                case 0:
+                    metaData->minID = y.id;
+                    break;
+                case 1:
+                    metaData->minID = y.f;
+                    break;
+                default:
+                    metaData->minID = y.d;
+            }
+
         metaData->haveNextPage = false;
         metaData->NextPageNo = 0;
         metaData->usedSpace = 0;
@@ -784,7 +808,24 @@ void ChunkManager::insertXY(unsigned x, Element y, unsigned len, unsigned char t
     } else if (meta->usedSpace[type] == 0) { //如果usedspace==0，即第一个chunk块，则创建head区域
         MetaData *metaData = (MetaData *) (meta->startPtr[type]);
         memset((char *) metaData, 0, sizeof(MetaData));//将head区域初始化为0
-        metaData->minID = x; // x must be the minID
+
+        // Created by peng on 2019-04-24 20:18:25.
+        // origin minID stores the minimum id of chunk, but now the
+        // object have three types, so the type of minID should be
+        // changed from ID to double(double can hold ID and float)
+        if (aType < objTypeNum) metaData->minID = x;
+        else
+            switch (aType % objTypeNum) {
+                case 0:
+                    metaData->minID = y.id;
+                    break;
+                case 1:
+                    metaData->minID = y.f;
+                    break;
+                default:
+                    metaData->minID = y.d;
+            }
+
         metaData->haveNextPage = false;
         metaData->NextPageNo = 0;
         metaData->usedSpace = 0;
@@ -828,6 +869,7 @@ Status ChunkManager::buildChunkIndex() {
 Status ChunkManager::updateChunkIndex() {
     chunkIndex[0]->updateLineIndex();
     chunkIndex[1]->updateLineIndex();
+    chunkIndex[2]->updateLineIndex();
 
     return OK;
 }
@@ -935,7 +977,7 @@ static inline unsigned int readUInt(const uchar *reader) {
     return (reader[0] << 24 | reader[1] << 16 | reader[2] << 8 | reader[3]);
 }
 
-const uchar *Chunk::readXId(const uchar *reader, register ID &id) {
+const uchar *Chunk::readXId(const uchar *reader, double &id, unsigned objType) {
 #ifdef WORD_ALIGN
     id = 0;
     register unsigned int c = *((unsigned int*)reader);
@@ -991,74 +1033,34 @@ const uchar *Chunk::readXId(const uchar *reader, register ID &id) {
     return reader;
 #else
     // Read an x id
-    register unsigned shift = 0;
-    id = 0;
-    register unsigned int c;
-
-    while (true) {
-        c = *reader;
-        if (!(c & 128)) {
-            id |= (c & 0x7F) << shift;
-            shift += 7;
-        } else {
+    switch (objType) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            id = *(ID *) reader;
+            reader += sizeof(ID);
             break;
-        }
-        reader++;
+        case 4:
+            id = *(float *) reader;
+            reader += sizeof(float);
+            break;
+        case 5:
+            id = *(double *) reader;
+            reader += sizeof(double);
+            break;
     }
     return reader;
-
-    // register unsigned shift = 0;
-    // id = 0;
-    // register unsigned int c;
-
-    // while (true) {
-    // 	c = *reader;
-    // 	if (!(c & 128)) {
-    // 		id |= c << shift;
-    // 		shift += 7;
-    // 	} else {
-    // 		break;
-    // 	}
-    // 	reader++;
-    // }
-    // return reader;
 #endif /* end for WORD_ALIGN */
 }
 
-const uchar *Chunk::readXYId(const uchar *reader, register ID &xid, register ID &yid) {
+const uchar *Chunk::readXYId(const uchar *reader, double &xid, double &yid, unsigned objType) {
 
-    register unsigned shift = 0;
-    xid = 0;
-    register unsigned int c;
-
-    while (true) {
-        c = *reader;
-        if (!(c & 128)) {
-            xid |= (c & 0x7F) << shift;
-            shift += 7;
-        } else {
-            break;
-        }
-        reader++;
-    }
-
-    shift = 0;
-    yid = 0;
-
-    while (true) {
-        c = *reader;
-        if (c & 128) {
-            yid |= (c & 0x7F) << shift;
-            shift += 7;
-        } else {
-            break;
-        }
-        reader++;
-    }
+    readYId(readXId(reader, xid, objType), yid, objType);
     return reader;
 }
 
-const uchar *Chunk::readYId(const uchar *reader, register ID &id) {
+const uchar *Chunk::readYId(const uchar *reader, double &id, unsigned objType) {
     // Read an y id
 #ifdef WORD_ALIGN
     id = 0;
@@ -1113,77 +1115,128 @@ const uchar *Chunk::readYId(const uchar *reader, register ID &id) {
     }
     return reader;
 #else
-
-
-    register unsigned shift = 0;
-    id = 0;
-    register unsigned int c;
-
-
-    while (true) {
-        c = *reader;
-        if (c & 128) {
-            id |= (c & 0x7F) << shift;
-            shift += 7;
-        } else {
+    switch (objType) {
+        case 0:
+            id = *(ID *) reader;
+            reader += sizeof(ID);
             break;
-        }
-        reader++;
+        case 1:
+            id = *(float *) reader;
+            reader += sizeof(float);
+            break;
+        case 2:
+            id = *(double *) reader;
+            reader += sizeof(double);
+            break;
+        case 3:
+        case 4:
+        case 5:
+            id = *(ID *) reader;
+            reader += sizeof(ID);
+            break;
     }
     return reader;
 #endif /* END FOR WORD_ALIGN */
 }
 
-uchar *Chunk::deleteXId(uchar *reader)
+uchar *Chunk::deleteXId(uchar *reader, unsigned objType)
 /// Delete a subject id (just set the id to 0)
 {
-    register unsigned int c;
-
-    while (true) {
-        c = *reader;
-        if (!(c & 128))
-            (*reader) = 0;
-        else
+    switch (objType) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            *(ID *) reader = 0;
+            reader += sizeof(ID);
             break;
-        reader++;
+        case 4:
+            *(float *) reader = 0;
+            reader += sizeof(float);
+            break;
+        case 5:
+            *(double *) reader = 0;
+            reader += sizeof(double);
+            break;
     }
     return reader;
 }
 
-uchar *Chunk::deleteYId(uchar *reader)
+uchar *Chunk::deleteYId(uchar *reader, unsigned objType)
 /// Delete an object id (just set the id to 0)
 {
-    register unsigned int c;
-
-    while (true) {
-        c = *reader;
-        if (c & 128)
-            (*reader) = (*reader) & 0x80;
-        else
+    switch (objType) {
+        case 0:
+            *(ID *) reader = 0;
+            reader += sizeof(ID);
             break;
-        reader++;
+        case 1:
+            *(float *) reader = 0;
+            reader += sizeof(float);
+            break;
+        case 2:
+            *(double *) reader = 0;
+            reader += sizeof(double);
+            break;
+        case 3:
+        case 4:
+        case 5:
+            *(ID *) reader = 0;
+            reader += sizeof(ID);
+            break;
     }
     return reader;
 }
 
-const uchar *Chunk::skipId(const uchar *reader, unsigned char flag) {
+/**
+ * skip an id(x or y)
+ * @param reader
+ * @param flag 0: skip x, 1: skip y
+ * @return
+ */
+const uchar *Chunk::skipId(const uchar *reader, unsigned char flag, unsigned objType) {
     // Skip an id
-    if (flag == 1) {
-        while ((*reader) & 128)
-            ++reader;
+    if (flag) {
+        switch (objType) {
+            case 1:
+                reader += sizeof(float);
+                break;
+            case 2:
+                reader += sizeof(double);
+                break;
+            case 0:
+            case 3:
+            case 4:
+            case 5:
+                reader += sizeof(ID);
+                break;
+        }
     } else {
-        while (!((*reader) & 128))
-            ++reader;
+        switch (objType) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                reader += sizeof(ID);
+                break;
+            case 4:
+                reader += sizeof(float);
+                break;
+            case 5:
+                reader += sizeof(double);
+                break;
+        }
     }
-
     return reader;
 }
 
-const uchar *Chunk::skipForward(const uchar *reader) {
+const uchar *Chunk::skipForward(const uchar *reader, unsigned objType) {
     // skip a x,y forward;
-    return skipId(skipId(reader, 0), 1);
+    return skipId(skipId(reader, 0, objType), 1, objType);
 }
 
+// Created by peng on 2019-04-24 22:48:45.
+// TODO: remain to be changed
 const uchar *Chunk::skipBackward(const uchar *reader) {
     // skip backward to the last x,y;
     while ((*reader) == 0)
@@ -1195,6 +1248,8 @@ const uchar *Chunk::skipBackward(const uchar *reader) {
     return ++reader;
 }
 
+// Created by peng on 2019-04-24 22:49:11.
+// TODO: remain to be changed
 const uchar *Chunk::skipBackward(const uchar *reader, const uchar *begin, unsigned type) {
     //if is the begin of One Chunk
     if (type == 1) {
