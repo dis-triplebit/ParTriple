@@ -40,7 +40,7 @@ MMapBuffer::MMapBuffer(const char* _filename, size_t initSize) : filename(_filen
 	if(mmap_addr == MAP_FAILED) {
 		perror(_filename);
 		cout<<"size: "<<size<<endl;
-		MessageEngine::showMessage("map file to memory error", MessageEngine::ERROR);
+		MessageEngine::showMessage("MMapBuffer::MMapBuffer:map file to memory error", MessageEngine::ERROR);
 	}
 }
 

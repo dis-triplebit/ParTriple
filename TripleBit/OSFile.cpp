@@ -38,7 +38,6 @@ bool OSFile::directoryExists(const string path)
 {
 	struct stat sbuff;
 	if( stat(path.c_str(),&sbuff) == 0 ){
-		cout<<"asdfasf"<<endl;
 		if( S_ISDIR(sbuff.st_mode) )
 			return true;
 	}
