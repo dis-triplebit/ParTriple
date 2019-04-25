@@ -184,6 +184,7 @@ int TripleBitBuilder::compare321(const char* left, const char* right) {
 }
 
 Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
+    rawFacts.discard();
     for (int i = 1; i < 10; ++i) {
         for (int j = 1; j < 10; ++j) {
             for (int k = 11; k < 20; ++k) {
@@ -193,6 +194,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
             }
         }
     }
+    bitmap->flush();
     bitmap->save();
     string filename = "database/BitmapBuffer";
     string predicateFile(filename);

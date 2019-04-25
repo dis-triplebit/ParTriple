@@ -372,7 +372,7 @@ void BitmapBuffer::save() {
         map<ID, ChunkManager *>::iterator iter;
         for (iter = m.begin(); iter!= m.end();++iter) {
             ID id = *((ID *) predicateWriter);
-            assert(iter->first == id);
+            //assert(iter->first == id);
             chunkManagerOffset = *(size_t *) (predicateWriter + sizeof(ID) + sizeof(SOType));
             char *base = buffer->get_address() + chunkManagerOffset;
             iter->second->meta = (ChunkManagerMeta *) base;
