@@ -365,7 +365,7 @@ void HashIndex::save(MMapBuffer*& buffer)
 
 HashIndex* HashIndex::load(ChunkManager& manager, unsigned chunkType, char* buffer, unsigned int& offset)
 {
-	HashIndex* index = new HashIndex(manager, type);
+	HashIndex* index = new HashIndex(manager, chunkType);
 	size_t size = ((ID*)(buffer + offset))[0];
 	index->hashTableEntries = (double*)(buffer + offset + sizeof(double));
 	index->hashTableSize = size / sizeof(double) - 1;

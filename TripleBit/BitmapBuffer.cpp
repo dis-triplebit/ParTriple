@@ -100,8 +100,8 @@ ChunkManager *BitmapBuffer::getChunkManager(ID id, unsigned char type) {
 }
 
 /*
- *	@param f: 0 for triple being sorted by subject; 1 for triple being sorted by object
- *         flag: objType;
+ *	@param typeID: 0 for triple being sorted by subject; 1 for triple being sorted by object
+ *         objType: objType;
  */
 // TODO: this function may need to be modified if the way id coded changed
 Status BitmapBuffer::insertTriple(ID predicateID, ID xID, Element yID, unsigned objType, unsigned char typeID) {
@@ -325,35 +325,37 @@ unsigned char BitmapBuffer::getLen(ID id) {
 // this function will be called only once when executing buildTriplebitFromN3
 // TODO: need to be changed
 void BitmapBuffer::save() {
-    string filename = dir + "/BitmapBuffer";
-    string predicateFile(filename.append("_predicate"));
+    string filename = dir + "/BitmapBuffer_predicate";
+    string predicateFile(filename);
 
-    MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
-                                                 predicate_managers[0].size() *
-                                                 (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
+    size_t predicateBufferSize = predicate_managers[0].size() * 2
+                                 * (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2);
+    MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(), predicateBufferSize);
 
     size_t bufferPageNum = usedPage1 + usedPage2 + usedPage3
                            + usedPage4 + usedPage5 + usedPage6;
     // Created by peng on 2019-04-19 15:25:51.
     // directly alloc all the memory that the buffer need.
+    filename = dir + "/BitmapBuffer";
     MMapBuffer *buffer = new MMapBuffer(filename.c_str(), bufferPageNum * MemoryBuffer::pagesize);
 
     char *predicateWriter = predicateBuffer->get_address();
     char *bufferWriter = buffer->get_address();
     size_t chunkManagerOffset = 0;
     for (SOType i = 0; i < 2; ++i) {
-        const map<ID, ChunkManager *> &map = predicate_managers[i];
-        for (auto &entry: map) {
+        map<ID, ChunkManager *> &m = predicate_managers[i];
+        map<ID, ChunkManager *>::iterator iter;
+        for (iter = m.begin(); iter != m.end(); ++iter) {
             // Created by peng on 2019-04-19 15:40:30.
             // firstly save predicate info
-            *(ID *) predicateWriter = entry.first;
+            *(ID *) predicateWriter = iter->first;
             predicateWriter += sizeof(ID);
             // i indicate order type(so or os)
             *(SOType *) predicateWriter = i;
             predicateWriter += sizeof(SOType);
             *(size_t *) predicateWriter = chunkManagerOffset;
             predicateWriter += sizeof(size_t) * 2;
-            size_t increment = entry.second->save(bufferWriter, i) * MemoryBuffer::pagesize;
+            size_t increment = iter->second->save(bufferWriter, i) * MemoryBuffer::pagesize;
             chunkManagerOffset += increment;
             bufferWriter += increment;
         }
@@ -367,14 +369,16 @@ void BitmapBuffer::save() {
     //以S排序的关联矩阵的metadata计算
     predicateWriter = predicateBuffer->get_address();
     for (int i = 0; i < 2; ++i) {
-        const map<ID, ChunkManager *> &map = predicate_managers[i];
-        for (auto &entry : map) {
+        map<ID, ChunkManager *> &m = predicate_managers[i];
+        map<ID, ChunkManager *>::iterator iter;
+        for (iter = m.begin(); iter != m.end(); ++iter) {
             ID id = *((ID *) predicateWriter);
-            assert(entry.first == id);
+            assert(iter->first == id);
             chunkManagerOffset = *(size_t *) (predicateWriter + sizeof(ID) + sizeof(SOType));
+            predicateWriter += sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2;
             char *base = buffer->get_address() + chunkManagerOffset;
-            entry.second->meta = (ChunkManagerMeta *) base;
-            ChunkManagerMeta *meta = entry.second->meta;
+            iter->second->meta = (ChunkManagerMeta *) base;
+            ChunkManagerMeta *meta = iter->second->meta;
             for (int j = 0; j < objTypeNum; ++j) {
                 meta->startPtr[j] = base + (j == 0 ? sizeof(ChunkManagerMeta) : 0);
                 meta->endPtr[j] = meta->startPtr[j] + meta->usedSpace[j];
@@ -666,16 +670,20 @@ ChunkManager::ChunkManager(unsigned pid, unsigned _type, BitmapBuffer *_bitmapBu
     for (int i = 0; i < objTypeNum; ++i) {
         ptrs[i] = bitmapBuffer->getPage(_type, i, pageNo);
         usedPage[i].push_back(pageNo);
-        meta = (ChunkManagerMeta *) ptrs[i];
-        memset((char *) meta, 0, sizeof(ChunkManagerMeta));
-        meta->endPtr[i] = meta->startPtr[i] = ptrs[i] + sizeof(ChunkManagerMeta);
+        if (i == 0) {
+            meta = (ChunkManagerMeta *) ptrs[i];
+            memset((char *) meta, 0, sizeof(ChunkManagerMeta));
+            meta->endPtr[i] = meta->startPtr[i] = ptrs[i] + sizeof(ChunkManagerMeta);
+        } else {
+            meta->startPtr[i] = meta->endPtr[i] = ptrs[i];
+        }
         //meta->length[type-1]的初始大小应该是1*MemoryBuffer::pagesize,即4KB
         meta->length[i] = usedPage[i].size() * MemoryBuffer::pagesize;
         meta->usedSpace[i] = 0;
         meta->tripleCount[i] = 0;
-        meta->pid = pid;
-        meta->type = _type;
     }
+    meta->pid = pid;
+    meta->type = _type;
 
     // TODO: @youyujie, the code beneath should be modified by youyujie
     if (meta->type == 0) {
