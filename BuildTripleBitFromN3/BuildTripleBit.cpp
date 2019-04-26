@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	DATABASE_PATH = argv[2];
 	TripleBitBuilder* builder = new TripleBitBuilder(argv[2]);
 	builder->startBuildN3(argv[1]);
-	builder->endBuild();
+	//builder->endBuild();
  	delete builder;
 
  	return 0;

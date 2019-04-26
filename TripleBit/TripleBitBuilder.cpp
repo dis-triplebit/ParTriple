@@ -35,7 +35,7 @@ static int getCharPos(const char* data, char ch)
 TripleBitBuilder::TripleBitBuilder(string _dir) : dir(_dir) {
 //	preTable = new PredicateTable(dir);
 //	uriTable = new URITable(dir);
-	bitmap = new BitmapBuffer(dir);
+//	bitmap = new BitmapBuffer(dir);
 //
 //	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/subject_statis"), StatisticsBuffer::SUBJECT_STATIS);			//subject statistics buffer;
 //	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/object_statis"), StatisticsBuffer::OBJECT_STATIS);			//object statistics buffer;
@@ -185,12 +185,14 @@ int TripleBitBuilder::compare321(const char* left, const char* right) {
 
 Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
     rawFacts.discard();
+    bitmap = new BitmapBuffer("database");
     for (int i = 1; i < 10; ++i) {
         for (int j = 1; j < 10; ++j) {
             for (int k = 11; k < 20; ++k) {
                 Element obj;
                 obj.id = k;
                 bitmap->insertTriple(j, i, obj, 0, 0);
+                bitmap->insertTriple(j, i, obj, 3, 1);
             }
         }
     }
@@ -205,18 +207,21 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
     MMapBuffer* bitmapPredicateImage = new MMapBuffer(predicateFile.c_str(), 0);
     MMapBuffer* bitmapIndexImage = new MMapBuffer(indexFile.c_str(), 0);
     bitmap = BitmapBuffer::load(bitmapImage, bitmapIndexImage, bitmapPredicateImage);
-    map<ID, ChunkManager*> &m = bitmap->predicate_managers[0];
-    map<ID, ChunkManager*>::iterator iter;
-    for (iter = m.begin(); iter != m.end(); ++iter) {
-        double x, y;
-        uchar *start = iter->second->getStartPtr(0);
-        uchar *end = iter->second->getEndPtr(0);
-        while (start < end) {
-            Chunk::readXYId(start, x, y, 0);
-            start += 8;
-            cout << x << "\t" << y <<endl;
+    for (int i = 0; i < 2; ++i) {
+        map<ID, ChunkManager*> &m = bitmap->predicate_managers[i];
+        map<ID, ChunkManager*>::iterator iter;
+        for (iter = m.begin(); iter != m.end(); ++iter) {
+            double x, y;
+            uchar *start = iter->second->getStartPtr(0) + sizeof(MetaData);
+            uchar *end = iter->second->getEndPtr(0);
+            while (start < end) {
+                Chunk::readXYId(start, x, y, i==0?0:3);
+                start += 8;
+                cout <<   x << '\t' << iter->first << "\t" << y <<endl;
+            }
         }
     }
+
     /*
 	cout<<"Sort by Subject"<<endl;
 	ID subjectID, objectID, predicateID;
