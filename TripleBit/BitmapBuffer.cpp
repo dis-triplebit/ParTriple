@@ -974,61 +974,85 @@ static inline unsigned int readUInt(const uchar *reader) {
     return (reader[0] << 24 | reader[1] << 16 | reader[2] << 8 | reader[3]);
 }
 
-const uchar *Chunk::readXId(const uchar *reader, double &id, unsigned objType) {
-#ifdef WORD_ALIGN
-    id = 0;
-    register unsigned int c = *((unsigned int*)reader);
-    register unsigned int flag = c & 0x80808080; /* get the first bit of every byte. */
-    switch(flag) {
-        case 0: //reads 4 or more bytes;
-        id = *reader;
-        reader++;
-        id = id | ((*reader) << 7);
-        reader++;
-        id = id | ((*reader) << 14);
-        reader++;
-        id = id | ((*reader) << 21);
-        reader++;
-        if(*reader < 128) {
-            id = id | ((*reader) << 28);
-            reader++;
-        }
-        break;
-        case 0x80000080:
-        case 0x808080:
-        case 0x800080:
-        case 0x80008080:
-        case 0x80:
-        case 0x8080:
-        case 0x80800080:
-        case 0x80808080:
-        break;
-
-        case 0x80808000://reads 1 byte;
-        case 0x808000:
-        case 0x8000:
-        case 0x80008000:
-        id = *reader;
-        reader++;
-        break;
-        case 0x800000: //read 2 bytes;
-        case 0x80800000:
-        id = *reader;
-        reader++;
-        id = id | ((*reader) << 7);
-        reader++;
-        break;
-        case 0x80000000: //reads 3 bytes;
-        id = *reader;
-        reader++;
-        id = id | ((*reader) << 7);
-        reader++;
-        id = id | ((*reader) << 14);
-        reader++;
-        break;
+const uchar *Chunk::readXId(const uchar *reader, ID &id) {
+    // Read an x id
+    id = *(ID *) reader;
+    reader += sizeof(ID);
+    return reader;
+    /*
+    switch (objType) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            id = *(ID *) reader;
+            reader += sizeof(ID);
+            break;
+        case 4:
+            id = *(float *) reader;
+            reader += sizeof(float);
+            break;
+        case 5:
+            id = *(double *) reader;
+            reader += sizeof(double);
+            break;
     }
     return reader;
-#else
+     */
+}
+const uchar *Chunk::readXId(const uchar *reader, float &id) {
+    // Read an x id
+    id = *(float *) reader;
+    reader += sizeof(float);
+    return reader;
+    /*
+    switch (objType) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            id = *(ID *) reader;
+            reader += sizeof(ID);
+            break;
+        case 4:
+            id = *(float *) reader;
+            reader += sizeof(float);
+            break;
+        case 5:
+            id = *(double *) reader;
+            reader += sizeof(double);
+            break;
+    }
+    return reader;
+     */
+}
+const uchar *Chunk::readXId(const uchar *reader, double &id) {
+    // Read an x id
+    id = *(double *) reader;
+    reader += sizeof(double);
+    return reader;
+    /*
+    switch (objType) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            id = *(ID *) reader;
+            reader += sizeof(ID);
+            break;
+        case 4:
+            id = *(float *) reader;
+            reader += sizeof(float);
+            break;
+        case 5:
+            id = *(double *) reader;
+            reader += sizeof(double);
+            break;
+    }
+    return reader;
+     */
+}
+const uchar *Chunk::readXId(const uchar *reader, double &id, unsigned objType) {
     // Read an x id
     switch (objType) {
         case 0:
@@ -1048,70 +1072,59 @@ const uchar *Chunk::readXId(const uchar *reader, double &id, unsigned objType) {
             break;
     }
     return reader;
-#endif /* end for WORD_ALIGN */
 }
 
+const uchar *Chunk::readXYId(const uchar *reader, ID &xid, ID &yid) {
+
+    readYId(readXId(reader, xid), yid);
+    return reader;
+}
+const uchar *Chunk::readXYId(const uchar *reader, ID &xid, float &yid) {
+
+    readYId(readXId(reader, xid), yid);
+    return reader;
+}
+const uchar *Chunk::readXYId(const uchar *reader, ID &xid, double &yid) {
+
+    readYId(readXId(reader, xid), yid);
+    return reader;
+}
+const uchar *Chunk::readXYId(const uchar *reader, float &xid, ID &yid) {
+
+    readYId(readXId(reader, xid), yid);
+    return reader;
+}
+const uchar *Chunk::readXYId(const uchar *reader, double &xid, ID &yid) {
+
+    readYId(readXId(reader, xid), yid);
+    return reader;
+}
 const uchar *Chunk::readXYId(const uchar *reader, double &xid, double &yid, unsigned objType) {
 
     readYId(readXId(reader, xid, objType), yid, objType);
     return reader;
 }
 
+const uchar *Chunk::readYId(const uchar *reader, ID &id) {
+    // Read an y id
+    id = *(ID *) reader;
+    reader += sizeof(ID);
+    return reader;
+}
+const uchar *Chunk::readYId(const uchar *reader, float &id) {
+    // Read an y id
+    id = *(float *) reader;
+    reader += sizeof(float);
+    return reader;
+}
+const uchar *Chunk::readYId(const uchar *reader, double &id) {
+    // Read an y id
+    id = *(double *) reader;
+    reader += sizeof(double);
+    return reader;
+}
 const uchar *Chunk::readYId(const uchar *reader, double &id, unsigned objType) {
     // Read an y id
-#ifdef WORD_ALIGN
-    id = 0;
-    register unsigned int c = *((unsigned int*)reader);
-    register unsigned int flag = c & 0x80808080; /* get the first bit of every byte. */
-    switch(flag) {
-        case 0: //no byte;
-        case 0x8000:
-        case 0x808000:
-        case 0x80008000:
-        case 0x80800000:
-        case 0x800000:
-        case 0x80000000:
-        case 0x80808000:
-        break;
-        case 0x80:
-        case 0x80800080:
-        case 0x80000080:
-        case 0x800080: //one byte
-        id = (*reader)& 0x7F;
-        reader++;
-        break;
-        case 0x8080:
-        case 0x80008080: // two bytes
-        id = (*reader)& 0x7F;
-        reader++;
-        id = id | (((*reader) & 0x7F) << 7);
-        reader++;
-        break;
-        case 0x808080: //three bytes;
-        id = (*reader) & 0x7F;
-        reader++;
-        id = id | (((*reader) & 0x7F) << 7);
-        reader++;
-        id = id | (((*reader) & 0x7F) << 14);
-        reader++;
-        break;
-        case 0x80808080: //reads 4 or 5 bytes;
-        id = (*reader) & 0x7F;
-        reader++;
-        id = id | (((*reader) & 0x7F) << 7);
-        reader++;
-        id = id | (((*reader) & 0x7F) << 14);
-        reader++;
-        id = id | (((*reader) & 0x7F) << 21);
-        reader++;
-        if(*reader >= 128) {
-            id = id | (((*reader) & 0x7F) << 28);
-            reader++;
-        }
-        break;
-    }
-    return reader;
-#else
     switch (objType) {
         case 0:
             id = *(ID *) reader;
@@ -1133,7 +1146,6 @@ const uchar *Chunk::readYId(const uchar *reader, double &id, unsigned objType) {
             break;
     }
     return reader;
-#endif /* END FOR WORD_ALIGN */
 }
 
 uchar *Chunk::deleteXId(uchar *reader, unsigned objType)

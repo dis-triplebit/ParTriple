@@ -219,10 +219,21 @@ public:
 		return type;
 	}
 	///Read x y
-	static const uchar* readXYId(const uchar* reader, double& xid, double &yid, unsigned objType);
+    static const uchar* readXYId(const uchar* reader, ID& xid, ID &yid);
+    static const uchar* readXYId(const uchar* reader, ID& xid, float &yid);
+	static const uchar* readXYId(const uchar* reader, ID& xid, double &yid);
+    static const uchar* readXYId(const uchar* reader, float& xid, ID &yid);
+    static const uchar* readXYId(const uchar* reader, double& xid, ID &yid);
+    static const uchar* readXYId(const uchar* reader, double& xid, double &yid, unsigned objType);
 	/// Read a subject id
+	static const uchar* readXId(const uchar* reader, ID& id);
+	static const uchar* readXId(const uchar* reader, float& id);
+	static const uchar* readXId(const uchar* reader, double& id);
 	static const uchar* readXId(const uchar* reader, double& id, unsigned objType);
 	/// Read an object id
+	static const uchar* readYId(const uchar* reader, ID& id);
+	static const uchar* readYId(const uchar* reader, float& id);
+	static const uchar* readYId(const uchar* reader, double& id);
 	static const uchar* readYId(const uchar* reader, double& id, unsigned objType);
 	/// Delete a subject id (just set the id to 0)
 	static uchar* deleteXId(uchar* reader, unsigned objType);
