@@ -381,15 +381,15 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			//object类型可比较，inserttriple写入字面值
 			if (objecttype == "Integer") {
 				objectelement.f = stoi(object);
-				bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 1, 0);
+				bitmap->insertTriple(predicateID, subjectID, objectelement, 1, 0);
 			}else {
 				objectelement.d = stod(object);
-				bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 2, 0);
+				bitmap->insertTriple(predicateID, subjectID, objectelement, 2, 0);
 			}
 		}else {
 			//object类型不可比较，inserttriple写入ID
 			objectelement.id = objectID;
-			bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 0, 0);
+			bitmap->insertTriple(predicateID, subjectID, objectelement, 0, 0);
 		}
 		count0 = count1 = 1;//count0 表示同一个S（O）出现的次数，count表示同一个SP（OP）出现的次数
 		while (reader < limit) {
@@ -437,17 +437,17 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				//object类型可比较，inserttriple写入字面值
 				if (objecttype == "Integer") {
 					objectelement.f = stoi(object);
-					bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 1, 0);
+					bitmap->insertTriple(predicateID, subjectID, objectelement, 1, 0);
 				}
 				else {
 					objectelement.d = stod(object);
-					bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 2, 0);
+					bitmap->insertTriple(predicateID, subjectID, objectelement, 2, 0);
 				}
 			}
 			else {
 				//object类型不可比较，inserttriple写入ID
 				objectelement.id = objectID;
-				bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 0, 0);
+				bitmap->insertTriple(predicateID, subjectID, objectelement, 0, 0);
 			}
 		}
 		((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject,
@@ -462,17 +462,17 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			//object类型可比较，inserttriple写入字面值
 			if (objecttype == "Integer") {
 				objectelement.f = stoi(object);
-				bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 4, 1);
+				bitmap->insertTriple(predicateID, subjectID, objectelement, 4, 1);
 			}
 			else {
 				objectelement.d = stod(object);
-				bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 5, 1);
+				bitmap->insertTriple(predicateID, subjectID, objectelement, 5, 1);
 			}
 		}
 		else {
 			//object类型不可比较，inserttriple写入ID
 			objectelement.id = objectID;
-			bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 3, 1);
+			bitmap->insertTriple(predicateID, subjectID, objectelement, 3, 1);
 		}
 		count0 = count1 = 1;
 		while (reader < limit) {
@@ -515,17 +515,17 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				//object类型可比较，inserttriple写入字面值
 				if (objecttype == "Integer") {
 					objectelement.f = stoi(object);
-					bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 4, 1);
+					bitmap->insertTriple(predicateID, subjectID, objectelement, 4, 1);
 				}
 				else {
 					objectelement.d = stod(object);
-					bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 5, 1);
+					bitmap->insertTriple(predicateID, subjectID, objectelement, 5, 1);
 				}
 			}
 			else {
 				//object类型不可比较，inserttriple写入ID
 				objectelement.id = objectID;
-				bitmap->ganpenginsertTriple(predicateID, subjectID, objectelement, 3, 1);
+				bitmap->insertTriple(predicateID, subjectID, objectelement, 3, 1);
 			}
 		}
 		((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject,count0);
