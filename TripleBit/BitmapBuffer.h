@@ -18,12 +18,7 @@ class ChunkManager;
 #include "LineHashIndex.h"
 #include "ThreadPool.h"
 
-#define objTypeNum 3
-union Element {
-    ID id;
-    float f;
-    double d;
-};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///// class BitmapBuffer
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,11 +33,13 @@ public:
     //	temp1 = new MMapBuffer(filename.c_str(), INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 	MMapBuffer *temp1, *temp2, *temp3, *temp4, *temp5, *temp6;
 	/**
-	 * usedPage1: x < y && so
-	 * usedPage2: x < y && os
-	 * usedPage3: x > y && so
-	 * usedPage4: x > y && os
-	 * tempX store the triples corresponding to these four types
+	 * usedPage1: objType=string && so
+	 * usedPage2: objType=float && so
+	 * usedPage3: objType=double && so
+	 * usedPage4: objType=string && os
+     * usedPage5: objType=float && os
+     * usedPage6: objType=double && os
+	 * tempX store the triples corresponding to these six types
 	 */
 	size_t usedPage1, usedPage2, usedPage3, usedPage4, usedPage5, usedPage6;
 public:
@@ -86,19 +83,18 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////////
 struct ChunkManagerMeta
 {
-    //usedPage[0].size() * MemoryBuffer::pagesize;
-	size_t length[objTypeNum];	  //length[0],记录整个x<=y分块的已经申请的空间长度,1表示x>y
-	size_t usedSpace[objTypeNum];  //usedSpace[0],记录整个x<=y分块除了chunkManagerMeta之外已经使用的空间
-	int tripleCount[objTypeNum];	  //tripleCount[0],记录整个x<=y分块的三元组个数
+	size_t length[objTypeNum];	  //length[objTypeNum],记录整个obj分块的已经申请的空间长度
+	size_t usedSpace[objTypeNum];  //usedSpace[objTypeNum],记录整个obj分块除了chunkManagerMeta之外已经使用的空间
+	int tripleCount[objTypeNum];	  //tripleCount[objTypeNum],记录整个obj分块的三元组个数
 	unsigned type;		  //type表示分块的类型,0表示orderByS,1表示orderByO
 	unsigned pid;		  //谓词ID
-	char* startPtr[objTypeNum];	  //startPtr[0],记录不同obj分块的起始地址
-	char* endPtr[objTypeNum];	  //endPtr[0],记录不同obj分块的结束地址
+	char* startPtr[objTypeNum];	  //startPtr[objTypeNum],记录不同obj分块的起始地址
+	char* endPtr[objTypeNum];	  //endPtr[objTypeNum],记录不同obj分块的结束地址
 };
 
 struct MetaData
 {
-	ID minID;
+	double minID;
 	size_t usedSpace;
 	bool haveNextPage;
 	size_t NextPageNo;
@@ -113,7 +109,7 @@ private:
 	static unsigned int bufferCount;
 
 	///hash index; index the subject and object
-	LineHashIndex* chunkIndex[2];
+	LineHashIndex* chunkIndex[objTypeNum];
 
 	BitmapBuffer* bitmapBuffer;
 
@@ -136,10 +132,7 @@ public:
 	}
 
 	LineHashIndex* getChunkIndex(int type) {
-		if(type > 2 || type < 1) {
-			return NULL;
-		}
-		return chunkIndex[type - 1];
+		return chunkIndex[type];
 	}
 
 	bool isPtrFull(unsigned char type, unsigned len);
@@ -167,12 +160,15 @@ public:
 	}
 
 	uchar* getEndPtr(unsigned char type) {
-		return reinterpret_cast<uchar*> (meta->endPtr[type]);
+        return reinterpret_cast<uchar*> (meta->endPtr[type]);
 	}
 
 	Status buildChunkIndex();
 	Status updateChunkIndex();
 	static ChunkManager* load(unsigned pid, unsigned type, char* buffer, size_t& offset);
+	// Created by peng on 2019-04-23 14:48:23.
+	// this function is used to save a ChunkManager
+	// called by BitmapBuffer::save
     size_t save(char* buffer, SOType type);
 };
 
@@ -223,21 +219,32 @@ public:
 		return type;
 	}
 	///Read x y
-	static const uchar* readXYId(const uchar* reader,register ID& xid,register ID &yid);
+    static const uchar* readXYId(const uchar* reader, ID& xid, ID &yid);
+    static const uchar* readXYId(const uchar* reader, ID& xid, float &yid);
+	static const uchar* readXYId(const uchar* reader, ID& xid, double &yid);
+    static const uchar* readXYId(const uchar* reader, float& xid, ID &yid);
+    static const uchar* readXYId(const uchar* reader, double& xid, ID &yid);
+    static const uchar* readXYId(const uchar* reader, double& xid, double &yid, unsigned objType);
 	/// Read a subject id
-	static const uchar* readXId(const uchar* reader, register ID& id);
+	static const uchar* readXId(const uchar* reader, ID& id);
+	static const uchar* readXId(const uchar* reader, float& id);
+	static const uchar* readXId(const uchar* reader, double& id);
+	static const uchar* readXId(const uchar* reader, double& id, unsigned objType);
 	/// Read an object id
-	static const uchar* readYId(const uchar* reader, register ID& id);
+	static const uchar* readYId(const uchar* reader, ID& id);
+	static const uchar* readYId(const uchar* reader, float& id);
+	static const uchar* readYId(const uchar* reader, double& id);
+	static const uchar* readYId(const uchar* reader, double& id, unsigned objType);
 	/// Delete a subject id (just set the id to 0)
-	static uchar* deleteXId(uchar* reader);
+	static uchar* deleteXId(uchar* reader, unsigned objType);
 	/// Delete a object id (just set the id to 0)
-	static uchar* deleteYId(uchar* reader);
+	static uchar* deleteYId(uchar* reader, unsigned objType);
 	/// Skip a s or o
-	static const uchar* skipId(const uchar* reader, unsigned char flag);
+	static const uchar* skipId(const uchar* reader, unsigned char flag, unsigned objType);
 	/// Skip backward to s
-	static const uchar* skipBackward(const uchar* reader);
-	static const uchar* skipBackward(const uchar* reader, const uchar* begin, unsigned type);
-	static const uchar* skipForward(const uchar* reader);
+	static const uchar* skipBackward(const uchar* reader, unsigned objType);
+	static const uchar* skipBackward(const uchar* reader, const uchar* begin, unsigned objType);
+	static const uchar* skipForward(const uchar* reader, unsigned objType);
 	ID getXMax(void) {
 		return xMax;
 	}

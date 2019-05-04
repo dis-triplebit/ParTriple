@@ -175,6 +175,15 @@ typedef long long          longlong;
 typedef size_t       OffsetType;
 typedef size_t       HashCodeType;
 
+// Created by peng on 2019-04-24 11:04:43.
+// new type struct
+#define objTypeNum 3
+union Element {
+    ID id;
+    float f;
+    double d;
+};
+
 extern const ID INVALID_ID;
 
 #define BITVECTOR_INITIAL_SIZE 100
