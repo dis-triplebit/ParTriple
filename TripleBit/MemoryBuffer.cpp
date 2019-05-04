@@ -1,15 +1,26 @@
-/*
- * MemoryBuffer.cpp
- *
- *  Created on: Apr 17, 2010
- *      Author: root
- */
+//---------------------------------------------------------------------------
+// TripleBit
+// (c) 2011 Massive Data Management Group @ SCTS & CGCL. 
+//     Web site: http://grid.hust.edu.cn/triplebit
+//
+// This work is licensed under the Creative Commons
+// Attribution-Noncommercial-Share Alike 3.0 Unported License. To view a copy
+// of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/
+// or send a letter to Creative Commons, 171 Second Street, Suite 300,
+// San Francisco, California, 94105, USA.
+//---------------------------------------------------------------------------
 
 #include "MemoryBuffer.h"
 
 unsigned MemoryBuffer::pagesize = 4096; //4KB
 
+MemoryBuffer::MemoryBuffer()
+{
+
+}
+
 MemoryBuffer::MemoryBuffer(unsigned _size) :size(_size) {
+	// TODO Auto-generated constructor stub
 	buffer = NULL;
 	buffer = (char*)malloc(size * sizeof(char));
 	if(buffer == NULL) {
@@ -20,6 +31,7 @@ MemoryBuffer::MemoryBuffer(unsigned _size) :size(_size) {
 }
 
 MemoryBuffer::~MemoryBuffer() {
+	// TODO Auto-generated destructor stub
 	//free the buffer
 	if(buffer != NULL)
 		free(buffer);
@@ -27,7 +39,6 @@ MemoryBuffer::~MemoryBuffer() {
 	size = 0;
 }
 
-// maybe it's better to name this function to "expand"?
 char* MemoryBuffer::resize(unsigned increaseSize)
 {
 	size_t newsize = size + increaseSize;
@@ -89,7 +100,6 @@ void MemoryBuffer::load(ifstream& ifile)
 	ifile>>size;
 	ifile>>offset;
 
-    // skip space
 	ifile.get();
 
 	if( buffer != NULL) {
@@ -143,12 +153,14 @@ void MemoryBuffer::load(ifstream& ifile)
 /////// class StatementReificationTable
 /////////////////////////////////////////////////////////////////////////////////////////
 StatementReificationTable::StatementReificationTable() {
+	// TODO Auto-generated constructor stub
 	buffer = new MemoryBuffer(REIFICATION_INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 	currentBuffer = (ID*)buffer->getBuffer();
 	pos = 0;
 }
 
 StatementReificationTable::~StatementReificationTable() {
+	// TODO Auto-generated destructor stub
 	if(buffer != NULL)
 		delete buffer;
 	buffer = NULL;

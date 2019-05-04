@@ -1,67 +1,97 @@
-/*
- * StringIDSegment.cpp
- *
- *  Created on: 2011-3-15
- *      Author: liupu
- */
+//---------------------------------------------------------------------------
+// TripleBit
+// (c) 2011 Massive Data Management Group @ SCTS & CGCL. 
+//     Web site: http://grid.hust.edu.cn/triplebit
+//
+// This work is licensed under the Creative Commons
+// Attribution-Noncommercial-Share Alike 3.0 Unported License. To view a copy
+// of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/
+// or send a letter to Creative Commons, 171 Second Street, Suite 300,
+// San Francisco, California, 94105, USA.
+//---------------------------------------------------------------------------
 
 #include "StringIDSegment.h"
 #include "Hash.h"
-
+#include <stdio.h>
 const ID INVALID_ID = ID(-1);
 
-StringIDSegment::StringIDSegment():fillRate(0.5),stringPool(NULL),stringHashTable(NULL),idStroffPool(NULL)
-{
+StringIDSegment::StringIDSegment() :
+		fillRate(0.5), stringPool(NULL), stringHashTable(NULL), idStroffPool(
+		NULL) {
+	// TODO Auto-generated constructor stub
 }
 
 StringIDSegment::~StringIDSegment() {
-	if(stringPool != NULL)
+	// TODO Auto-generated destructor stub
+	if (stringPool != NULL)
 		delete stringPool;
 	stringPool = NULL;
 
-	if(stringHashTable != NULL)
+	if (stringHashTable != NULL)
 		delete stringHashTable;
 	stringHashTable = NULL;
 
-	if(idStroffPool != NULL)
+	if (idStroffPool != NULL)
 		delete idStroffPool;
 	idStroffPool = NULL;
 }
-
-StringIDSegment* StringIDSegment::create(const string dir, const string segmentName)
-{
+void StringIDSegment::remove(const string dir, const string segmentName) {
+	string filename = dir + "/" + segmentName + "_stringPool";
+	::remove(filename.c_str());
+	filename = dir + "/" + segmentName + "_idStroffPool";
+	::remove(filename.c_str());
+	filename = dir + "/" + segmentName + "_stringHashTable";
+	::remove(filename.c_str());
+	delete stringPool;
+	stringPool = NULL;
+	delete stringHashTable;
+	stringHashTable = NULL;
+	delete idStroffPool;
+	idStroffPool = NULL;
+}
+StringIDSegment* StringIDSegment::create(const string dir,
+		const string segmentName) {
+	//成员函数为静态函数
 	// string_pool,a var pool
 	//64kb init size.
-	StringIDSegment* segment = new StringIDSegment();
+	StringIDSegment* segment = new StringIDSegment();	//初始化其填充率
 
 	string new_path = dir + "/" + segmentName + "_stringPool";
-	segment->stringPool = ObjectPool<uint>::create(
-		LengthType_UInt|ObjectPoolType_Normal,
-		new_path.c_str(),
-		1<<16);
-	if(segment->stringPool==NULL){
-		MessageEngine::showMessage("create string pool error", MessageEngine::ERROR);
+	segment->stringPool = ObjectPool<uint>::create(	//创建/predicate_prefix_stringPool，并映射进地址空间
+			LengthType_UInt | ObjectPoolType_Normal, new_path.c_str(), 1 << 16);//设置初始大小为64K
+	if (segment->stringPool == NULL) {
+		MessageEngine::showMessage("create string pool error",
+				MessageEngine::ERROR);
 		return NULL;
 	}
 
 	//id_stroff,fix pool,64kb init size.
 	new_path = dir + "/" + segmentName + "_idStroffPool";
 	segment->idStroffPool = FixedObjectPool::create(
-			ObjectPoolType_Fixed,
-			new_path.c_str(),
-			1<<16,
-			sizeof(IDStroffEntry));
-	if(segment->idStroffPool==NULL){
-		MessageEngine::showMessage("create id string offset error", MessageEngine::ERROR);
+			//创建/predicate_prefix_idStroffPool，并映射进地址空间
+			ObjectPoolType_Fixed, new_path.c_str(), 1 << 16,
+			sizeof(IDStroffEntry)); //64K
+	/*triplebit.h 中定义了
+	 *
+	 struct IDStroffEntry{
+	 OffsetType stroff;
+	 };*/
+	if (segment->idStroffPool == NULL) {
+		MessageEngine::showMessage("create id string offset error",
+				MessageEngine::ERROR);
 		delete segment->stringPool;
 		return NULL;
 	}
 
-	// string_hash,memory buffer.
+	// string_hash,memory buffer.  //triplebit.h中有typedef size_t       OffsetType;
 	new_path = dir + "/" + segmentName + "_stringHashTable";
-	segment->stringHashTable = new MMapBuffer(new_path.c_str(),sizeof(OffsetType)*next_prime_number(segment->stringPool->size()*2+1));
-	if(segment->stringHashTable==NULL){
-		MessageEngine::showMessage("create string hash table error", MessageEngine::ERROR);
+	//创建/predicate_prefix_stringHashTable，并映射进地址空间
+	segment->stringHashTable = new MMapBuffer(new_path.c_str(),
+			sizeof(OffsetType)
+					* next_prime_number(segment->stringPool->size() * 2 + 1));
+	if (segment->stringHashTable == NULL) {
+		MessageEngine::showMessage("create string hash table error",
+				MessageEngine::ERROR);
 		delete segment->stringPool;
 		delete segment->idStroffPool;
 		return NULL;
@@ -72,31 +102,36 @@ StringIDSegment* StringIDSegment::create(const string dir, const string segmentN
 	return segment;
 }
 
-StringIDSegment* StringIDSegment::load(const string dir, const string segmentName)
-{
+StringIDSegment* StringIDSegment::load(const string dir,
+		const string segmentName) {
+	//成员函数为静态函数
+
 	StringIDSegment* segment = new StringIDSegment();
 
 	string new_path = dir + "/" + segmentName + "_stringPool";
 	segment->stringPool = ObjectPool<uint>::load(new_path.c_str());
-	if(segment->stringPool == NULL) {
-		MessageEngine::showMessage("load string pool error!", MessageEngine::ERROR);
+	if (segment->stringPool == NULL) {
+		MessageEngine::showMessage("load string pool error!",
+				MessageEngine::ERROR);
 		return NULL;
 	}
 
 	new_path = dir + "/" + segmentName + "_idStroffPool";
 	segment->idStroffPool = FixedObjectPool::load(new_path.c_str());
-	if(segment->idStroffPool == NULL) {
+	if (segment->idStroffPool == NULL) {
 		delete segment->stringPool;
-		MessageEngine::showMessage("load is string offset pool error", MessageEngine::ERROR);
+		MessageEngine::showMessage("load is string offset pool error",
+				MessageEngine::ERROR);
 		return NULL;
 	}
 
 	new_path = dir + "/" + segmentName + "_stringHashTable";
 	segment->stringHashTable = MMapBuffer::create(new_path.c_str(), 0);
-	if(segment->stringHashTable == NULL) {
+	if (segment->stringHashTable == NULL) {
 		delete segment->stringPool;
 		delete segment->idStroffPool;
-		MessageEngine::showMessage("load string hash talble error", MessageEngine::ERROR);
+		MessageEngine::showMessage("load string hash talble error",
+				MessageEngine::ERROR);
 		return NULL;
 	}
 
@@ -104,13 +139,15 @@ StringIDSegment* StringIDSegment::load(const string dir, const string segmentNam
 }
 
 //add string to stringPool,and update the stringHashTable.
-OffsetType StringIDSegment::addStringToStringPoolAndUpdateStringHashTable(LengthString * aStr, ID id)
-{
-	if( stringHashTable->get_length()/sizeof(OffsetType) * fillRate < stringPool->size() ){
-		HashCodeType size = stringHashTable->get_length()/sizeof(OffsetType);
+OffsetType StringIDSegment::addStringToStringPoolAndUpdateStringHashTable(
+		LengthString * aStr, ID id) {
+	if (stringHashTable->get_length() / sizeof(OffsetType) * fillRate
+			< stringPool->size()) {
+		HashCodeType size = stringHashTable->get_length() / sizeof(OffsetType);
 		size = next_hash_capacity(size);
-		if(stringHashTable->resize(size*sizeof(OffsetType), false)!=OK){
+		if (stringHashTable->resize(size * sizeof(OffsetType), false) != OK) {
 			// TODO: log no memory
+			cout << "hash table resize not ok" << endl;
 			return 0;
 		}
 		stringHashTable->memset(0);
@@ -118,220 +155,223 @@ OffsetType StringIDSegment::addStringToStringPoolAndUpdateStringHashTable(Length
 	}
 
 	HashCodeType hashcode = get_hash_code(aStr);
-	HashCodeType len = stringHashTable->get_length()/sizeof(OffsetType);
-	hashcode%=len;
-	OffsetType * array = (OffsetType*)(stringHashTable->get_address());
+	HashCodeType len = stringHashTable->get_length() / sizeof(OffsetType);
+	hashcode %= len;
+	OffsetType * array = (OffsetType*) (stringHashTable->get_address());
 #ifndef USE_C_STRING
 	OffsetType strLen=0;
 #endif
 	void * str;
 	int i = 0;
-	while( array[hashcode] ){
+	while (array[hashcode]) {
 #ifdef USE_C_STRING
 		Status ok = stringPool->get_by_offset(array[hashcode], &str);
 #else
 		Status ok = stringPool->get_by_offset(array[hashcode], &strLen, &str);
 #endif
-		assert(ok==OK);
+		assert(ok == OK);
 #ifdef USE_C_STRING
-		if(aStr->equals((char*)str)){
+		if (aStr->equals((char*) str)) {
 #else
 //		if(aStr->equals((char*)str + sizeof(ID), strLen - sizeof(ID) )) {
-		string sstr(((char*)str + sizeof(ID)));
-		if(aStr->equals(sstr.c_str())){
+			string sstr(((char*)str + sizeof(ID)));
+			if(aStr->equals(sstr.c_str())) {
 #endif
+			cout << "already exists" << (char*) str << endl;
 			// already exists
 			return 0;
 		}
 
-		if(hashcode==0) {
-			hashcode = len-1;
-			if(i==1)break;
+		if (hashcode == 0) {
+			hashcode = len - 1;
+			if (i == 1)
+				break;
 			i++;
-		}
-		else
+		} else
 			hashcode--;
 	}
-	array[hashcode] = stringPool->append_object_with_id(id,aStr->length,aStr->str);
+	array[hashcode] = stringPool->append_object_with_id(id, aStr->length,
+			aStr->str);
 	return array[hashcode];
 }
 
-void StringIDSegment::buildStringHashTable()
-{
-	OffsetType size = stringHashTable->get_length()/sizeof(OffsetType);
+void StringIDSegment::buildStringHashTable() {
+	OffsetType size = stringHashTable->get_length() / sizeof(OffsetType);
 	OffsetType off = stringPool->first_offset();
-	OffsetType * array= (OffsetType*)(stringHashTable->get_address());
+	OffsetType * array = (OffsetType*) (stringHashTable->get_address());
 	ulonglong stringPoolSize = stringPool->size();
-	while(stringPoolSize){
+	while (stringPoolSize) {
 		void * pdata;
 #ifdef USE_C_STRING
-		stringPool->get_by_offset(off,&pdata);
-		HashCodeType hashcode = get_hash_code((char*)pdata);
+		stringPool->get_by_offset(off, &pdata);
+		HashCodeType hashcode = get_hash_code((char*) pdata);
 #else
 		OffsetType len;
 		stringPool->get_by_offset(off, &len, &pdata);
 		HashCodeType hashcode = get_hash_code((char*)pdata + sizeof(ID), len - sizeof(ID));
 #endif
 		hashcode %= size;
-		while( array[hashcode] ){
-			if(hashcode==0)
-				hashcode=size-1;
+		while (array[hashcode]) {
+			if (hashcode == 0)
+				hashcode = size - 1;
 			else
 				hashcode--;
 		}
 		array[hashcode] = off;
 #ifdef USE_C_STRING
-		off = off + sizeof(ID) + strlen((char*)pdata) + 1;//stringPool->next_offset(off);
+		off = off + sizeof(ID) + strlen((char*) pdata) + 1; //stringPool->next_offset(off);
 #else
-		off = stringPool->next_offset(off);
+				off = stringPool->next_offset(off);
 #endif
 		stringPoolSize--;
 	}
 }
 
-OffsetType StringIDSegment::findStringOffset(LengthString * aStr)
-{
+OffsetType StringIDSegment::findStringOffset(LengthString * aStr) {
 	HashCodeType hashcode = get_hash_code(aStr);
-	HashCodeType len = stringHashTable->get_length()/sizeof(OffsetType);
-	hashcode%=len;
-	OffsetType * array = (OffsetType*)(stringHashTable->get_address());
-	OffsetType strLen=0;
+	HashCodeType len = stringHashTable->get_length() / sizeof(OffsetType);
+	hashcode %= len;
+	OffsetType * array = (OffsetType*) (stringHashTable->get_address());
+	OffsetType strLen = 0;
 	void * str;
 	int i = 0;
-	while( array[hashcode] ){
-		Status ok = stringPool->get_by_offset(array[hashcode],&strLen,&str);
-		assert(ok==OK);
+	while (array[hashcode]) {
+		Status ok = stringPool->get_by_offset(array[hashcode], &strLen, &str);
+		assert(ok == OK);
 #ifdef USE_C_STRING
-		if(aStr->equals((char*)str,strLen-sizeof(ID))){
+		if (aStr->equals((char*) str, strLen - sizeof(ID))) {
 			return array[hashcode];
 		}
 #else
-		if(aStr->equals((char*)str + sizeof(ID),strLen-sizeof(ID))){
+		if(aStr->equals((char*)str + sizeof(ID),strLen-sizeof(ID))) {
 			return array[hashcode];
 		}
 #endif
 
-		if(hashcode==0) {
-			hashcode = len-1;
-			if(i==1)break;
+		if (hashcode == 0) {
+			hashcode = len - 1;
+			if (i == 1)
+				break;
 			i++;
-		}
-		else
+		} else
 			hashcode--;
 	}
 	return 0;
 }
 
-ID StringIDSegment::getMaxID()
-{
+ID StringIDSegment::getMaxID() {
 	return idStroffPool->next_id();
 }
 
 //add string to StringIDSegment ,update stringPool,stringHashTable,idStroffPool.
-ID StringIDSegment::addStringToSegment(LengthString * aStr)
-{
+ID StringIDSegment::addStringToSegment(LengthString * aStr) {
 	//get the next id .
 	ID nextId = idStroffPool->next_id();
-	OffsetType strOff = addStringToStringPoolAndUpdateStringHashTable(aStr,nextId);
+	OffsetType strOff = addStringToStringPoolAndUpdateStringHashTable(aStr,
+			nextId);
 
-	if(strOff){
+	if (strOff) {
 		IDStroffEntry ise;
 		//ise.id = nextId;
 		ise.stroff = strOff;
 		ID id = addIDStroffToIdStroffPool(&ise);
-		assert ( id == nextId );
+		assert(id == nextId);
 		return id;
 	}
+	cout << "nextID is" << nextId << endl;
 	// TODO: none id?
+	//cout<<"occur invalid id"<<endl;
 	return INVALID_ID;
 }
 
 //optimize memory usage.
-Status StringIDSegment::optimize()
-{
+Status StringIDSegment::optimize() {
 	Status retcode = NOT_SUPPORT;
 	//retcode = stringPool->optimaze();
 	//if(retcode == OK)retcode = idStroffPool->optimaze();
-    return retcode;
+	return retcode;
 }
 
 //find string
-bool StringIDSegment::findStringById(std::string& str, const ID& id)
-{
+bool StringIDSegment::findStringById(std::string& str, const ID& id) {
 	LengthString * lstr = new LengthString();
-	bool flag =  findStringById(lstr, id);
-	str = std::string(lstr->str,lstr->length);
+	bool flag = findStringById(lstr, id);
+	str = std::string(lstr->str, lstr->length);
 	return flag;
 }
 
 //find id
-bool StringIDSegment::findIdByString(ID& id, const std::string& str)
-{
+bool StringIDSegment::findIdByString(ID& id, const std::string& str) {
 	LengthString * lstr = new LengthString(str);
 	return findIdByString(id, lstr);
 }
 
 //find string
-bool StringIDSegment::findStringById(LengthString * aStr, const ID& id)
-{
+bool StringIDSegment::findStringById(LengthString * aStr, const ID& id) {
 	IDStroffEntry * ise = 0;
 	OffsetType elength;
 	void *pdata;
-	if(idStroffPool->get_by_id(id,&elength,&pdata)==OK){
-		assert(elength==sizeof(IDStroffEntry));
-		ise = (IDStroffEntry *)pdata;
+	if (idStroffPool->get_by_id(id, &elength, &pdata) == OK) {
+		assert(elength == sizeof(IDStroffEntry));
+		ise = (IDStroffEntry *) pdata;
 	}
-	if(ise == NULL || ise->stroff == 0){
+	if (ise == NULL || ise->stroff == 0) {
 		return false;
 	}
 
 	OffsetType length;
 	void * strdst;
-	Status retcode = stringPool->get_by_offset(ise->stroff,&length,&strdst);
-	if(retcode == OK){
-		aStr->length = length-sizeof(ID);
+	Status retcode = stringPool->get_by_offset(ise->stroff, &length, &strdst);
+	if (retcode == OK) {
+		aStr->length = length - sizeof(ID);
 #ifdef USE_C_STRING
-		aStr->str =  ((char *)strdst);
+		aStr->str = ((char *) strdst);
 #else
 		aStr->str = (char*)strdst + sizeof(ID);
 #endif
 		return true;
-	}else return false;
+	} else
+		return false;
 }
 
 //find id
-bool StringIDSegment::findIdByString(ID& id, LengthString * aStr)
-{
-	HashCodeType hashcode = get_hash_code(aStr);
-	HashCodeType len = stringHashTable->get_length()/sizeof(OffsetType);
-	hashcode%=len;
-	OffsetType * array = (OffsetType*)(stringHashTable->get_address());
+bool StringIDSegment::findIdByString(ID& id, LengthString * aStr) {
+	HashCodeType hashcode = get_hash_code(aStr);	//计算出字符串的hash值
+	HashCodeType len = stringHashTable->get_length() / sizeof(OffsetType);//求出hash表的大小
+	hashcode %= len;	//hash值对hash表长取模
+	OffsetType * array = (OffsetType*) (stringHashTable->get_address());
 
 	void * str;
-	int i = 0 ;
-	while( array[hashcode] ){
+	int i = 0;
+	while (array[hashcode]) {
 #ifdef USE_C_STRING
-		Status ok = stringPool->get_by_offset(array[hashcode], &str);
+		Status ok =
+				stringPool->get_by_offset(array[hashcode], &str);//取出偏移值对应的字符串
 #else
-		OffsetType strLen=0;
-		Status ok = stringPool->get_by_offset(array[hashcode],&strLen,&str);
+						OffsetType strLen=0;
+						Status ok = stringPool->get_by_offset(array[hashcode],&strLen,&str);
 #endif
-		assert(ok==OK);
+		assert(ok == OK);
 #ifdef USE_C_STRING
-		if(aStr->equals((char*)str)){
-			id = *(ID*)((char*)str - sizeof(ID));
+		if (aStr->equals((char*) str)) {//比较字符串和取出的字符串是否相同，若相同，取出字符串对应ID并返回true
+			id = *(ID*) ((char*) str - sizeof(ID));
 			return true;
 		}
 #else
-		if(aStr->equals((char*)str + sizeof(ID),strLen-sizeof(ID))){
+		if(aStr->equals((char*)str + sizeof(ID),strLen-sizeof(ID))) {
 			id = *(ID*)(str);
 			return true;
 		}
 #endif
+		//取出的字符串与查询字符串不同，进行线性探测
+		if (hashcode == 0) {
+			//全部探测了一遍也未找到
+			hashcode = len - 1;
+			if (i == 1) {
+				//cout<<"can't not find "<<aStr->str<<endl;
+				break;
+			}
 
-		if(hashcode==0){
-			hashcode = len-1;
-			if(i==1)break;
 			i++;
 		} else {
 			hashcode--;
@@ -340,8 +380,7 @@ bool StringIDSegment::findIdByString(ID& id, LengthString * aStr)
 	return false;
 }
 
-void StringIDSegment::dump()
-{
+void StringIDSegment::dump() {
 	stringPool->dump_int_string(stdout);
 }
 
