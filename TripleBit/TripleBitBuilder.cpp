@@ -22,8 +22,8 @@
 
 #include <string.h>
 #include <pthread.h>
-#include "Apcluster.h"
-using namespace AP;
+//#include "Apcluster.h"
+//using namespace AP;
 
 static int getCharPos(const char* data, char ch) {
 	const char * p = data;
@@ -664,23 +664,41 @@ Status TripleBitBuilder::beforeBuildforNum(string fileName)	//wo
 }
 
 Status TripleBitBuilder::endBuild() {
-	//作用：建立了BitmapBuffer文件和BitmapBuffer_predicate
-	bitmap->completeInsert();	//????实质什么也没做
-	statementFile.close();
-	cout << "maxID is :" << maxID << endl;
-	//unsigned *array = (unsigned *) wayfile->getBuffer();
-	//array[2]=maxID;
-	//wayfile->flush();
-	bitmap->save1();
-	//ofstream是从内存到硬盘，ifstream是从硬盘到内存，其实所谓的流缓冲就是内存空间;
+	////作用：建立了BitmapBuffer文件和BitmapBuffer_predicate
+	//bitmap->completeInsert();	//????实质什么也没做
+	//statementFile.close();
+	//cout << "maxID is :" << maxID << endl;
+	////unsigned *array = (unsigned *) wayfile->getBuffer();
+	////array[2]=maxID;
+	////wayfile->flush();
+	//bitmap->save1();
+	////ofstream是从内存到硬盘，ifstream是从硬盘到内存，其实所谓的流缓冲就是内存空间;
 
-	//ofstream ofile(string(dir + "/statIndex").c_str());
-	MMapBuffer* indexBuffer = NULL;
-	((OneConstantStatisticsBuffer*) statBuffer[0])->save(indexBuffer);////仅在第一次执行时建立文件statIndex
-	((OneConstantStatisticsBuffer*) statBuffer[1])->save(indexBuffer);
-	((TwoConstantStatisticsBuffer*) statBuffer[2])->save(indexBuffer);
-	((TwoConstantStatisticsBuffer*) statBuffer[3])->save(indexBuffer);
+	////ofstream ofile(string(dir + "/statIndex").c_str());
+	//MMapBuffer* indexBuffer = NULL;
+	//((OneConstantStatisticsBuffer*) statBuffer[0])->save(indexBuffer);////仅在第一次执行时建立文件statIndex
+	//((OneConstantStatisticsBuffer*) statBuffer[1])->save(indexBuffer);
+	//((TwoConstantStatisticsBuffer*) statBuffer[2])->save(indexBuffer);
+	//((TwoConstantStatisticsBuffer*) statBuffer[3])->save(indexBuffer);
+
+	//delete indexBuffer;
+	//return OK;
+
+	//-----------------------------------------
+
+	bitmap->save();
+
+	ofstream ofile(string(dir + "/statIndex").c_str());
+	MMapBuffer * indexBuffer = NULL;
+	((OneConstantStatisticsBuffer*)statBuffer[0])->save(indexBuffer);
+	((OneConstantStatisticsBuffer*)statBuffer[1])->save(indexBuffer);
+	((TwoConstantStatisticsBuffer*)statBuffer[2])->save(indexBuffer);
+	((TwoConstantStatisticsBuffer*)statBuffer[3])->save(indexBuffer);
 
 	delete indexBuffer;
 	return OK;
+
+
+
+
 }
