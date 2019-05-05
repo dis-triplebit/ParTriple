@@ -2,8 +2,8 @@
 // Created by Administrator on 2019/4/23.
 //
 
-#ifndef LineHashIndexEnhance_H_
-#define LineHashIndexEnhance_H_
+#ifndef LineHashIndex_H_
+#define LineHashIndex_H_
 
 class MemoryBuffer;
 class ChunkManager;
