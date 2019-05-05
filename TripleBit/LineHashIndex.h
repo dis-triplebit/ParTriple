@@ -19,9 +19,6 @@ public:
 	};
 
 	struct chunkMetaData
-		//except the firstChunk , minIDx, minIDy and offsetBegin will not change with update
-		//offsetEnd may change but I think it makes little difference to the result
-		//by Frankfan
 	{
 		double minIDx;    //The minIDx of a chunk
 		double minIDy;		//The minIDy of a chunk

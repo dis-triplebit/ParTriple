@@ -2,8 +2,8 @@
 // Created by youyujie on 2019/4/29.
 //
 
-#ifndef FILERECV_STATISTICSBUFFER_H
-#define FILERECV_STATISTICSBUFFER_H
+#ifndef STATISTICSBUFFER_H
+#define STATISTICSBUFFER_H
 class HashIndex;
 class EntityIDBuffer;
 class MMapBuffer;
