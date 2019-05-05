@@ -1,10 +1,7 @@
-#include "TempFile.h"
-#include <sstream>
-#include <cassert>
-#include <cstring>
 //---------------------------------------------------------------------------
-// RDF-3X
-// (c) 2008 Thomas Neumann. Web site: http://www.mpi-inf.mpg.de/~neumann/rdf3x
+// TripleBit
+// (c) 2011 Massive Data Management Group @ SCTS & CGCL. 
+//     Web site: http://grid.hust.edu.cn/triplebit
 //
 // This work is licensed under the Creative Commons
 // Attribution-Noncommercial-Share Alike 3.0 Unported License. To view a copy
@@ -12,6 +9,12 @@
 // or send a letter to Creative Commons, 171 Second Street, Suite 300,
 // San Francisco, California, 94105, USA.
 //---------------------------------------------------------------------------
+
+#include "TempFile.h"
+#include <sstream>
+#include <cassert>
+#include <cstring>
+
 using namespace std;
 //---------------------------------------------------------------------------
 /// The next id
@@ -24,9 +27,30 @@ string TempFile::newSuffix()
 	buffer << '.' << (id++);
 	return buffer.str();
 }
+string TempFile::newSuffix(unsigned suffix)
+// Construct a new suffix
+{
+	stringstream buffer;
+	buffer << '.' << suffix;
+	return buffer.str();
+}
 //---------------------------------------------------------------------------
 TempFile::TempFile(const string& baseName) :
 	baseName(baseName), fileName(baseName + newSuffix()), out(fileName.c_str(), ios::out | ios::binary | ios::trunc), writePointer(0)
+// Constructor
+{
+}
+
+TempFile::TempFile(const string& baseName,unsigned suffix) :
+	baseName(baseName),  fileName(baseName + newSuffix(suffix)),out(fileName.c_str(), ios::out | ios::binary | ios::trunc), writePointer(0)
+// Constructor
+{
+}
+TempFile::TempFile(const string baseName,unsigned int suffix,bool flag):
+        baseName(baseName),  fileName(baseName + newSuffix(suffix)){
+ }
+TempFile::TempFile(const string& baseName, bool flag1, bool flag2) :
+	baseName(baseName),fileName(baseName) , out(fileName.c_str(), ios::out | ios::binary | ios::trunc), writePointer(0)
 // Constructor
 {
 }
@@ -58,7 +82,7 @@ void TempFile::discard()
 // Discard the file
 {
 	close();
-	remove(fileName.c_str());
+	remove(fileName.c_str());//删除文件或目录
 }
 //---------------------------------------------------------------------------
 void TempFile::writeString(unsigned len, const char* str)
@@ -66,6 +90,10 @@ void TempFile::writeString(unsigned len, const char* str)
 {
 	writeId(len);
 	write(len, str);
+}
+void TempFile::writenumString(const char* str)//wo
+{
+
 }
 //---------------------------------------------------------------------------
 void TempFile::writeId(ID id, unsigned char flag)
@@ -148,7 +176,63 @@ const char* TempFile::readId(const char* reader, ID& id)
 	}
 	return reader;
 }
+int TempFile::compare12(const char* left, const char* right) {
+	ID l1, l2, r1, r2;
+	readId(readId(left, l1), l2);
+	readId(readId(right, r1), r2);
 
+	if (l1 > r1) {
+		return 1;
+	} else if (l1 < r1) {
+		return -1;
+	} else {
+		if (l2 > r2){
+			return 1;
+		}
+		else if (l2 < r2){
+			return -1;
+		}
+		else{
+			return 0;
+		}
+	}
+}
+//---------------------------------------------------------------------------
+int TempFile::compare21(const char* left, const char* right) {
+	ID l1, l2, r1, r2;
+	readId(readId(left, l1), l2);
+	readId(readId(right, r1), r2);
+
+	if (l2 > r2) {
+		return 1;
+	} else if (l2 < r2) {
+		return -1;
+	} else {
+		if (l1 > r1) {
+			return 1;
+		} else if (l1 < r1) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+}
+//-------------------------------------------------------------------------
+void TempFile::writeFloat(float data)
+{
+	if(writePointer +sizeof(float) < bufferSize){
+		out.write(writeBuffer, writePointer);
+		writePointer = 0;
+	}
+	memcpy(writeBuffer+writePointer,&data,sizeof(float));
+	writePointer += sizeof(float);
+}
+
+const char* TempFile::readFloat(const char* reader, float &data)
+{
+	memcpy(&data,reader,sizeof(float));
+	return (reader+sizeof(float));
+}
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined(WIN32)||defined(__WIN32__)||defined(_WIN32)
@@ -183,7 +267,7 @@ struct MemoryMappedFile::Data
    /// The mapping
    HANDLE mapping;
 #else
-   /// The file
+   /// The file  文件描述符
    int file;
    /// The mapping
    void* mapping;
