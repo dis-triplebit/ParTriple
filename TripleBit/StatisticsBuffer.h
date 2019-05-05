@@ -107,16 +107,16 @@ private:
     bool find(double value);
     bool find_last(double value);
 
-    virtual char* writeData(char* writer, unsigned data)
-    {
-        memcpy(writer, &data, sizeof(unsigned));
-        return writer+sizeof(unsigned);
-    }
-
-    virtual const char* readData(const char* reader, unsigned & data){
-        memcpy(&data, reader, sizeof(unsigned));
-        return reader+sizeof(unsigned);
-    }
+//    virtual char* writeData(char* writer, unsigned data)
+//    {
+//        memcpy(writer, &data, sizeof(unsigned));
+//        return writer+sizeof(unsigned);
+//    }
+//
+//    virtual const char* readData(const char* reader, unsigned & data){
+//        memcpy(&data, reader, sizeof(unsigned));
+//        return reader+sizeof(unsigned);
+//    }
 
 };
 
@@ -205,17 +205,17 @@ private:
     const uchar* decode(const uchar* begin, const uchar* end,Triple*,Triple*& ,Triple*&);
     const uchar* decode(const uchar* begin, const uchar* end,Triple_f*,Triple_f*& ,Triple_f*&);
     const uchar* decode(const uchar* begin, const uchar* end,Triple_d*,Triple_d*& ,Triple_d*&);
-
-    virtual char* writeData(char* writer, unsigned data)
-    {
-        memcpy(writer, &data, sizeof(unsigned));
-        return writer+sizeof(unsigned);
-    }
-
-    virtual const char* readData(const char* reader, unsigned & data){
-        memcpy(&data, reader, sizeof(unsigned));
-        return reader+sizeof(unsigned);
-    }
+//
+//    virtual char* writeData(char* writer, unsigned data)
+//    {
+//        memcpy(writer, &data, sizeof(unsigned));
+//        return writer+sizeof(unsigned);
+//    }
+//
+//    virtual const char* readData(const char* reader, unsigned & data){
+//        memcpy(&data, reader, sizeof(unsigned));
+//        return reader+sizeof(unsigned);
+//    }
 
 };
 

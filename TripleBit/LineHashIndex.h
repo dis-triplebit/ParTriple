@@ -26,6 +26,17 @@ public:
 		double minIDx;    //The minIDx of a chunk
 		double minIDy;		//The minIDy of a chunk
         unsigned long offsetBegin;	//The beginoffset of a chunk(not include MetaData and relative to the startPtr)
+		chunkMetaData(double minIDx,double minIDy, unsigned offsetBegin)
+		{
+			this->minIDx=minIDx;
+			this->minIDy=minIDy;
+			this->offsetBegin=offsetBegin;
+		}
+		chunkMetaData(double minIDx,double minIDy)
+		{
+			this->minIDx=minIDx;
+			this->minIDy=minIDy;
+		}
 	};
 
 	enum IndexType { SUBJECT_INDEX, OBJECT_INDEX};

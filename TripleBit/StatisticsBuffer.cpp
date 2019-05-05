@@ -12,6 +12,16 @@
 
 //extern char* writeData(char* writer, double data);
 //extern const char* readData(const char* reader, double & data);
+static char* writeData(char* writer, unsigned data)
+{
+    memcpy(writer, &data, sizeof(unsigned));
+    return writer+sizeof(unsigned);
+}
+
+static const char* readData(const char* reader, unsigned & data){
+    memcpy(&data, reader, sizeof(unsigned));
+    return reader+sizeof(unsigned);
+}
 
 static inline unsigned readDelta1(const unsigned char* pos) { return pos[0]; }
 static unsigned readDelta2(const unsigned char* pos) { return (pos[0]<<8)|pos[1]; }
@@ -63,11 +73,11 @@ static unsigned char* writeFloat(unsigned char* buffer, float value)
 // Write an integer with varying size
 {
     memcpy(buffer, &value, sizeof(float));
-    return reader+sizeof(float);
+    return buffer+sizeof(float);
 }
 
 
-static float readFloat(unsigned char* buffer)
+static const float readFloat(const unsigned char* buffer)
 // Write an integer with varying size
 {
     float value;
@@ -80,10 +90,10 @@ static unsigned char* writeDouble(unsigned char* buffer, double value)
 // Write an integer with varying size
 {
     memcpy(buffer, &value, sizeof(double));
-    return reader+sizeof(double);
+    return buffer+sizeof(double);
 }
 
-static double readDouble(unsigned char* buffer)
+static const double readDouble(const unsigned char* buffer)
 // Write an integer with varying size
 {
     double value;
@@ -117,9 +127,9 @@ OneConstantStatisticsBuffer::OneConstantStatisticsBuffer(const string path, Stat
         //默认大小为50
         triples = new Triple[ID_HASH];
     else if(type==StatisticsType::OBJECT_STATIS&&dataType==1)
-        f_triples = new Triple[ID_HASH];
+        f_triples = new Triple_f[ID_HASH];
     else if(type==StatisticsType::OBJECT_STATIS&&dataType==2)
-        d_triples = new Triple[ID_HASH];
+        d_triples = new Triple_d[ID_HASH];
     first = true;
 }
 //析构函数
@@ -272,7 +282,7 @@ static unsigned int countEntity(const unsigned char* begin, const unsigned char*
             readFloat(begin);
             begin += sizeof(float);
             readDelta4(begin);
-            begin += sizeof(unsigned)
+            begin += sizeof(unsigned);
             entityCount++;
         }
     }
@@ -287,7 +297,7 @@ static unsigned int countEntity(const unsigned char* begin, const unsigned char*
             readDouble(begin);
             begin += sizeof(double);
             readDelta4(begin);
-            begin += sizeof(unsigned)
+            begin += sizeof(unsigned);
             entityCount++;
         }
     }
@@ -398,7 +408,7 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
         Triple_d* writer = d_triples;
         double value1;
         unsigned count;
-        value1 = readFloat(double);
+        value1 = readDouble(begin);
         begin += sizeof(double);
         count = readDelta4(begin);
         begin += sizeof(unsigned);
@@ -408,7 +418,7 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
         writer++;
 
         while (begin < end) {
-            value1 = readFloat(double);
+            value1 = readDouble(begin);
             begin += sizeof(double);
             count = readDelta4(begin);
             begin += sizeof(unsigned);
@@ -418,8 +428,8 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
             writer++;
         }
 
-        f_pos = f_triples;
-        f_posLimit = writer;
+        d_pos = d_triples;
+        d_posLimit = writer;
     }
     return begin;
 }
@@ -1056,7 +1066,7 @@ Status OneConstantStatisticsBuffer::getIDs(EntityIDBuffer* entBuffer, ID minID, 
 
         reader = (const unsigned char*)buffer->getBuffer() + begin;
         limit = (const unsigned char*)buffer->getBuffer() + end;
-        decode(reader, limit);
+        decode(reader, limit ,0);
     }
 
     return OK;
@@ -1103,7 +1113,7 @@ Status OneConstantStatisticsBuffer::getIDs(EntityIDBuffer* entBuffer, float minI
         if(end == end1) {
             Triple_f* temp = f_pos;
             if(find(maxID) == true)
-                f_posLimit = pos + 1;
+                f_posLimit = f_pos + 1;
             f_pos = temp;
         }
 
@@ -1771,7 +1781,7 @@ bool TwoConstantStatisticsBuffer::find(double value1, unsigned value2)
     if(left == right) {
         return false;
     } else {
-        d_ pos = &d_pos[middle];
+        d_pos = &d_pos[middle];
         return true;
     }
 }
@@ -2327,10 +2337,10 @@ Status TwoConstantStatisticsBuffer::getPredicatesByID(float id,EntityIDBuffer* e
     posLimit = index_f + indexPos;
     find(id, pos, posLimit);
     //cout << "findchunk:" << pos->value1 << "  " << pos->value2 << endl;
-    assert(pos >= index && pos < posLimit);
+    assert(pos >= index_f && pos < posLimit);
     Triple_f* startChunk = pos;
     Triple_f* endChunk = pos;
-    while (startChunk->value1 > id && startChunk >= index) {
+    while (startChunk->value1 > id && startChunk >= index_f) {
         startChunk--;
     }
     while (endChunk->value1 <= id && endChunk < posLimit) {
@@ -2384,10 +2394,10 @@ Status TwoConstantStatisticsBuffer::getPredicatesByID(double id,EntityIDBuffer* 
     posLimit = index_d + indexPos;
     find(id, pos, posLimit);
     //cout << "findchunk:" << pos->value1 << "  " << pos->value2 << endl;
-    assert(pos >= index && pos < posLimit);
+    assert(pos >= index_d && pos < posLimit);
     Triple_d* startChunk = pos;
     Triple_d* endChunk = pos;
-    while (startChunk->value1 > id && startChunk >= index) {
+    while (startChunk->value1 > id && startChunk >= index_d) {
         startChunk--;
     }
     while (endChunk->value1 <= id && endChunk < posLimit) {
@@ -2408,7 +2418,7 @@ Status TwoConstantStatisticsBuffer::getPredicatesByID(double id,EntityIDBuffer* 
             limit = (uchar*) buffer->get_address() + chunkIter->count;
         //		printf("2: %x  %x  %u\n",limit, buffer->get_address() ,chunkIter->count);
 
-        Triple_d* triples = new Triple[3 * MemoryBuffer::pagesize];
+        Triple_d* triples = new Triple_d[3 * MemoryBuffer::pagesize];
         decode(begin, limit, triples, pos, posLimit);
 
         int mid = findPredicate(id, pos, posLimit), loc = mid;
