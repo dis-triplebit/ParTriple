@@ -621,7 +621,7 @@ Status TripleBitBuilder::beforeBuildforNum(string fileName)	//wo
 	//uriTable->updateFakeid("sortstringFile",5);
 	//uriTable->updateFakeid("uriFile.0",6);
 	//那我可不可以不在这里用updateFakeid写入table，而在下边写table
-	cout << "over" << endl;
+	cout << "searchNumString over" << endl;
 	//uriTable->removeTempfile();
 
 
@@ -652,7 +652,7 @@ Status TripleBitBuilder::beforeBuildforNum(string fileName)	//wo
 	staReifTable = NULL;
 
 	rawFacts.flush();
-	cout << "over" << endl; //三元组写入到./test中写入完毕
+	cout << "N3Parse over" << endl; //三元组写入到./test中写入完毕
 
 	//sort by s,o
 	TempFile facts(fileName); //原先有的代码，以数据集名eg:LUBM1U.n3建立临时文件LUBM1U.n3.1(id)
