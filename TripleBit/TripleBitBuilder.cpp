@@ -184,8 +184,41 @@ int TripleBitBuilder::compare321(const char* left, const char* right) {
 }
 
 Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
+    for (int i = 1; i < 10; ++i) {
+        for (int j = 1; j < 10; ++j) {
+            for (int k = 11; k < 20; ++k) {
+                Element obj;
+                obj.id = k;
+                bitmap->insertTriple(j, i, obj, 0, 0);
+            }
+        }
+    }
+    bitmap->save();
+    string filename = "database/BitmapBuffer";
+    string predicateFile(filename);
+    predicateFile.append("_predicate");
+    string indexFile(filename);
+    indexFile.append("_index");
+    MMapBuffer* bitmapImage = new MMapBuffer(filename.c_str(), 0);
+    MMapBuffer* bitmapPredicateImage = new MMapBuffer(predicateFile.c_str(), 0);
+    MMapBuffer* bitmapIndexImage = new MMapBuffer(indexFile.c_str(), 0);
+    bitmap = BitmapBuffer::load(bitmapImage, bitmapIndexImage, bitmapPredicateImage);
+    map<ID, ChunkManager*> &m = bitmap->predicate_managers[0];
+    map<ID, ChunkManager*>::iterator iter;
+    for (iter = m.begin(); iter != m.end(); ++iter) {
+        double x, y;
+        uchar *start = iter->second->getStartPtr(0);
+        uchar *end = iter->second->getEndPtr(0);
+        while (start < end) {
+            Chunk::readXYId(start, x, y, 0);
+            start += 8;
+            cout << x << "\t" << y <<endl;
+        }
+    }
+    /*
 	cout<<"Sort by Subject"<<endl;
 	ID subjectID, objectID, predicateID;
+	Element obj;
 
 	ID lastSubject = 0, lastObject = 0, lastPredicate = 0;
 	unsigned count0 = 0, count1 = 0;
@@ -210,7 +243,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		reader = skipIdIdId(reader);
 
 		//s>o ture
-		bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
+		obj.id = objectID;
+		bitmap->insertTriple(predicateID, subjectID, obj, 0, 0);
 		count0 = count1 = 1;
 		
 		while (reader < limit) {
@@ -239,7 +273,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			
 			reader = reader + 12;
 			//0 indicate the triple is sorted by subjects' id;
-			bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
+			obj.id = objectID;
+			bitmap->insertTriple(predicateID, subjectID, obj, 0, 0);
 		}
 		mappedIn.close();
 	}
@@ -259,8 +294,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		loadTriple(reader, subjectID, predicateID, objectID);
 		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
 		reader = skipIdIdId(reader);
-
-		bitmap->insertTriple(predicateID, objectID, subjectID, v, 1);
+        obj.id = objectID;
+		bitmap->insertTriple(predicateID, subjectID, obj, 3, 1);
 		count0 = count1 = 1;
 
 		while (reader < limit) {
@@ -286,15 +321,16 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			}
 			reader = skipIdIdId(reader);
 			// 1 indicate the triple is sorted by objects' id;
-			bitmap->insertTriple(predicateID, objectID, subjectID, v, 1);
+			obj.id = objectID;
+			bitmap->insertTriple(predicateID, subjectID, obj, 3, 1);
 		}
 		mappedIn.close();
 	}
-
-	bitmap->flush();
-	rawFacts.discard();
-	sortedByObject.discard();
-	sortedBySubject.discard();
+*/
+	//bitmap->flush();
+	//rawFacts.discard();
+	//sortedByObject.discard();
+	//sortedBySubject.discard();
 
 	return OK;
 }

@@ -108,23 +108,11 @@ TripleBitRepository::~TripleBitRepository() {
 	cout<<"bitmap predicate image"<<endl;
 #endif
 
-	if (tripleBitWorker.size() == workerNum) {
-		for (size_t i = 1; i <= workerNum; ++i) {
-			if (tripleBitWorker[i] != NULL)
-				delete tripleBitWorker[i];
-			tripleBitWorker[i] = NULL;
-		}
-	}
 #ifdef MYDEBUG
 	cout << "TripleBitWorker delete" << endl;
 #endif
 
 
-	for (size_t i = 1; i <= partitionNum; ++i) {
-		if (partitionMaster[i] != NULL)
-			delete partitionMaster[i];
-		partitionMaster[i] = NULL;
-	}
 #ifdef MYDEBUG
 	cout << "partitionMaster delete" << endl;
 #endif
@@ -308,29 +296,19 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 
 	repo->sharedMemoryInit();
 
-	for (size_t i = 1; i <= repo->workerNum; ++i) {
-		repo->tripleBitWorker[i] = new TripleBitWorker(repo, i);
-	}
 
 	for (size_t i = 1; i <= repo->workerNum; ++i) {
 		boost::thread thrd(boost::thread(boost::bind<void>(&TripleBitRepository::tripleBitWorkerInit, repo, i)));
 	}
 
-	for (size_t i = 1; i <= repo->partitionNum; ++i) {
-		repo->partitionMaster[i] = new PartitionMaster(repo, i);
-	}
+
 
 	return repo;
 }
 
 
-void TripleBitRepository::tripleBitWorkerInit(int i) {
-	tripleBitWorker[i]->Work();
-}
-
 void TripleBitRepository::partitionMasterInit(TripleBitRepository*& repo, int i) {
-	repo->partitionMaster[i] = new PartitionMaster(repo, i);
-	repo->partitionMaster[i]->Work();
+
 }
 
 Status TripleBitRepository::sharedMemoryInit() {
@@ -455,9 +433,7 @@ Status TripleBitRepository::tempMMapDestroy() {
 }
 
 void TripleBitRepository::endPartitionMaster() {
-	for (size_t i = 1; i < partitionNum; ++i) {
-		partitionMaster[i]->endupdate();
-	}
+
 }
 
 static void getQuery(string& queryStr, const char* filename) {

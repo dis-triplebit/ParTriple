@@ -25,8 +25,6 @@ class IndexForTT;
 #include "IRepository.h"
 #include "TripleBit.h"
 #include "StatisticsBuffer.h"
-#include "TripleBitWorker.h"
-#include "PartitionMaster.h"
 #include "ThreadPool.h"
 #include <boost/thread/mutex.hpp>
 
@@ -48,9 +46,6 @@ private:
 	vector<ResultBuffer*> resultWP;
 	vector<boost::mutex *> tasksQueueWPMutex;
 	boost::mutex * uriMutex;
-
-	map<ID, TripleBitWorker*> tripleBitWorker;
-	map<ID, PartitionMaster*> partitionMaster;
 
 	MMapBuffer* bitmapImage, *bitmapIndexImage, *bitmapPredicateImage;
 
@@ -106,7 +101,6 @@ public:
 
 	size_t getWorkerNum() { return workerNum; }
 	size_t getPartitionNum() { return partitionNum; }
-	PartitionMaster *getPartitionMaster(ID partitionID) { return partitionMaster[partitionID]; }
 	string getDataBasePath() { return dataBasePath; }
 
 
