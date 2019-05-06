@@ -2,8 +2,8 @@
 // Created by Administrator on 2019/4/23.
 //
 
-#ifndef LineHashIndexEnhance_H_
-#define LineHashIndexEnhance_H_
+#ifndef LineHashIndex_H_
+#define LineHashIndex_H_
 
 class MemoryBuffer;
 class ChunkManager;
@@ -19,13 +19,21 @@ public:
 	};
 
 	struct chunkMetaData
-		//except the firstChunk , minIDx, minIDy and offsetBegin will not change with update
-		//offsetEnd may change but I think it makes little difference to the result
-		//by Frankfan
 	{
 		double minIDx;    //The minIDx of a chunk
 		double minIDy;		//The minIDy of a chunk
         unsigned long offsetBegin;	//The beginoffset of a chunk(not include MetaData and relative to the startPtr)
+		chunkMetaData(double minIDx,double minIDy, unsigned offsetBegin)
+		{
+			this->minIDx=minIDx;
+			this->minIDy=minIDy;
+			this->offsetBegin=offsetBegin;
+		}
+		chunkMetaData(double minIDx,double minIDy)
+		{
+			this->minIDx=minIDx;
+			this->minIDy=minIDy;
+		}
 	};
 
 	enum IndexType { SUBJECT_INDEX, OBJECT_INDEX};

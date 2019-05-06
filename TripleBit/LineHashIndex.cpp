@@ -547,7 +547,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		if (index->startPtr == index->endPtr)
 		{
 			index->chunkMeta.push_back(
-					{ 0, 0, sizeof(MetaData) });
+					chunkMetaData( 0, 0, sizeof(MetaData) ));
 			return index;
 		}
 
@@ -558,7 +558,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		//TODO @ganpeng
 		Chunk::readYId(Chunk::readXId(temp, x,OSFlag), y,OSFlag);
 		index->chunkMeta.push_back(
-				{ x, y, sizeof(MetaData) });
+				chunkMetaData(x, y, sizeof(MetaData)));
 
 		reader = index->startPtr - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize;
 		while (reader < index->endPtr)
@@ -567,7 +567,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			//TODO @ganpeng
 			Chunk::readYId(Chunk::readXId(temp, x,OSFlag), y,OSFlag);
 			index->chunkMeta.push_back(
-					{ x, y, reader - index->startPtr + sizeof(MetaData) });
+					chunkMetaData( x, y, reader - index->startPtr + sizeof(MetaData)));
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
@@ -577,7 +577,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		//TODO @ganpeng
 		Chunk::readXYId(reader,x,y,OSFlag);
 		index->chunkMeta.push_back(
-				{ x, y });
+				chunkMetaData( x, y ));
 	}
 	else if (index->xyType == LineHashIndex::FLOAT)
 	{
@@ -586,7 +586,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		if (index->startPtr == index->endPtr)
 		{
 			index->chunkMeta.push_back(
-					{ 0, 0, sizeof(MetaData) });
+					chunkMetaData( 0, 0, sizeof(MetaData) ));
 			return index;
 		}
 		if(index_type==LineHashIndex::SUBJECT_INDEX)
@@ -595,7 +595,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		//TODO @ganpeng
 		Chunk::readYId(Chunk::readXId(temp, x,OSFlag), y,OSFlag);
 		index->chunkMeta.push_back(
-				{  y, x, sizeof(MetaData) });
+				chunkMetaData( y, x, sizeof(MetaData) ));
 
 		reader = index->startPtr + MemoryBuffer::pagesize;
 		while (reader < index->endPtr)
@@ -604,7 +604,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			//TODO @ganpeng
 			Chunk::readYId(Chunk::readXId(temp, x,OSFlag), y,OSFlag);
 			index->chunkMeta.push_back(
-					{ y, x, reader - index->startPtr + sizeof(MetaData) });
+					chunkMetaData(y, x, reader - index->startPtr + sizeof(MetaData) ));
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
@@ -615,7 +615,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		//TODO @ganpeng
 		Chunk::readXYId(reader,x,y,OSFlag);
 		index->chunkMeta.push_back(
-				{y, x });
+				chunkMetaData(y, x ));
 	}else if (index->xyType == LineHashIndex::DOUBLE)
 	{
 		index->startPtr = index->chunkManager.getStartPtr(2);
@@ -623,7 +623,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		if (index->startPtr == index->endPtr)
 		{
 			index->chunkMeta.push_back(
-					{ 0, 0, sizeof(MetaData) });
+					chunkMetaData(0, 0, sizeof(MetaData)));
 			return index;
 		}
 		if(index_type==LineHashIndex::SUBJECT_INDEX)
@@ -632,7 +632,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		//TODO @ganpeng
 		Chunk::readYId(Chunk::readXId(temp, x,OSFlag), y,OSFlag);
 		index->chunkMeta.push_back(
-				{  y, x, sizeof(MetaData) });
+				chunkMetaData( y, x, sizeof(MetaData) ));
 
 		reader = index->startPtr + MemoryBuffer::pagesize;
 		while (reader < index->endPtr)
@@ -641,7 +641,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			//TODO @ganpeng
 			Chunk::readYId(Chunk::readXId(temp, x,OSFlag), y,OSFlag);
 			index->chunkMeta.push_back(
-					{ y, x, reader - index->startPtr + sizeof(MetaData) });
+					chunkMetaData( y, x, reader - index->startPtr + sizeof(MetaData)));
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
@@ -652,7 +652,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		//TODO @ganpeng
 		Chunk::readXYId(reader,x,y,OSFlag);
 		index->chunkMeta.push_back(
-				{ y, x });
+				chunkMetaData( y, x ));
 	}
 	return index;
 }
