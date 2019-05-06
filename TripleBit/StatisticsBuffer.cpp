@@ -2140,24 +2140,32 @@ Status TwoConstantStatisticsBuffer::addStatis(double v1, unsigned v2, unsigned v
     return OK;
 }
 
-Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer, unsigned dataType)
+Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer,StatisticsType type, unsigned dataType)
 {
     //string fileName;
 
     char* writer;
     if(indexBuffer == NULL) {
-        if(dataType==0)
+        if(type==StatisticsType::SUBJECTPREDICATE_STATIS)
         {
-            indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectIntStatIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
+            indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/SubjectPredicateStatIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
         }
-        else if(dataType==1)
+        else if(type==StatisticsType::OBJECTPREDICATE_STATIS)
         {
-            indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectFloatStatIndex").c_str(), indexPos * sizeof(Triple_f) + 2 * sizeof(unsigned));
+            if(dataType==0)
+            {
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectIntPredicateStatIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
+            }
+            else if(dataType==1)
+            {
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectFloatPredicateStatIndex").c_str(), indexPos * sizeof(Triple_f) + 2 * sizeof(unsigned));
+            }
+            else if(dataType==2)
+            {
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectDoublePredicateStatIndex").c_str(), indexPos * sizeof(Triple_d) + 2 * sizeof(unsigned));
+            }
         }
-        else if(dataType==2)
-        {
-            indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectDoubleStatIndex").c_str(), indexPos * sizeof(Triple_d) + 2 * sizeof(unsigned));
-        }
+        
 
         writer = indexBuffer->get_address();
     } else {
@@ -2179,8 +2187,12 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer, unsigned data
 
     writer = writeData(writer, usedSpace);
     writer = writeData(writer, indexPos);
-
-    memcpy(writer, (char*)index, indexPos * sizeof(Triple));
+    if(dataType==0)
+        memcpy(writer, (char*)index, indexPos * sizeof(Triple));
+    else if(dataType==1)
+        memcpy(writer, (char*)index_f, indexPos * sizeof(Triple_f));
+    else if(dataType==2)
+        memcpy(writer, (char*)index_d, indexPos * sizeof(Triple_d));
 #ifdef DEBUG
     if(dataType==0){
          for(int i = 0; i < 3; i++)

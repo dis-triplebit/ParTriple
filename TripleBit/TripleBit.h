@@ -10,11 +10,11 @@
 #include <set>
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/malloc.h>
+#include <malloc.h>
 #include <math.h>
 #include <sys/time.h>
 #include <stack>
-#include <memory>
+#include <tr1/memory>
 //#include <hash_map>
 
 using namespace std;
