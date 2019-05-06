@@ -2187,8 +2187,12 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer,StatisticsType
 
     writer = writeData(writer, usedSpace);
     writer = writeData(writer, indexPos);
-
-    memcpy(writer, (char*)index, indexPos * sizeof(Triple));
+    if(dataType==0)
+        memcpy(writer, (char*)index, indexPos * sizeof(Triple));
+    else if(dataType==1)
+        memcpy(writer, (char*)index_f, indexPos * sizeof(Triple_f));
+    else if(dataType==2)
+        memcpy(writer, (char*)index_d, indexPos * sizeof(Triple_d));
 #ifdef DEBUG
     if(dataType==0){
          for(int i = 0; i < 3; i++)
