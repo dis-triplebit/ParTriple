@@ -505,13 +505,13 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
 								}else{
 									//调用double
-									((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis(stod(lastobject), count0);
-									statBuffer[6]->addStatis(stod(lastobject), lastPredicate, count1);
+									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
+									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
 								}
 							}else{
 								//调用ID
-								((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis(lastObject, count0);
-								statBuffer[6]->addStatis(lastObject, lastPredicate, count1);
+								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
+								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
 							}
 						}
 						lastPredicate = predicateID;
@@ -530,11 +530,11 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
 								}else{
 									//调用double
-									statBuffer[6]->addStatis(stod(lastobject), lastPredicate, count1);
+									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
 								}
 							}else{
 								//调用ID
-								statBuffer[6]->addStatis(lastObject, lastPredicate, count1);
+								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
 							}
 						}
 
@@ -568,8 +568,8 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 							if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
 								if(lastobjecttype=="Integer"){
 									//调用flaot
-									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis((float)stoi(lastobject), count0);
-									statBuffer[7]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+									((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
+									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
 								}else{
 									//调用double
 									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
@@ -577,8 +577,8 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								}
 							}else{
 								//调用ID
-								((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(lastObject, count0);
-								statBuffer[7]->addStatis(lastObject, lastPredicate, count1);
+								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
+								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
 							}
 						}
 
@@ -595,14 +595,14 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 							if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
 								if(lastobjecttype=="Integer"){
 									//调用flaot
-									statBuffer[7]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
 								}else{
 									//调用double
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
 								}
 							}else{
 								//调用ID
-								statBuffer[7]->addStatis(lastObject, lastPredicate, count1);
+								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
 							}
 						}
 
@@ -640,12 +640,12 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 						if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
 							if(lastobjecttype=="Integer"){
 								//调用flaot
-								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis((float)stoi(lastobject), count0);
-								statBuffer[5]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+								((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
+								statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
 							}else{
 								//调用double
-								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(stod(lastobject), count0);
-								statBuffer[5]->addStatis(stod(lastobject), lastPredicate, count1);
+								((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
+								statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
 							}
 						}else{
 							//调用ID
@@ -654,7 +654,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 							cout<<"010"<<endl;
 							statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
 						}
-						cout<<111<<endl;
+						cout<<"111"<<endl;
 					}
 					
 					lastPredicate = predicateID;
@@ -670,10 +670,10 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 						if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
 							if(lastobjecttype=="Integer"){
 								//调用flaot
-								statBuffer[5]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+								statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
 							}else{
 								//调用double
-								statBuffer[5]->addStatis(stod(lastobject), lastPredicate, count1);
+								statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
 							}
 						}else{
 							//调用ID
@@ -709,17 +709,17 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
 				if(lastobjecttype=="Integer"){
 					//调用flaot
-					((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis((float)stoi(lastobject), count0);
-					(TwoConstantStatisticsBuffer*)statBuffer[3]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+					((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
+					(TwoConstantStatisticsBuffer*)statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
 				}else{
 					//调用double
-					((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(stod(lastobject), count0);
-					(TwoConstantStatisticsBuffer*)statBuffer[3]->addStatis(stod(lastobject), lastPredicate, count1);
+					((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
+					(TwoConstantStatisticsBuffer*)statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
 				}
 			}else{
 				//调用ID
 				((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
-				(TwoConstantStatisticsBuffer*)statBuffer[3]->addStatis(lastObject, lastPredicate, count1);
+				(TwoConstantStatisticsBuffer*)statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
 			}
 		}
 
@@ -733,7 +733,6 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 	// ((OneConstantStatisticsBuffer*) statBuffer[1])->flush();
 	// ((TwoConstantStatisticsBuffer*) statBuffer[2])->flush();
 	// ((TwoConstantStatisticsBuffer*) statBuffer[3])->flush();
-	cout<<"222"<<endl;
 	return OK;
 }
 
@@ -886,7 +885,7 @@ Status TripleBitBuilder::endBuild() {
 	//-----------------------------------------
 
 	bitmap->save();
-
+	cout<<"save"<<endl;
 	ofstream ofile(string(dir + "/statIndex").c_str());
 	MMapBuffer * indexBuffer = NULL;
 	((OneConstantStatisticsBuffer*)statBuffer[0])->save(indexBuffer,StatisticsBuffer::SUBJECT_STATIS,0);
@@ -897,7 +896,7 @@ Status TripleBitBuilder::endBuild() {
 	((TwoConstantStatisticsBuffer*)statBuffer[5])->save(indexBuffer,StatisticsBuffer::OBJECTPREDICATE_STATIS,0);
 	((TwoConstantStatisticsBuffer*)statBuffer[6])->save(indexBuffer,StatisticsBuffer::OBJECTPREDICATE_STATIS,1);
 	((TwoConstantStatisticsBuffer*)statBuffer[7])->save(indexBuffer,StatisticsBuffer::OBJECTPREDICATE_STATIS,2);
-
+	cout<<"constant"<<endl;
 	delete indexBuffer;
 	return OK;
 

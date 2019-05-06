@@ -12,7 +12,7 @@ char* DATABASE_PATH;
 char* columns;
 int main(int argc, char* argv[])
 {
-	//Ä¬ÈÏÊý¾Ý¼¯¸ñÊ½Îª3ÁÐ£¬btc4ÁÐ
+	//Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½Ý¼ï¿½ï¿½ï¿½Ê½Îª3ï¿½Ð£ï¿½btc4ï¿½ï¿½
 	if (argc < 3 || argc >4) {
 		fprintf(stderr, "Usage: %s <N3 file name> <Database Directory> [--columnNum]\n", argv[0]);
 		return -1;
@@ -26,11 +26,11 @@ int main(int argc, char* argv[])
 	else
 		columns = NULL;
 	DATABASE_PATH = argv[2];
-	TripleBitBuilder* builder = new TripleBitBuilder(argv[2]);//½¨Á¢4¸öÍ³¼ÆË÷ÒýÎÄ¼þ,uriµÄ6¸öÎÄ¼þ£¬preµÄ6¸öÎÄ¼þÒÔ¼°tempµÄ4¸öÎÄ¼þ,²¢½«SINGLEÐ´Èë×ÖµäÖÐ
+	TripleBitBuilder* builder = new TripleBitBuilder(argv[2]);//ï¿½ï¿½ï¿½ï¿½4ï¿½ï¿½Í³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½,uriï¿½ï¿½6ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½preï¿½ï¿½6ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ô¼ï¿½tempï¿½ï¿½4ï¿½ï¿½ï¿½Ä¼ï¿½,ï¿½ï¿½ï¿½ï¿½SINGLEÐ´ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½
 
 	cout << "start to store" << endl;
-	builder->beforeBuildforNum(argv[1]);// ¿ªÊ¼½âÎö
-
+	builder->beforeBuildforNum(argv[1]);// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½
+	cout<<"-----"<<endl;
 
 	//builder->startBuildN3(argv[1]);
 	builder->endBuild();
