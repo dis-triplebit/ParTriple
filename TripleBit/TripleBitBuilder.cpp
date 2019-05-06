@@ -58,10 +58,14 @@ TripleBitBuilder::TripleBitBuilder(string _dir):dir(_dir){
 	statementFile.open(string(dir + "/statement.triple").c_str(), ios::out);
 	//建立了statement.triple
 
-	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/subject_statis"), StatisticsBuffer::SUBJECT_STATIS);	//subject statistics buffer，并将建立的索引文件映射进地址空间
-	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/object_statis"), StatisticsBuffer::OBJECT_STATIS);//object statistics buffer;
-	statBuffer[2] = new TwoConstantStatisticsBuffer(string(dir + "/subjectpredicate_statis"),StatisticsBuffer::SUBJECTPREDICATE_STATIS);	//subject-predicate statistics buffer;
-	statBuffer[3] = new TwoConstantStatisticsBuffer(string(dir + "/objectpredicate_statis"),StatisticsBuffer::OBJECTPREDICATE_STATIS);//object-predicate statistics buffer;
+	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/SubjectStatIndex"), StatisticsBuffer::SUBJECT_STATIS,0);	//subject statistics buffer，并将建立的索引文件映射进地址空间
+	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/ObjectIntStatIndex"), StatisticsBuffer::OBJECT_STATIS,0);//object statistics buffer;
+	statBuffer[2] = new OneConstantStatisticsBuffer(string(dir + "/ObjectFloatStatIndex"), StatisticsBuffer::OBJECT_STATIS,1);
+	statBuffer[3] = new OneConstantStatisticsBuffer(string(dir + "/ObjectDoubleStatIndex"), StatisticsBuffer::OBJECT_STATIS,2);
+	statBuffer[4] = new TwoConstantStatisticsBuffer(string(dir + "/SubjectPredicateStatIndex"),StatisticsBuffer::SUBJECTPREDICATE_STATIS,0);	//subject-predicate statistics buffer;
+	statBuffer[5] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectIntPredicateStatIndex"),StatisticsBuffer::OBJECTPREDICATE_STATIS,0);//object-predicate statistics buffer;
+	statBuffer[6] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectFloatPredicateStatIndex"),StatisticsBuffer::OBJECTPREDICATE_STATIS,1);//object-predicate statistics buffer;
+	statBuffer[7] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectDoublePredicateStatIndex"),StatisticsBuffer::OBJECTPREDICATE_STATIS,2);//object-predicate statistics buffer;
 
 	staReifTable = new StatementReificationTable(); //建立有一定空间的MemoryBuffer
 	first = true;
@@ -363,7 +367,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 	Element objectelement;
 
 	loadTriple(reader, subjectID, predicateID, objectID);//也就是从sortedFile中得到的ID，这个ID是来源于最开始的rawFacts，我需要做的就是根据这个ID，这样的话就得需要知道存储表是哪个
-	//我只要在这里得到一个URItable的实例就可以。TripleBitBuilder已经实例化了一个ID了。因此可以直接调用
+	//我只要在这里得到一个URItable的实例就可以。TripleBitBuilder已经实例化了一个URITable了。因此可以直接调用
 	getObject(objectID, objectandtype, object, objecttype);
 	
 
@@ -373,9 +377,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 	reader = skipIdIdId(reader);
 	if (sortedWay == 0) {//SPO按S排序
 		//将获取到的ID写outfacts中供monetdb使用
-		lastMin = lastMax = objectID;
-		//bool v = generateXY(subjectID, objectID);//S>O,则S=O，O=差值，返回1；S<=O,则S不变，O=差值，返回0；采用引用，S对应X，O对应Y
-		//v=1时，x对应O，Y对应delta;v=0时，x对应S，Y对应delta
+		//lastMin = lastMax = objectID;
 		//将首个SO形成的<XY>插入到内存中
 		if (objecttype=="Double"||objecttype=="Integer"||objecttype=="Decimal") {
 			//object类型可比较，inserttriple写入字面值
@@ -400,37 +402,34 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			}
 			if (subjectID != lastSubject) {
 				((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject, count0);//添加S统计，带一个默认值参数的3参数
-				statBuffer[2]->addStatis_new(lastSubject, lastPredicate, count1,lastMin, lastMax);//添加SP统计
+				statBuffer[4]->addStatis(lastSubject, lastPredicate, count1);//添加SP统计
 				lastPredicate = predicateID;
 				lastSubject = subjectID;
-				lastObject = objectID;
+				//lastObject = objectID;
 				count0 = count1 = 1;
 				//不同S不同
-				lastMin = lastMax = objectID;
+				//lastMin = lastMax = objectID;
 			} else if (predicateID != lastPredicate) {//S相等
-				statBuffer[2]->addStatis_new(lastSubject, lastPredicate, count1,lastMin, lastMax);//添加SP统计
+				statBuffer[4]->addStatis(lastSubject, lastPredicate, count1);//添加SP统计
 				lastPredicate = predicateID;
-				lastObject = objectID;
+				//lastObject = objectID;
 				count0++;
 				count1 = 1;
 				//同S不同P
-				lastMin = lastMax = objectID;
+				//lastMin = lastMax = objectID;
 			} else {
 				count0++;
 				count1++;
 				lastObject = objectID;
 				//同一个sp,仅关注同一个SP下的O的最大最小值
-				if (lastMin > objectID) {
-					lastMin = objectID;
-				}
-				if (lastMax < objectID) {
-					lastMax = objectID;
-				}
+				// if (lastMin > objectID) {
+				// 	lastMin = objectID;
+				// }
+				// if (lastMax < objectID) {
+				// 	lastMax = objectID;
+				// }
 			}
-			reader = reader + 12;
-			//v = generateXY(subjectID, objectID);
-			//0 indicate the triple is sorted by subjects' id;
-			//v=1标识S>O;v=0,标识S<=O
+
 
 			getObject(objectID, objectandtype, object, objecttype);
 			if (objecttype == "Double" || objecttype == "Integer" || objecttype == "Decimal") {
@@ -449,14 +448,13 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				objectelement.id = objectID;
 				bitmap->insertTriple(predicateID, subjectID, objectelement, 0, 0);
 			}
+
+			reader = reader + 12;
 		}
-		((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject,
-				count0);//添加S统计，带一个默认值参数的3参数
-		(TwoConstantStatisticsBuffer*) statBuffer[2]->addStatis_new(lastSubject,
-				lastPredicate, count1, lastMin, lastMax);//添加SP统计
+		((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject,count0);//添加S统计，带一个默认值参数的3参数
+		(TwoConstantStatisticsBuffer*) statBuffer[4]->addStatis(lastSubject,lastPredicate, count1);//添加SP统计
 	} else {//SPO按O排序
-		lastMin = lastMax = subjectID;
-		//bool v = generateXY(objectID, subjectID);
+		//lastMin = lastMax = subjectID;
 		getObject(objectID, objectandtype, object, objecttype);
 		if (objecttype == "Double" || objecttype == "Integer" || objecttype == "Decimal") {
 			//object类型可比较，inserttriple写入字面值
@@ -481,65 +479,247 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				reader = skipIdIdId(reader);
 				continue;
 			}
-			if (objectID != lastObject) {
-				((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
-				statBuffer[3]->addStatis_new(lastObject, lastPredicate, count1,lastMin, lastMax);
-				lastPredicate = predicateID;
-				lastObject = objectID;
-				lastSubject = subjectID;
-				count0 = count1 = 1;
-				lastMin = lastMax = subjectID;
-			} else if (predicateID != lastPredicate) {
-				statBuffer[3]->addStatis_new(lastObject, lastPredicate, count1,lastMin, lastMax);
-				lastPredicate = predicateID;
-				lastSubject = subjectID;
-				count0++;
-				count1 = 1;
-				lastMin = lastMax = subjectID;
-			} else {
-				lastSubject = subjectID;
-				count0++;
-				count1++;
-				if (lastMin > subjectID) {
-					lastMin = subjectID;
-				}
-				if (lastMax < subjectID) {
-					lastMax = subjectID;
-				}
-			}
-			reader = skipIdIdId(reader);
-			//v = generateXY(objectID, subjectID);
-			// 1 indicate the triple is sorted by objects' id;
 			getObject(objectID, objectandtype, object, objecttype);
 			if (objecttype == "Double" || objecttype == "Integer" || objecttype == "Decimal") {
 				//object类型可比较，inserttriple写入字面值
 				if (objecttype == "Integer") {
 					objectelement.f = stoi(object);
+
+					if (objectID != lastObject) {
+
+						{
+							string lastobject,lastobjectandtype,lastobjecttype;
+							getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
+							if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
+								if(lastobjecttype=="Integer"){
+									//调用flaot
+									((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
+									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+								}else{
+									//调用double
+									((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis(stod(lastobject), count0);
+									statBuffer[6]->addStatis(stod(lastobject), lastPredicate, count1);
+								}
+							}else{
+								//调用ID
+								((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis(lastObject, count0);
+								statBuffer[6]->addStatis(lastObject, lastPredicate, count1);
+							}
+						}
+						lastPredicate = predicateID;
+						lastObject = objectID;
+						//lastSubject = subjectID;
+						count0 = count1 = 1;
+						//lastMin = lastMax = subjectID;
+					} else if (predicateID != lastPredicate) {
+
+						{
+							string lastobject,lastobjectandtype,lastobjecttype;
+							getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
+							if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
+								if(lastobjecttype=="Integer"){
+									//调用flaot
+									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+								}else{
+									//调用double
+									statBuffer[6]->addStatis(stod(lastobject), lastPredicate, count1);
+								}
+							}else{
+								//调用ID
+								statBuffer[6]->addStatis(lastObject, lastPredicate, count1);
+							}
+						}
+
+						lastPredicate = predicateID;
+						//lastSubject = subjectID;
+						count0++;
+						count1 = 1;
+						//lastMin = lastMax = subjectID;
+					} else {
+						lastSubject = subjectID;
+						count0++;
+						count1++;
+						// if (lastMin > subjectID) {
+						// 	lastMin = subjectID;
+						// }
+						// if (lastMax < subjectID) {
+						// 	lastMax = subjectID;
+						// }
+					}
+
 					bitmap->insertTriple(predicateID, subjectID, objectelement, 4, 1);
 				}
 				else {
 					objectelement.d = stod(object);
+
+					if (objectID != lastObject) {
+
+						{
+							string lastobject,lastobjectandtype,lastobjecttype;
+							getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
+							if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
+								if(lastobjecttype=="Integer"){
+									//调用flaot
+									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis((float)stoi(lastobject), count0);
+									statBuffer[7]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+								}else{
+									//调用double
+									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
+									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+								}
+							}else{
+								//调用ID
+								((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(lastObject, count0);
+								statBuffer[7]->addStatis(lastObject, lastPredicate, count1);
+							}
+						}
+
+						lastPredicate = predicateID;
+						lastObject = objectID;
+						//lastSubject = subjectID;
+						count0 = count1 = 1;
+						//lastMin = lastMax = subjectID;
+					} else if (predicateID != lastPredicate) {
+
+						{
+							string lastobject,lastobjectandtype,lastobjecttype;
+							getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
+							if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
+								if(lastobjecttype=="Integer"){
+									//调用flaot
+									statBuffer[7]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+								}else{
+									//调用double
+									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+								}
+							}else{
+								//调用ID
+								statBuffer[7]->addStatis(lastObject, lastPredicate, count1);
+							}
+						}
+
+						lastPredicate = predicateID;
+						//lastSubject = subjectID;
+						count0++;
+						count1 = 1;
+						//lastMin = lastMax = subjectID;
+					} else {
+						lastSubject = subjectID;
+						count0++;
+						count1++;
+						// if (lastMin > subjectID) {
+						// 	lastMin = subjectID;
+						// }
+						// if (lastMax < subjectID) {
+						// 	lastMax = subjectID;
+						// }
+					}
+
 					bitmap->insertTriple(predicateID, subjectID, objectelement, 5, 1);
 				}
 			}
 			else {
 				//object类型不可比较，inserttriple写入ID
 				objectelement.id = objectID;
+
+				if (objectID != lastObject) {
+
+					{
+						string lastobject,lastobjectandtype,lastobjecttype;
+						getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
+						if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
+							if(lastobjecttype=="Integer"){
+								//调用flaot
+								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis((float)stoi(lastobject), count0);
+								statBuffer[5]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+							}else{
+								//调用double
+								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(stod(lastobject), count0);
+								statBuffer[5]->addStatis(stod(lastobject), lastPredicate, count1);
+							}
+						}else{
+							//调用ID
+							((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
+							statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+						}
+					}
+					
+					lastPredicate = predicateID;
+					lastObject = objectID;
+					//lastSubject = subjectID;
+					count0 = count1 = 1;
+					//lastMin = lastMax = subjectID;
+				} else if (predicateID != lastPredicate) {
+
+					{
+						string lastobject,lastobjectandtype,lastobjecttype;
+						getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
+						if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
+							if(lastobjecttype=="Integer"){
+								//调用flaot
+								statBuffer[5]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+							}else{
+								//调用double
+								statBuffer[5]->addStatis(stod(lastobject), lastPredicate, count1);
+							}
+						}else{
+							//调用ID
+							statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+						}
+					}
+
+					lastPredicate = predicateID;
+					//lastSubject = subjectID;
+					count0++;
+					count1 = 1;
+					//lastMin = lastMax = subjectID;
+				} else {
+					lastSubject = subjectID;
+					count0++;
+					count1++;
+					// if (lastMin > subjectID) {
+					// 	lastMin = subjectID;
+					// }
+					// if (lastMax < subjectID) {
+					// 	lastMax = subjectID;
+					// }
+				}
+
 				bitmap->insertTriple(predicateID, subjectID, objectelement, 3, 1);
 			}
+			reader = skipIdIdId(reader);
 		}
-		((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject,count0);
-		(TwoConstantStatisticsBuffer*) statBuffer[3]->addStatis_new(lastObject,lastPredicate, count1, lastMin, lastMax);
+
+		{
+			string lastobject,lastobjectandtype,lastobjecttype;
+			getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
+			if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
+				if(lastobjecttype=="Integer"){
+					//调用flaot
+					((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis((float)stoi(lastobject), count0);
+					(TwoConstantStatisticsBuffer*)statBuffer[3]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+				}else{
+					//调用double
+					((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(stod(lastobject), count0);
+					(TwoConstantStatisticsBuffer*)statBuffer[3]->addStatis(stod(lastobject), lastPredicate, count1);
+				}
+			}else{
+				//调用ID
+				((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
+				(TwoConstantStatisticsBuffer*)statBuffer[3]->addStatis(lastObject, lastPredicate, count1);
+			}
+		}
+
 		//*outdegree << lastObject << " " << lastPredicate << " " << count1 << " "<< lastMin << " " << lastMax << "\n";
 		//outdegree->close();
 	}
 
 	mappedIn.close();
 	bitmap->flush();
-	((OneConstantStatisticsBuffer*) statBuffer[0])->flush();
-	((OneConstantStatisticsBuffer*) statBuffer[1])->flush();
-	((TwoConstantStatisticsBuffer*) statBuffer[2])->flush();
-	((TwoConstantStatisticsBuffer*) statBuffer[3])->flush();
+	// ((OneConstantStatisticsBuffer*) statBuffer[0])->flush();
+	// ((OneConstantStatisticsBuffer*) statBuffer[1])->flush();
+	// ((TwoConstantStatisticsBuffer*) statBuffer[2])->flush();
+	// ((TwoConstantStatisticsBuffer*) statBuffer[3])->flush();
 	return OK;
 }
 
@@ -633,7 +813,7 @@ Status TripleBitBuilder::beforeBuildforNum(string fileName)	//wo
 	//newfile.append("./test");
 	TempFile rawFacts("./test");	//建立文件test.0(ID三元组文件)
 
-	ifstream in((char*)fileName.c_str());
+	//ifstream in((char*)fileName.c_str());
 	if (!in.is_open()) {
 		cerr << "Unable to open " << fileName << endl;
 		return ERROR;
@@ -690,10 +870,14 @@ Status TripleBitBuilder::endBuild() {
 
 	ofstream ofile(string(dir + "/statIndex").c_str());
 	MMapBuffer * indexBuffer = NULL;
-	((OneConstantStatisticsBuffer*)statBuffer[0])->save(indexBuffer);
-	((OneConstantStatisticsBuffer*)statBuffer[1])->save(indexBuffer);
-	((TwoConstantStatisticsBuffer*)statBuffer[2])->save(indexBuffer);
-	((TwoConstantStatisticsBuffer*)statBuffer[3])->save(indexBuffer);
+	((OneConstantStatisticsBuffer*)statBuffer[0])->save(indexBuffer,StatisticsBuffer::SUBJECT_STATIS,0);
+	((OneConstantStatisticsBuffer*)statBuffer[1])->save(indexBuffer,StatisticsBuffer::OBJECT_STATIS,0);
+	((OneConstantStatisticsBuffer*)statBuffer[2])->save(indexBuffer,StatisticsBuffer::OBJECT_STATIS,1);
+	((OneConstantStatisticsBuffer*)statBuffer[3])->save(indexBuffer,StatisticsBuffer::OBJECT_STATIS,2);
+	((TwoConstantStatisticsBuffer*)statBuffer[4])->save(indexBuffer,StatisticsBuffer::SUBJECTPREDICATE_STATIS,0);
+	((TwoConstantStatisticsBuffer*)statBuffer[5])->save(indexBuffer,StatisticsBuffer::OBJECTPREDICATE_STATIS,0);
+	((TwoConstantStatisticsBuffer*)statBuffer[6])->save(indexBuffer,StatisticsBuffer::OBJECTPREDICATE_STATIS,1);
+	((TwoConstantStatisticsBuffer*)statBuffer[7])->save(indexBuffer,StatisticsBuffer::OBJECTPREDICATE_STATIS,2);
 
 	delete indexBuffer;
 	return OK;
