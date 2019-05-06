@@ -64,7 +64,7 @@ static void getTempIndexFilename(string& filename, int pid, unsigned type, unsig
 	sprintf(temp, "%d", type);
 	filename.append(temp);
 	filename.append("_");
-	sprintf(temp, "%d", chunkType<3?"SO":"OS");
+	sprintf(temp, "%d", chunkType);
 	filename.append(temp);
 }
 
