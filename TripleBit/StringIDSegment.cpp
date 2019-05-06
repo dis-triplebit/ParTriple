@@ -311,7 +311,9 @@ bool StringIDSegment::findStringById(LengthString * aStr, const ID& id) {
 	IDStroffEntry * ise = 0;
 	OffsetType elength;
 	void *pdata;
+	//cout<<"findstringbyid"<<endl;
 	if (idStroffPool->get_by_id(id, &elength, &pdata) == OK) {
+		
 		assert(elength == sizeof(IDStroffEntry));
 		ise = (IDStroffEntry *) pdata;
 	}

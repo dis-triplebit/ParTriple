@@ -54,7 +54,7 @@ private:
 	vector<string> predicates;
 	string dir;
 	/// statistics buffer;
-	StatisticsBuffer* statBuffer[4];
+	StatisticsBuffer* statBuffer[8];
 	StatementReificationTable* staReifTable;
 	FindColumns* columnFinder;
 	fstream statementFile;

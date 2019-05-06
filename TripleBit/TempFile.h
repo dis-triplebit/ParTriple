@@ -65,6 +65,7 @@ public:
 		return fileName;
 	}
 
+
 	/// Flush the file
 	void flush();
 	/// Close the file

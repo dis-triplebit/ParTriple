@@ -447,12 +447,12 @@ int Strings_Sort::sortwords_multi_for_suffix(struct words * &wlist_head) {
 
 	//cout << "start to sort" << endl;
 	int nums = wlist_head->sufffixcount;
-	struct thread_args * targs[THREAD_NUMBER];
+	struct thread_args * targs[WORK_THREAD_NUMBER];
 	struct thread_args * leftarg;
 
 	int i = 0;
-	int period = nums / THREAD_NUMBER;
-	int left = nums % THREAD_NUMBER;
+	int period = nums / WORK_THREAD_NUMBER;
+	int left = nums % WORK_THREAD_NUMBER;
 	struct words * word_list = wlist_head->nextsuffix;
 	struct merge_node * one = NULL, *two = NULL;
 	struct words *m = NULL;
@@ -462,7 +462,7 @@ int Strings_Sort::sortwords_multi_for_suffix(struct words * &wlist_head) {
 	gettimeofday(&begin, NULL);
 #endif
 	if (period > 0) {
-		for (i = 0; i < THREAD_NUMBER; i++) {
+		for (i = 0; i < WORK_THREAD_NUMBER; i++) {
 			targs[i] = (struct thread_args *) calloc(1,
 					sizeof(struct thread_args));
 			if (targs[i] == NULL) {
@@ -536,12 +536,12 @@ int Strings_Sort::sortwords_multi_for_suffix(struct words * &wlist_head) {
 int Strings_Sort::sortwords_multi(struct words * &wlist_head) {
 
 	int nums = wlist_head->len-1;
-	struct thread_args * targs[THREAD_NUMBER];
+	struct thread_args * targs[WORK_THREAD_NUMBER];
 	struct thread_args * leftarg;
 
 	int i = 0;
-	int period = nums / THREAD_NUMBER;
-	int left = nums % THREAD_NUMBER;
+	int period = nums / WORK_THREAD_NUMBER;
+	int left = nums % WORK_THREAD_NUMBER;
 	struct words * word_list = wlist_head->next;
 	struct merge_node * one = NULL, *two = NULL;
 	struct words *m = NULL;
@@ -552,7 +552,7 @@ int Strings_Sort::sortwords_multi(struct words * &wlist_head) {
 #endif
 	cout<<period<<" : "<<left<<endl;
 	if (period) {
-		for (i = 0; i < THREAD_NUMBER; i++) {
+		for (i = 0; i < WORK_THREAD_NUMBER; i++) {
 			targs[i] = (struct thread_args *) calloc(1,
 					sizeof(struct thread_args));
 			if (targs[i] == NULL) {

@@ -101,11 +101,11 @@ Status EntityIDBuffer::sort()
 	{
 		p = buffer + i * chunkSize * IDCount;
 		if( i == chunkCount -1 )
-			ThreadPool::getWorkPool().addTask(boost::bind(&SortTask::Run, p,getSize() - chunkSize * (chunkCount - 1), sortKey, IDCount));
+			CThreadPool::getWorkPool().AddTask(boost::bind(&SortTask::Run, p,getSize() - chunkSize * (chunkCount - 1), sortKey, IDCount));
 		else
-			ThreadPool::getWorkPool().addTask(boost::bind(&SortTask::Run, p, chunkSize , sortKey, IDCount));
+			CThreadPool::getWorkPool().AddTask(boost::bind(&SortTask::Run, p, chunkSize , sortKey, IDCount));
 	}
-	ThreadPool::getWorkPool().wait();
+	CThreadPool::getWorkPool().Wait();
 
 	//TODO merge the chunks into a buffer.
 	ID* tempBuffer = (ID*)malloc(totalSize * 4);
@@ -135,15 +135,15 @@ Status EntityIDBuffer::sort()
 
 		for (i = 0; i < chunkCount;i += slot) {
 			if(i + slot == chunkCount) {
-				ThreadPool::getWorkPool().addTask(boost::bind(&EntityIDBuffer::merge, this, i * chunkSize, ( i + slot / 2 - 1) * chunkSize,
+				CThreadPool::getInstance1().AddTask(boost::bind(&EntityIDBuffer::merge, this, i * chunkSize, ( i + slot / 2 - 1) * chunkSize,
 						(i + slot / 2) * chunkSize, getSize(), tempBuffer));
 			} else {
-				ThreadPool::getWorkPool().addTask(boost::bind(&EntityIDBuffer::merge, this, i * chunkSize, ( i + slot / 2 - 1) * chunkSize,
+				CThreadPool::getInstance1().AddTask(boost::bind(&EntityIDBuffer::merge, this, i * chunkSize, ( i + slot / 2 - 1) * chunkSize,
 						(i + slot / 2) * chunkSize, (i + slot) * chunkSize, tempBuffer));
 			}
 		}
 
-		ThreadPool::getWorkPool().wait();
+		CThreadPool::getInstance1().Wait();
 		swapBuffer(tempBuffer);
 		j++;
 	}
@@ -274,7 +274,7 @@ Status EntityIDBuffer::mergeBuffer(ID* destBuffer, ID* buffer1, ID* buffer2, siz
 
 void EntityIDBuffer::quickSort(ID* p, int size)
 {
-	ThreadPool::getWorkPool().addTask(boost::bind(&SortTask::Run, p,size, sortKey, IDCount));
+	CThreadPool::getWorkPool().AddTask(boost::bind(&SortTask::Run, p,size, sortKey, IDCount));
 }
 
 /*

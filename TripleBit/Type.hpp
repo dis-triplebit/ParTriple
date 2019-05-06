@@ -19,6 +19,7 @@
 // San Francisco, California, 94105, USA.
 //---------------------------------------------------------------------------
 /// Information about the type system
+using namespace std;
 class Type {
    public:
    /// Different literal types

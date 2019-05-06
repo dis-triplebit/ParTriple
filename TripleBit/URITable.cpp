@@ -217,11 +217,23 @@ Status URITable::getIdByURI(const char* URI, ID& id)
 }
 void URITable::updateFakeid(string sortfile,int filetype) {
 	ifstream openfile(sortfile.c_str());
-	string str;
+	string str,suffix;
+	switch(filetype){
+		case 1:suffix="Boolean";break;
+		case 2:suffix="Integer";break;
+		case 3:suffix="Double";break;
+		case 4:suffix="Date";break;
+		case 5:suffix="String";break;
+		case 6:suffix="";break;
+	}
 
 	while (getline(openfile, str)) {
 		ID realID;
-		insertTable((char*) str.c_str(), realID);
+		if(suffix==""){
+			insertTable((char*) str.c_str(), realID);
+		}else{
+			insertTable((char*) (str+"^"+suffix).c_str(), realID);
+		}
 		//在这里进行的插入表（ID与事物映射）操作，因此可以在这里进行对事物的分类标记操作，只需要加一个参数就行了，因为在调用这个函数的时候外界对不同文件都分别调用了这个函数。
 	}
 }
@@ -818,7 +830,7 @@ Strings_Sort::words * URITable::getHead() {
 
 		curr->nextsuffix = sufflist;
 		//cout << " copy suffix and pre finished" << endl;
-		if (curr->sufffixcount > THREAD_NUMBER * 2) {
+		if (curr->sufffixcount > WORK_THREAD_NUMBER * 2) {
 			pthread_mutex_init(&g_mutex, NULL);
 			ssort->sortwords_multi_for_suffix(curr);
 			pthread_mutex_destroy(&g_mutex);
@@ -933,9 +945,16 @@ Status URITable::insertTable(const char* URI, ID& id) {
 Status URITable::getURIById(string& URI, ID id) {
 	//cout<<"id is"<<id<<endl;
 	LengthString prefix, suffix;
-	URI.clear();
-	if (suffix_segment->findStringById(&suffix, id) == false)
+	//URI.clear();
+	//cout<<URI<<endl;
+
+	if (suffix_segment->findStringById(&suffix, id) == false){
+		//cout<<"uri2"<<endl;
 		return URI_NOT_FOUND;
+	}
+		
+	
+	
 	char temp[10];
 	memset(temp, 0, 10);
 	const char* ptr = suffix.str;

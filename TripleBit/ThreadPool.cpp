@@ -11,33 +11,35 @@
 #include <iostream>
 
 using namespace std;
-
-ThreadPool *ThreadPool::workPool = NULL;
-ThreadPool *ThreadPool::chunkPool = NULL;
-ThreadPool *ThreadPool::partitionPool = NULL;
-ThreadPool *ThreadPool::testPool = NULL;
-
-
-
-ThreadPool::ThreadPool(int threadNum) {
+CThreadPool* CThreadPool::instance = NULL;
+CThreadPool* CThreadPool::instance1 = NULL;
+CThreadPool *CThreadPool::workPool = NULL;
+CThreadPool *CThreadPool::chunkPool = NULL;
+CThreadPool *CThreadPool::partitionPool = NULL;
+CThreadPool *CThreadPool::printPool = NULL;
+CThreadPool *CThreadPool::scan_joinPool = NULL;
+CThreadPool *CThreadPool::fullJoinInstance = NULL;
+CThreadPool *CThreadPool::star_para = NULL;
+CThreadPool *CThreadPool::joinpara1= NULL;
+CThreadPool *CThreadPool::joinpara2 = NULL;
+CThreadPool::CThreadPool(int threadNum) {
 	this->threadNum = threadNum;
 	shutDown = false;
 	NodeTask *nodeTask = new NodeTask;
 	head = tail = nodeTask;
-	pthread_mutex_init(&headMutex,NULL);
+	pthread_mutex_init(&headMutex, NULL);
 	pthread_mutex_init(&tailMutex, NULL);
-	pthread_mutex_init(&pthreadIdleMutex,NULL);
-	pthread_mutex_init(&pthreadBusyMutex,NULL);
-	pthread_cond_init(&pthreadCond,NULL);
-	pthread_cond_init(&pthreadEmpty,NULL);
-	pthread_cond_init(&pthreadBusyEmpty,NULL);
+	pthread_mutex_init(&pthreadIdleMutex, NULL);
+	pthread_mutex_init(&pthreadBusyMutex, NULL);
+	pthread_cond_init(&pthreadCond, NULL);
+	pthread_cond_init(&pthreadEmpty, NULL);
+	pthread_cond_init(&pthreadBusyEmpty, NULL);
 	create();
 }
 
-ThreadPool::~ThreadPool()
-{
+CThreadPool::~CThreadPool() {
 	stopAll();
-	if(head != NULL){
+	if (head != NULL) {
 		delete head;
 		head = NULL;
 	}
@@ -54,7 +56,7 @@ ThreadPool::~ThreadPool()
 	pthread_cond_destroy(&pthreadBusyEmpty);
 }
 
-int ThreadPool::moveToIdle(pthread_t tid) {
+int CThreadPool::moveToIdle(pthread_t tid) {
 	pthread_mutex_lock(&pthreadBusyMutex);
 	vector<pthread_t>::iterator busyIter = vecBusyThread.begin();
 	while (busyIter != vecBusyThread.end()) {
@@ -65,8 +67,8 @@ int ThreadPool::moveToIdle(pthread_t tid) {
 	}
 	vecBusyThread.erase(busyIter);
 
-	if ( vecBusyThread.size() == 0) {
-		pthread_cond_broadcast(&pthreadBusyEmpty);
+	if (vecBusyThread.size() == 0) {
+		pthread_cond_broadcast(&pthreadBusyEmpty); //多个线程阻塞在条件变量上。
 	}
 
 	pthread_mutex_unlock(&pthreadBusyMutex);
@@ -77,7 +79,7 @@ int ThreadPool::moveToIdle(pthread_t tid) {
 	return 0;
 }
 
-int ThreadPool::moveToBusy(pthread_t tid) {
+int CThreadPool::moveToBusy(pthread_t tid) {
 	pthread_mutex_lock(&pthreadIdleMutex);
 	vector<pthread_t>::iterator idleIter = vecIdleThread.begin();
 	while (idleIter != vecIdleThread.end()) {
@@ -95,22 +97,22 @@ int ThreadPool::moveToBusy(pthread_t tid) {
 	return 0;
 }
 
-void* ThreadPool::threadFunc(void * threadData) {
+void* CThreadPool::threadFunc(void * threadData) {
 	pthread_t tid = pthread_self();
 	int rnt;
-	ThreadPoolArg* arg = (ThreadPoolArg*)threadData;
-	ThreadPool* pool = arg->pool;
+	ThreadPoolArg* arg = (ThreadPoolArg*) threadData;
+	CThreadPool* pool = arg->pool;
 	while (1) {
 		rnt = pthread_mutex_lock(&pool->headMutex);
-		if ( rnt != 0){
-			cout<<"Get mutex error"<<endl;
+		if (rnt != 0) {
+			cout << "Get mutex error" << endl;
 		}
 
-		while(pool->isEmpty() && pool->shutDown == false){
+		while (pool->isEmpty() && pool->shutDown == false) {
 			pthread_cond_wait(&pool->pthreadCond, &pool->headMutex);
 		}
 
-		if ( pool->shutDown == true){
+		if (pool->shutDown == true) {
 			pthread_mutex_unlock(&pool->headMutex);
 			pthread_exit(NULL);
 		}
@@ -118,17 +120,17 @@ void* ThreadPool::threadFunc(void * threadData) {
 		pool->moveToBusy(tid);
 		Task task = pool->Dequeue();
 
-		if(pool->isEmpty()){
+		if (pool->isEmpty()) {
 			pthread_cond_broadcast(&pool->pthreadEmpty);
 		}
 		pthread_mutex_unlock(&pool->headMutex);
 		task();
 		pool->moveToIdle(tid);
 	}
-	return (void*)0;
+	return (void*) 0;
 }
 
-void ThreadPool::Enqueue(const Task &task){
+void CThreadPool::Enqueue(const Task &task) {
 	NodeTask *nodeTask = new NodeTask(task);
 	pthread_mutex_lock(&tailMutex);
 	tail->next = nodeTask;
@@ -136,7 +138,7 @@ void ThreadPool::Enqueue(const Task &task){
 	pthread_mutex_unlock(&tailMutex);
 }
 
-ThreadPool::Task ThreadPool::Dequeue(){
+CThreadPool::Task CThreadPool::Dequeue() {
 	NodeTask *node, *newNode;
 //	pthread_mutex_lock(&headMutex);
 	node = head;
@@ -148,13 +150,14 @@ ThreadPool::Task ThreadPool::Dequeue(){
 	return task;
 }
 
-int ThreadPool::addTask(const Task &task) {
+int CThreadPool::AddTask(const Task &task) {
 	Enqueue(task);
 	pthread_cond_broadcast(&pthreadCond);
+
 	return 0;
 }
 
-int ThreadPool::create() {
+int CThreadPool::create() {
 	struct ThreadPoolArg* arg = new ThreadPoolArg;
 	pthread_mutex_lock(&pthreadIdleMutex);
 	for (int i = 0; i < threadNum; i++) {
@@ -164,10 +167,11 @@ int ThreadPool::create() {
 		vecIdleThread.push_back(tid);
 	}
 	pthread_mutex_unlock(&pthreadIdleMutex);
+	//delete arg;
 	return 0;
 }
 
-int ThreadPool::stopAll() {
+int CThreadPool::stopAll() {
 	shutDown = true;
 	pthread_mutex_unlock(&headMutex);
 	pthread_cond_broadcast(&pthreadCond);
@@ -176,82 +180,163 @@ int ThreadPool::stopAll() {
 		pthread_join(*iter, NULL);
 		iter++;
 	}
-	
+
 	iter = vecBusyThread.begin();
 	while (iter != vecBusyThread.end()) {
-		pthread_join(*iter, NULL);
+		pthread_join(*iter, NULL); //阻塞线程直到指定线程终止
 		iter++;
 	}
 
 	return 0;
 }
 
-int ThreadPool::wait()
-{
+int CThreadPool::Wait() {
 	pthread_mutex_lock(&headMutex);
-	while(!isEmpty()) {
+	while (!isEmpty()) {
 		pthread_cond_wait(&pthreadEmpty, &headMutex);
 	}
 	pthread_mutex_unlock(&headMutex);
 	pthread_mutex_lock(&pthreadBusyMutex);
-	while(vecBusyThread.size() != 0) {
-		pthread_cond_wait(&pthreadBusyEmpty, &pthreadBusyMutex);
+	while (vecBusyThread.size() != 0) {
+		pthread_cond_wait(&pthreadBusyEmpty, &pthreadBusyMutex); //阻塞线程直到条件受信
 	}
 	pthread_mutex_unlock(&pthreadBusyMutex);
 	return 0;
 }
-
-ThreadPool &ThreadPool::getWorkPool(){
-	if(workPool == NULL){
-		workPool = new ThreadPool(WORK_THREAD_NUMBER);
+CThreadPool& CThreadPool::getInstance() {
+	if (instance == NULL) {
+		instance = new CThreadPool(WORK_THREAD_NUMBER);
+	}
+	return *instance;
+}
+CThreadPool& CThreadPool::getInstance1() {
+	if (instance1 == NULL) {
+		instance1 = new CThreadPool(WORK_THREAD_NUMBER);
+		//instance1 = new CThreadPool(1);
+	}
+	return *instance1;
+}
+CThreadPool &CThreadPool::getWorkPool() {
+	if (workPool == NULL) {
+		workPool = new CThreadPool(WORK_THREAD_NUMBER);
 	}
 	return *workPool;
 }
 
-ThreadPool &ThreadPool::getChunkPool(){
-	if(chunkPool == NULL){
-		chunkPool = new ThreadPool(CHUNK_THREAD_NUMBER);
+CThreadPool &CThreadPool::getChunkPool() {
+	if (chunkPool == NULL) {
+		chunkPool = new CThreadPool(CHUNK_THREAD_NUMBER);
 	}
 	return *chunkPool;
 }
 
-ThreadPool &ThreadPool::getTestPool(){
-	if(testPool == NULL){
-		testPool = new ThreadPool(TEST_THREAD_NUMBER);
-	}
-	return *testPool;
-}
-
-ThreadPool &ThreadPool::getPartitionPool(){
-	if(partitionPool == NULL){
-		partitionPool = new ThreadPool(PARTITION_THREAD_NUMBER);
+CThreadPool &CThreadPool::getPartitionPool() {
+	if (partitionPool == NULL) {
+		partitionPool = new CThreadPool(CHUNK_THREAD_NUMBER);
 	}
 	return *partitionPool;
 }
-
-void ThreadPool::createAllPool(){
-	getWorkPool();
+CThreadPool &CThreadPool::getPrintPool() {
+	if (printPool == NULL) {
+		printPool = new CThreadPool(WORK_THREAD_NUMBER);
+	}
+	return *printPool;
+}
+CThreadPool &CThreadPool::getScan_JoinPool() {
+	if (scan_joinPool == NULL) {
+		scan_joinPool = new CThreadPool(WORK_THREAD_NUMBER);
+	}
+	return *scan_joinPool;
+}
+CThreadPool& CThreadPool::getFullJoinInstance() {
+	if (fullJoinInstance == NULL) {
+		fullJoinInstance = new CThreadPool(WORK_THREAD_NUMBER);
+	}
+	return *fullJoinInstance;
+}
+CThreadPool& CThreadPool::getStar_para() {
+	if (star_para == NULL) {
+		star_para = new CThreadPool(3);
+	}
+	return *star_para;
+}
+CThreadPool& CThreadPool::getjoinpara1() {
+	if (joinpara1 == NULL) {
+		joinpara1 = new CThreadPool(3);
+	}
+	return *joinpara1;
+}
+CThreadPool& CThreadPool::getjoinpara2() {
+	if (joinpara2 == NULL) {
+		joinpara2 = new CThreadPool(3);
+	}
+	return *joinpara2;
+}
+void CThreadPool::createAllPool() {
+	//getWorkPool();
 	getChunkPool();
 	getPartitionPool();
+	getPrintPool();
+	//getScan_JoinPool();
+	//getStar_para();
 }
-
-void ThreadPool::deleteAllPool(){
-	if(workPool != NULL){
-		delete workPool;
-		workPool = NULL;
-	}
-	if(chunkPool != NULL){
+void CThreadPool::deleteReadPool() {
+	if (chunkPool != NULL) {
 		delete chunkPool;
 		chunkPool = NULL;
 	}
-	if(partitionPool != NULL){
+	if (partitionPool != NULL) {
 		delete partitionPool;
 		partitionPool = NULL;
 	}
 }
+void CThreadPool::deleteAllPool() {
+	if (workPool != NULL) {
+		delete workPool;
+		workPool = NULL;
+	}
+	if (chunkPool != NULL) {
+		delete chunkPool;
+		chunkPool = NULL;
+	}
+	if (partitionPool != NULL) {
+		delete partitionPool;
+		partitionPool = NULL;
+	}
+	if (printPool != NULL) {
+		delete printPool;
+		printPool = NULL;
+	}
+	if (instance != NULL) {
+		delete instance;
+		instance = NULL;
+	}
+	if (instance1 != NULL) {
+		delete instance1;
+		instance1 = NULL;
+	}
+	if (scan_joinPool != NULL) {
+		delete scan_joinPool;
+		scan_joinPool = NULL;
+	}
+	if (star_para != NULL) {
+		delete star_para;
+		star_para = NULL;
+	}
+	if (fullJoinInstance != NULL) {
+		delete fullJoinInstance;
+		fullJoinInstance = NULL;
+	}
+}
 
-void ThreadPool::waitAllPoolComplete(){
-	getWorkPool().wait();
-	getChunkPool().wait();
-	getPartitionPool().wait();
+void CThreadPool::waitAllPoolComplete() {
+	//cout << "start wait pool" << endl;
+	//getWorkPool().Wait();
+	getChunkPool().Wait();
+	getPartitionPool().Wait();
+	getPrintPool().Wait();
+	getInstance().Wait();
+	//getInstance1().Wait();
+	//getStar_para().Wait();
+	//getFullJoinInstance().Wait();
 }

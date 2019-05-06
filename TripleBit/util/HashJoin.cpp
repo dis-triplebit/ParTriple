@@ -355,11 +355,11 @@ void HashJoin::Join(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2,
 			arg->joinKey1 = joinKey1;
 			arg->joinKey2 = joinKey2;
 
-			ThreadPool::getWorkPool().addTask(boost::bind(&HashJoin::run, arg));
+			CThreadPool::getWorkPool().AddTask(boost::bind(&HashJoin::run, arg));
 		}
 	}
 
-	ThreadPool::getWorkPool().wait();
+	CThreadPool::getWorkPool().Wait();
 
 	entBuffer1->modifyByFlag(flagVector, 1);
 
