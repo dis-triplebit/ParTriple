@@ -935,23 +935,23 @@ Status OneConstantStatisticsBuffer::getStatis(double& v1, unsigned v2 /* = 0 */)
 //保存索引信息，type为0时表示Subject或者Object，为0表示Object为int时,为1表示Object为float时,为2表示Object为double时
 Status OneConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer,StatisticsType type,unsigned dataType)
 {
-    string fileName;
-    if(type==StatisticsType::SUBJECT_STATIS)
-    {
-        fileName="/SubjectStatIndex";
-    }
-    else if(type==StatisticsType::OBJECT_STATIS&&dataType==0)
-    {
-        fileName="/ObjectIntStatIndex";
-    }
-    else if(type==StatisticsType::OBJECT_STATIS&&dataType==1)
-    {
-        fileName="/ObjectFloatStatIndex";
-    }
-    else if(type==StatisticsType::OBJECT_STATIS&&dataType==2)
-    {
-        fileName="/ObjectDoubleStatIndex";
-    }
+    string fileName="/statIndex";
+//    if(type==StatisticsType::SUBJECT_STATIS)
+//    {
+//        fileName="/SubjectStatIndex";
+//    }
+//    else if(type==StatisticsType::OBJECT_STATIS&&dataType==0)
+//    {
+//        fileName="/ObjectIntStatIndex";
+//    }
+//    else if(type==StatisticsType::OBJECT_STATIS&&dataType==1)
+//    {
+//        fileName="/ObjectFloatStatIndex";
+//    }
+//    else if(type==StatisticsType::OBJECT_STATIS&&dataType==2)
+//    {
+//        fileName="/ObjectDoubleStatIndex";
+//    }
 #ifdef DEBUG
     cout<<"index size: "<<index.size()<<endl;
 #endif
@@ -2148,21 +2148,21 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer,StatisticsType
     if(indexBuffer == NULL) {
         if(type==StatisticsType::SUBJECTPREDICATE_STATIS)
         {
-            indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/SubjectPredicateStatIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
+            indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
         }
         else if(type==StatisticsType::OBJECTPREDICATE_STATIS)
         {
             if(dataType==0)
             {
-                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectIntPredicateStatIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
             }
             else if(dataType==1)
             {
-                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectFloatPredicateStatIndex").c_str(), indexPos * sizeof(Triple_f) + 2 * sizeof(unsigned));
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple_f) + 2 * sizeof(unsigned));
             }
             else if(dataType==2)
             {
-                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectDoublePredicateStatIndex").c_str(), indexPos * sizeof(Triple_d) + 2 * sizeof(unsigned));
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple_d) + 2 * sizeof(unsigned));
             }
         }
         

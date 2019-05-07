@@ -7,14 +7,14 @@
 
 #include "../TripleBit/TripleBitBuilder.h"
 #include "../TripleBit/OSFile.h"
+#include "MMapBuffer.h"
 
 char* DATABASE_PATH;
 char* columns;
 int main(int argc, char* argv[])
 {
-	//Ĭ�����ݼ���ʽΪ3�У�btc4��
 	if (argc < 3 || argc >4) {
-		fprintf(stderr, "Usage: %s <N3 file name> <Database Directory> [--columnNum]\n", argv[0]);
+		fprintf(stderr, "Usage: %s <N3 file name> <Database Directory>\n", argv[0]);
 		return -1;
 	}
 
@@ -26,14 +26,15 @@ int main(int argc, char* argv[])
 	else
 		columns = NULL;
 	DATABASE_PATH = argv[2];
-	TripleBitBuilder* builder = new TripleBitBuilder(argv[2]);//����4��ͳ�������ļ�,uri��6���ļ���pre��6���ļ��Լ�temp��4���ļ�,����SINGLEд���ֵ���
+	TripleBitBuilder* builder = new TripleBitBuilder(argv[2]);
 
 	cout << "start to store" << endl;
-	builder->beforeBuildforNum(argv[1]);// ��ʼ����
+	builder->beforeBuildforNum(argv[1]);
 	cout<<"-----"<<endl;
 
 	//builder->startBuildN3(argv[1]);
 	builder->endBuild();
+
 	delete builder;
 
 	return 0;

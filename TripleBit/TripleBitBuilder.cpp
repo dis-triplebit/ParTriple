@@ -58,14 +58,14 @@ TripleBitBuilder::TripleBitBuilder(string _dir):dir(_dir){
 	statementFile.open(string(dir + "/statement.triple").c_str(), ios::out);
 	//建立了statement.triple
 
-	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/SubjectStatIndex"), StatisticsBuffer::SUBJECT_STATIS,0);	//subject statistics buffer，并将建立的索引文件映射进地址空间
-	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/ObjectIntStatIndex"), StatisticsBuffer::OBJECT_STATIS,0);//object statistics buffer;
-	statBuffer[2] = new OneConstantStatisticsBuffer(string(dir + "/ObjectFloatStatIndex"), StatisticsBuffer::OBJECT_STATIS,1);
-	statBuffer[3] = new OneConstantStatisticsBuffer(string(dir + "/ObjectDoubleStatIndex"), StatisticsBuffer::OBJECT_STATIS,2);
-	statBuffer[4] = new TwoConstantStatisticsBuffer(string(dir + "/SubjectPredicateStatIndex"),StatisticsBuffer::SUBJECTPREDICATE_STATIS,0);	//subject-predicate statistics buffer;
-	statBuffer[5] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectIntPredicateStatIndex"),StatisticsBuffer::OBJECTPREDICATE_STATIS,0);//object-predicate statistics buffer;
-	statBuffer[6] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectFloatPredicateStatIndex"),StatisticsBuffer::OBJECTPREDICATE_STATIS,1);//object-predicate statistics buffer;
-	statBuffer[7] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectDoublePredicateStatIndex"),StatisticsBuffer::OBJECTPREDICATE_STATIS,2);//object-predicate statistics buffer;
+	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/SubjectStatIndex1"), StatisticsBuffer::SUBJECT_STATIS,0);	//subject statistics buffer，并将建立的索引文件映射进地址空间
+	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/ObjectIntStatIndex1"), StatisticsBuffer::OBJECT_STATIS,0);//object statistics buffer;
+	statBuffer[2] = new OneConstantStatisticsBuffer(string(dir + "/ObjectFloatStatIndex1"), StatisticsBuffer::OBJECT_STATIS,1);
+	statBuffer[3] = new OneConstantStatisticsBuffer(string(dir + "/ObjectDoubleStatIndex1"), StatisticsBuffer::OBJECT_STATIS,2);
+	statBuffer[4] = new TwoConstantStatisticsBuffer(string(dir + "/SubjectPredicateStatIndex1"),StatisticsBuffer::SUBJECTPREDICATE_STATIS,0);	//subject-predicate statistics buffer;
+	statBuffer[5] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectIntPredicateStatIndex1"),StatisticsBuffer::OBJECTPREDICATE_STATIS,0);//object-predicate statistics buffer;
+	statBuffer[6] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectFloatPredicateStatIndex1"),StatisticsBuffer::OBJECTPREDICATE_STATIS,1);//object-predicate statistics buffer;
+	statBuffer[7] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectDoublePredicateStatIndex1"),StatisticsBuffer::OBJECTPREDICATE_STATIS,2);//object-predicate statistics buffer;
 
 	staReifTable = new StatementReificationTable(); //建立有一定空间的MemoryBuffer
 	first = true;
@@ -409,7 +409,9 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			}
 			if (subjectID != lastSubject) {
 				((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject, count0);//添加S统计，带一个默认值参数的3参数
+				cout<<"Subject:"<<lastSubject<<",count:"<<count0<<endl;
 				statBuffer[4]->addStatis(lastSubject, lastPredicate, count1);//添加SP统计
+                cout<<"Subject:"<<lastSubject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 				lastPredicate = predicateID;
 				lastSubject = subjectID;
 				//lastObject = objectID;
@@ -418,6 +420,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				//lastMin = lastMax = objectID;
 			} else if (predicateID != lastPredicate) {//S相等
 				statBuffer[4]->addStatis(lastSubject, lastPredicate, count1);//添加SP统计
+                cout<<"Subject:"<<lastSubject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 				lastPredicate = predicateID;
 				//lastObject = objectID;
 				count0++;
@@ -459,7 +462,9 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			reader = reader + 12;
 		}
 		((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject,count0);//添加S统计，带一个默认值参数的3参数
+        cout<<"Subject:"<<lastSubject<<",count:"<<count0<<endl;
 		(TwoConstantStatisticsBuffer*) statBuffer[4]->addStatis(lastSubject,lastPredicate, count1);//添加SP统计
+        cout<<"Subject:"<<lastSubject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 	} else {//SPO按O排序
 		//lastMin = lastMax = subjectID;
 		//getObject(objectID, objectandtype, object, objecttype);
@@ -502,16 +507,22 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								if(lastobjecttype=="Integer"){
 									//调用flaot
 									((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
+                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",count:"<<count0<<endl;
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}else{
 									//调用double
 									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
+                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",count:"<<count0<<endl;
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}
 							}else{
 								//调用ID
 								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
+                                cout<<"ObjectInt:"<<lastObject<<",count:"<<count0<<endl;
 								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+                                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}
 						lastPredicate = predicateID;
@@ -528,13 +539,16 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								if(lastobjecttype=="Integer"){
 									//调用flaot
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}else{
 									//调用double
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}
 							}else{
 								//调用ID
 								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+                                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}
 
@@ -569,16 +583,22 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								if(lastobjecttype=="Integer"){
 									//调用flaot
 									((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
+                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",count:"<<count0<<endl;
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}else{
 									//调用double
 									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
+                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",count:"<<count0<<endl;
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}
 							}else{
 								//调用ID
 								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
+                                cout<<"ObjectInt:"<<lastObject<<",count:"<<count0<<endl;
 								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+                                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}
 
@@ -596,13 +616,16 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								if(lastobjecttype=="Integer"){
 									//调用flaot
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}else{
 									//调用double
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}
 							}else{
 								//调用ID
 								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+                                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}
 
@@ -628,7 +651,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			}
 			else {
 				//object类型不可比较，inserttriple写入ID
-				cout<<"objtyp\t"<<objectandtype<<"\tlastobjid\t"<<objectID<<endl;
+				//cout<<"objtyp\t"<<objectandtype<<"\tlastobjid\t"<<objectID<<endl;
 				objectelement.id = objectID;
 
 				if (objectID != lastObject) {
@@ -636,25 +659,31 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 					{
 						string lastobject,lastobjectandtype,lastobjecttype;
 						getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
-						cout<<"lastobjectandtype\t"<<lastobjectandtype<<endl;
+						//cout<<"lastobjectandtype\t"<<lastobjectandtype<<endl;
 						if(lastobjecttype=="Double"||lastobjecttype=="Integer"||lastobjecttype=="Decimal"){
 							if(lastobjecttype=="Integer"){
 								//调用flaot
 								((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
+                                cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",count:"<<count0<<endl;
 								statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+                                cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}else{
 								//调用double
 								((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
+                                cout<<"ObjectDouble:"<<stod(lastobject)<<",count:"<<count0<<endl;
 								statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+                                cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}else{
 							//调用ID
-							cout<<"000"<<endl;
+							//cout<<"000"<<endl;
 							((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
-							cout<<"010"<<endl;
+                            cout<<"ObjectInt:"<<lastObject<<",count:"<<count0<<endl;
+							//cout<<"010"<<endl;
 							statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+                            cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 						}
-						cout<<"111"<<endl;
+						//cout<<"111"<<endl;
 					}
 					
 					lastPredicate = predicateID;
@@ -671,13 +700,16 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 							if(lastobjecttype=="Integer"){
 								//调用flaot
 								statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+                                cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}else{
 								//调用double
 								statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+                                cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}else{
 							//调用ID
 							statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+                            cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 						}
 					}
 
@@ -702,7 +734,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			}
 			reader = skipIdIdId(reader);
 		}
-		cout<<"000000000000000000000000000000000"<<endl;
+		//cout<<"000000000000000000000000000000000"<<endl;
 		{
 			string lastobject,lastobjectandtype,lastobjecttype;
 			getObject(lastObject,lastobjectandtype,lastobject,lastobjecttype);
@@ -710,16 +742,22 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				if(lastobjecttype=="Integer"){
 					//调用flaot
 					((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
+                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",count:"<<count0<<endl;
 					(TwoConstantStatisticsBuffer*)statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
+                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 				}else{
 					//调用double
 					((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
+                    cout<<"ObjectDouble:"<<stod(lastobject)<<",count:"<<count0<<endl;
 					(TwoConstantStatisticsBuffer*)statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
+                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 				}
 			}else{
 				//调用ID
 				((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
+                cout<<"ObjectInt:"<<lastObject<<",count:"<<count0<<endl;
 				(TwoConstantStatisticsBuffer*)statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
+                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 			}
 		}
 
@@ -815,7 +853,7 @@ Status TripleBitBuilder::beforeBuildforNum(string fileName)	//wo
 	uriTable->updateFakeid("sortstringFile",5);
 	uriTable->updateFakeid("uriFile.0",6);
 	//那我可不可以不在这里用updateFakeid写入table，而在下边写table
-	cout << "searchNumString over" << endl;
+	//cout << "searchNumString over" << endl;
 	//uriTable->removeTempfile();
 
 
@@ -850,7 +888,7 @@ Status TripleBitBuilder::beforeBuildforNum(string fileName)	//wo
 	// staReifTable = NULL;
 
 	rawFacts.flush();
-	cout << "N3Parse over" << endl; //三元组写入到./test中写入完毕
+	//cout << "N3Parse over" << endl; //三元组写入到./test中写入完毕
 
 	//sort by s,o
 	TempFile facts(fileName); //原先有的代码，以数据集名eg:LUBM1U.n3建立临时文件LUBM1U.n3.1(id)

@@ -178,7 +178,7 @@ public:
     /// save the statistics buffer;dataType为0表示为int时,为1表示为float时,为2表示为double时
     Status save(MMapBuffer*& indexBuffer,StatisticsType type,unsigned dataType);
     /// load the statistics buffer;
-    static TwoConstantStatisticsBuffer* load(StatisticsType type, const string path, char*& indxBuffer, unsigned dataType);
+    static TwoConstantStatisticsBuffer* load(StatisticsType type, const string path, char*& indexBuffer, unsigned dataType);
 private:
     /// get the value length in bytes;
     unsigned getLen(unsigned v);
