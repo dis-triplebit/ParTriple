@@ -389,17 +389,20 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			//object类型可比较，inserttriple写入字面值
 			if (objecttype == "Integer") {
 				objectelement.f = stoi(object);
-				bitmap->insertTriple(predicateID, subjectID, objectelement, 1, 0);
+                cout << subjectID << '\t' << predicateID << '\t' << objectelement.f << '\t' << objecttype << "\tfloat\tso"<< endl;
+                bitmap->insertTriple(predicateID, subjectID, objectelement, 1, 0);
 			}else {
 				objectelement.d = stod(object);
+                cout << subjectID << '\t' << predicateID << '\t' << objectelement.d << '\t' << objecttype << "\tdouble\tso" << endl;
 				bitmap->insertTriple(predicateID, subjectID, objectelement, 2, 0);
 			}
 		}else {
 			//object类型不可比较，inserttriple写入ID
 			objectelement.id = objectID;
+            cout << subjectID << '\t' << predicateID << '\t' << objectelement.id << '\t' << objecttype << "\tID\tso" << endl;
 			bitmap->insertTriple(predicateID, subjectID, objectelement, 0, 0);
 		}
-		count0 = count1 = 1;//count0 表示同一个S（O）出现的次数，count表示同一个SP（OP）出现的次数
+        count0 = count1 = 1;//count0 表示同一个S（O）出现的次数，count表示同一个SP（OP）出现的次数
 		while (reader < limit) {
 			loadTriple(reader, subjectID, predicateID, objectID);
 			
@@ -409,9 +412,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			}
 			if (subjectID != lastSubject) {
 				((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject, count0);//添加S统计，带一个默认值参数的3参数
-				cout<<"Subject:"<<lastSubject<<",count:"<<count0<<endl;
 				statBuffer[4]->addStatis(lastSubject, lastPredicate, count1);//添加SP统计
-                cout<<"Subject:"<<lastSubject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 				lastPredicate = predicateID;
 				lastSubject = subjectID;
 				//lastObject = objectID;
@@ -420,7 +421,6 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				//lastMin = lastMax = objectID;
 			} else if (predicateID != lastPredicate) {//S相等
 				statBuffer[4]->addStatis(lastSubject, lastPredicate, count1);//添加SP统计
-                cout<<"Subject:"<<lastSubject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 				lastPredicate = predicateID;
 				//lastObject = objectID;
 				count0++;
@@ -446,25 +446,25 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				//object类型可比较，inserttriple写入字面值
 				if (objecttype == "Integer") {
 					objectelement.f = stoi(object);
+                    cout << subjectID << '\t' << predicateID << '\t' << objectelement.f << '\t' << objecttype << "\tfloat\tso" << endl;
 					bitmap->insertTriple(predicateID, subjectID, objectelement, 1, 0);
 				}
 				else {
 					objectelement.d = stod(object);
+                    cout << subjectID << '\t' << predicateID << '\t' << objectelement.d << '\t' << objecttype << "\tdouble\tso" << endl;
 					bitmap->insertTriple(predicateID, subjectID, objectelement, 2, 0);
 				}
 			}
 			else {
 				//object类型不可比较，inserttriple写入ID
 				objectelement.id = objectID;
+                cout << subjectID << '\t' << predicateID << '\t' << objectelement.id << '\t' << objecttype << "\tID\tso" << endl;
 				bitmap->insertTriple(predicateID, subjectID, objectelement, 0, 0);
 			}
-
 			reader = reader + 12;
 		}
 		((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject,count0);//添加S统计，带一个默认值参数的3参数
-        cout<<"Subject:"<<lastSubject<<",count:"<<count0<<endl;
 		(TwoConstantStatisticsBuffer*) statBuffer[4]->addStatis(lastSubject,lastPredicate, count1);//添加SP统计
-        cout<<"Subject:"<<lastSubject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 	} else {//SPO按O排序
 		//lastMin = lastMax = subjectID;
 		//getObject(objectID, objectandtype, object, objecttype);
@@ -472,16 +472,19 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			//object类型可比较，inserttriple写入字面值
 			if (objecttype == "Integer") {
 				objectelement.f = stoi(object);
+                cout << subjectID << '\t' << predicateID << '\t' << objectelement.f << '\t' << objecttype << "\tfloat" << endl;
 				bitmap->insertTriple(predicateID, subjectID, objectelement, 4, 1);
 			}
 			else {
 				objectelement.d = stod(object);
+                cout << subjectID << '\t' << predicateID << '\t' << objectelement.d << '\t' << objecttype << "\tdouble" <<endl;
 				bitmap->insertTriple(predicateID, subjectID, objectelement, 5, 1);
 			}
 		}
 		else {
 			//object类型不可比较，inserttriple写入ID
 			objectelement.id = objectID;
+            cout << subjectID << '\t' << predicateID << '\t' << objectelement.id << '\t' << objecttype << "\tID" << endl;
 			bitmap->insertTriple(predicateID, subjectID, objectelement, 3, 1);
 		}
 		count0 = count1 = 1;
@@ -507,22 +510,16 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								if(lastobjecttype=="Integer"){
 									//调用flaot
 									((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
-                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",count:"<<count0<<endl;
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
-                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}else{
 									//调用double
 									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
-                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",count:"<<count0<<endl;
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
-                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}
 							}else{
 								//调用ID
 								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
-                                cout<<"ObjectInt:"<<lastObject<<",count:"<<count0<<endl;
 								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
-                                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}
 						lastPredicate = predicateID;
@@ -539,16 +536,13 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								if(lastobjecttype=="Integer"){
 									//调用flaot
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
-                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}else{
 									//调用double
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
-                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}
 							}else{
 								//调用ID
 								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
-                                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}
 
@@ -568,7 +562,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 						// 	lastMax = subjectID;
 						// }
 					}
-
+                    cout << subjectID << '\t' << predicateID << '\t' << objectelement.f << '\t' << objecttype << "\tfloat\tos" << endl;
 					bitmap->insertTriple(predicateID, subjectID, objectelement, 4, 1);
 				}
 				else {
@@ -583,22 +577,16 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								if(lastobjecttype=="Integer"){
 									//调用flaot
 									((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
-                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",count:"<<count0<<endl;
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
-                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}else{
 									//调用double
 									((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
-                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",count:"<<count0<<endl;
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
-                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}
 							}else{
 								//调用ID
 								((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
-                                cout<<"ObjectInt:"<<lastObject<<",count:"<<count0<<endl;
 								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
-                                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}
 
@@ -616,16 +604,13 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 								if(lastobjecttype=="Integer"){
 									//调用flaot
 									statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
-                                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}else{
 									//调用double
 									statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
-                                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 								}
 							}else{
 								//调用ID
 								statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
-                                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}
 
@@ -645,7 +630,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 						// 	lastMax = subjectID;
 						// }
 					}
-
+                    cout << subjectID << '\t' << predicateID << '\t' << objectelement.d << '\t' << objecttype << "\tdouble\tos" << endl;
 					bitmap->insertTriple(predicateID, subjectID, objectelement, 5, 1);
 				}
 			}
@@ -664,24 +649,18 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 							if(lastobjecttype=="Integer"){
 								//调用flaot
 								((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
-                                cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",count:"<<count0<<endl;
 								statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
-                                cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}else{
 								//调用double
 								((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
-                                cout<<"ObjectDouble:"<<stod(lastobject)<<",count:"<<count0<<endl;
 								statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
-                                cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}else{
 							//调用ID
 							//cout<<"000"<<endl;
 							((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
-                            cout<<"ObjectInt:"<<lastObject<<",count:"<<count0<<endl;
 							//cout<<"010"<<endl;
 							statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
-                            cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 						}
 						//cout<<"111"<<endl;
 					}
@@ -700,16 +679,13 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 							if(lastobjecttype=="Integer"){
 								//调用flaot
 								statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
-                                cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}else{
 								//调用double
 								statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
-                                cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 							}
 						}else{
 							//调用ID
 							statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
-                            cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 						}
 					}
 
@@ -729,7 +705,7 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 					// 	lastMax = subjectID;
 					// }
 				}
-
+                cout << subjectID << '\t' << predicateID << '\t' << objectelement.id << '\t' << objecttype << "\tID\tos" << endl;
 				bitmap->insertTriple(predicateID, subjectID, objectelement, 3, 1);
 			}
 			reader = skipIdIdId(reader);
@@ -742,22 +718,16 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 				if(lastobjecttype=="Integer"){
 					//调用flaot
 					((OneConstantStatisticsBuffer*) statBuffer[2])->addStatis((float)stoi(lastobject), count0);
-                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",count:"<<count0<<endl;
 					(TwoConstantStatisticsBuffer*)statBuffer[6]->addStatis((float)stoi(lastobject), lastPredicate, count1);
-                    cout<<"ObjectFloat:"<<(float)stoi(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 				}else{
 					//调用double
 					((OneConstantStatisticsBuffer*) statBuffer[3])->addStatis(stod(lastobject), count0);
-                    cout<<"ObjectDouble:"<<stod(lastobject)<<",count:"<<count0<<endl;
 					(TwoConstantStatisticsBuffer*)statBuffer[7]->addStatis(stod(lastobject), lastPredicate, count1);
-                    cout<<"ObjectDouble:"<<stod(lastobject)<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 				}
 			}else{
 				//调用ID
 				((OneConstantStatisticsBuffer*) statBuffer[1])->addStatis(lastObject, count0);
-                cout<<"ObjectInt:"<<lastObject<<",count:"<<count0<<endl;
 				(TwoConstantStatisticsBuffer*)statBuffer[5]->addStatis(lastObject, lastPredicate, count1);
-                cout<<"ObjectInt:"<<lastObject<<",predicate"<<lastPredicate<<",count:"<<count1<<endl;
 			}
 		}
 
