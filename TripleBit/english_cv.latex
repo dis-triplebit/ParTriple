@@ -1,0 +1,119 @@
+% !TEX program = xelatex
+
+\documentclass{resume}
+%\usepackage{zh_CN-Adobefonts_external} % Simplified Chinese Support using external fonts (./fonts/zh_CN-Adobe/)
+%\usepackage{zh_CN-Adobefonts_internal} % Simplified Chinese Support using system fonts
+
+\begin{document}
+\pagenumbering{gobble} % suppress displaying page number
+
+\name{Lei Wang}
+
+\basicInfo{
+  \email{alpha_engine@gmail.com} \textperiodcentered\ 
+  \phone{(+86) 131-633-68516} \textperiodcentered\ 
+  \homepage{Software Engineer}}
+
+\section{\faGraduationCap\ Education}
+\datedsubsection{\textbf{HuaZhong University of Science and Technology (HUST)},Wuhan, China}{2015 -- Present}
+\textit{Master student} in Computer Science (CS), expected March 2018
+\datedsubsection{\textbf{HuaZhong University of Science and Technology}, Wuhan, China}{2011 -- 2015}
+\textit{B.S.} in Information Security (EE)
+
+\section{\faUsers\ Experience}
+\datedsubsection{\textbf{TripleBit}}{2014年12月 - 至今}
+\role{Storage,Query Processing,Layered Architecture}{Maintainer,Developer}
+\begin{onehalfspacing}
+scalable  RDF data storage system
+\begin{itemize}
+    \item Efficient storage structure design, storage space compared to similar systems (such as RDF-3X), saving nearly 40\%;
+    \item Fast query response, compared to similar systems (such as RDF-3X) query speed increased by more than three times;
+    \item Related Paper : TripleBit: a fast and compact system for large scale RDF data @ VLDB 2013 
+    \item Source Code : \github {https://github.com/CGCL-codes/TripeBit}
+\end{itemize}
+\end{onehalfspacing}
+
+
+\datedsubsection{\textbf{ParTriple}}{2016年6月 -- 至今}
+\role{Parallel Processing,Online Update}{Maintainer, Core Developer}
+\begin{onehalfspacing}
+SPARQL parallel processing system
+\begin{itemize}
+ \item Designed and implemented a parallel query processing method, compared to TripleBit query speed increased by more than 40%;
+\item Supports online insertion, deletion, and updating of data;
+ \item Designed and implemented a fine-grained task execution framework;
+ \item Will submited @ ICDE 2018
+\end{itemize}
+\end{onehalfspacing}
+
+\datedsubsection{\textbf{GThunder}}{2017年6月 -- 至今}
+\role{CUDA,Scheduling,Memory Management}{Core Developer}
+\begin{onehalfspacing}
+CPU-GPU cooperative query processing system
+\begin{itemize}
+\item Presents the computational task as directed graph, and utilizes the overlap between computation and communication;
+\item GPU memory management, optimization of CPU and GPU communication;
+\item Still in the research and development phase;
+\end{itemize}
+\end{onehalfspacing}
+
+\section{\faUsers\ Experience}
+\datedsubsection{\textbf{FLAG Inc.} California, America}{2012 -- Present}
+\role{Summer Intern}{Manager: xxx}
+Brief introduction: xxx.
+\begin{itemize}
+  \item Implemented xxx feature
+  \item Optimized xxx 5\%
+  \item xxx
+\end{itemize}
+
+\datedsubsection{\textbf{xxx Projects}}{Jan. 2015 -- Present}
+\role{C, Python, Django, Linux}{Individual Projects, collaborated with xxx}
+Brief introduction: xxx
+\begin{itemize}
+  \item Implemented xxx feature
+  \item Optimized xxx 5\%
+  \item xxx
+\end{itemize}
+
+\datedsubsection{\textbf{\LaTeX\ résumé template}}{May. 2015 -- Present}
+\role{\LaTeX, Maintainer}{Individual Projects}
+An elegant \LaTeX\ résumé template, https://github.com/billryan/resume
+\begin{itemize}
+  \item Easy to be further customized or extended
+  \item Full support for unicode characters (e.g. CJK) with \XeLaTeX\
+  \item FontAwesome 4.5.0 support
+\end{itemize}
+
+% Reference Test
+%\datedsubsection{\textbf{Paper Title\cite{zaharia2012resilient}}}{May. 2015}
+%An xxx optimized for xxx\cite{verma2015large}
+%\begin{itemize}
+%  \item main contribution
+%\end{itemize}
+
+\section{\faCogs\ Skills}
+\begin{itemize}[parsep=0.5ex]
+  \item Programming Languages: C/C++ > Python == Go
+  \item Experienced in data structure design and implementation
+  \item Experienced in algorithm design and implementation
+  \item Familiar with operating system concepts,mechanisms,and policies
+  \item Familiar with Linux Development environment
+  \item Use CUDA
+  \item Familiar with program debug,trace,profiling,Use valgrind,gprof
+  \item Basic distributed system knowledge,Implemented MapReduce Library(MIT 6.824) 
+\end{itemize}
+
+
+
+\section{\faInfo\ Miscellaneous}
+\begin{itemize}[parsep=0.5ex]
+  \item Languages: English - Fluent, Mandarin - Native speaker  
+  \item Contributor@mac(416 stars): \github {https://github.com/felixangell/mac/graphs/contributors}
+\end{itemize}
+
+%% Reference
+%\newpage
+%\bibliographystyle{IEEETran}
+%\bibliography{mycite}
+\end{document}

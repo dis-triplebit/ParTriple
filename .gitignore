@@ -5,10 +5,8 @@ database
 documents
 software
 bin
-*.n3
 *.nt
 *.txt
-Makefile
 .vs/
 *.user
 *.filters

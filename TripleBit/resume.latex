@@ -1,0 +1,93 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8 Unicode
+% !Mode:: "TeX:UTF-8"
+
+\documentclass{resume}
+\usepackage{zh_CN-Adobefonts_external} % Simplified Chinese Support using external fonts (./fonts/zh_CN-Adobe/)
+%\usepackage{zh_CN-Adobefonts_internal} % Simplified Chinese Support using system fonts
+\usepackage{linespacing_fix} % disable extra space before next section
+\usepackage{cite}
+
+\begin{document}
+\pagenumbering{gobble} % suppress displaying page number
+
+\name{王磊}
+
+\basicInfo{
+  \email{alpha\_engine@foxmail.com} \textperiodcentered\ 
+  \phone{(+86) 131-633-68516} \textperiodcentered\ 
+  \homepage[AI业务平台后端研发工程师]{https://www.4paradigm.com/recruit/campus}}
+ 
+\section{\faGraduationCap\  教育背景}
+\datedsubsection{\textbf{华中科技大学}, 计算机学院}{2015 -- 至今}
+\textit{在读硕士研究生}\ 计算机软件与理论, 预计 2018 年 6 月毕业
+\datedsubsection{\textbf{华中科技大学}, 计算机学院}{2011 -- 2015}
+\textit{学士}\ 信息安全
+
+\section{\faUsers\ 项目经历}
+\datedsubsection{\textbf{TripleBit}}{2014年12月 - 至今}
+\role{Storage,Query Processing,Layered Architecture}{Maintainer,Developer}
+\begin{onehalfspacing}
+高扩展的RDF数据存储系统
+\begin{itemize}
+  \item 高效存储结构设计,存储空间相比同类系统(如RDF-3X)节省了近40\%;
+  \item 快速查询响应,相比同类系统(如RDF-3X)查询速度提升了三倍以上;
+  \item Related Paper : TripleBit: a fast and compact system for large scale RDF data @ VLDB 2013 
+  \item Source Code : \github {https://github.com/CGCL-codes/TripeBit}
+\end{itemize}
+\end{onehalfspacing}
+
+
+\datedsubsection{\textbf{ParTriple}}{2016年6月 -- 至今}
+\role{Parallel Processing,Online Update}{Maintainer, Core Developer}
+\begin{onehalfspacing}
+SPARQL并行查询处理系统
+\begin{itemize}
+  \item 设计并实现了一种并行查询处理方法，相比TripleBit查询速度提升了40%以上;
+  \item 支持在线插入,删除,更新数据;
+  \item 设计并实现了一个细粒度的任务执行框架;
+  \item 待投稿 @ ICDE 2018
+\end{itemize}
+\end{onehalfspacing}
+
+\datedsubsection{\textbf{GThunder}}{2017年6月 -- 至今}
+\role{CUDA,Scheduling,Memory Management}{Core Developer}
+\begin{onehalfspacing}
+CPU-GPU协同查询处理系统
+\begin{itemize}
+  \item 将计算任务表达成有向图，实现计算与通信重叠;
+  \item 管理GPU显存，优化CPU与GPU通信;
+  \item 仍处于研发阶段;
+\end{itemize}
+\end{onehalfspacing}
+
+% Reference Test
+%\datedsubsection{\textbf{Paper Title\cite{zaharia2012resilient}}}{May. 2015}
+%An xxx optimized for xxx\cite{verma2015large}
+%\begin{itemize}
+%  \item main contribution
+%\end{itemize}
+
+\section{\faCogs\ 技能/知识结构}
+% increase linespacing [parsep=0.5ex]
+\begin{itemize}[parsep=0.5ex]
+  \item 熟悉C/C++,有Python/Go使用经验;
+  \item 熟悉常用的数据结构与算法;
+  \item 熟悉操作系统基本原理,阅读过教学内核xv6(MIT6.828)的代码;
+  \item 熟悉Linux开发环境;有CUDA编程经验;
+  \item 掌握基本的程序调试，跟踪，及性能分析,使用过valgrind,gprof等工具;
+  \item 了解分布式系统的基本概念,实现过MapReduce框架(MIT6.824);
+\end{itemize}
+
+\section{\faInfo\ 其他}
+% increase linespacing [parsep=0.5ex]
+\begin{itemize}[parsep=0.5ex]
+  \item 语言: 英语 - CET 6
+  \item Contributor@mac(416 stars): \github {https://github.com/felixangell/mac/graphs/contributors}
+\end{itemize}
+
+%% Reference
+%\newpage
+%\bibliographystyle{IEEETran}
+%\bibliography{mycite}
+\end{document}
