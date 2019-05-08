@@ -58,14 +58,14 @@ TripleBitBuilder::TripleBitBuilder(string _dir):dir(_dir){
 	statementFile.open(string(dir + "/statement.triple").c_str(), ios::out);
 	//建立了statement.triple
 
-	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/SubjectStatIndex1"), StatisticsBuffer::SUBJECT_STATIS,0);	//subject statistics buffer，并将建立的索引文件映射进地址空间
-	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/ObjectIntStatIndex1"), StatisticsBuffer::OBJECT_STATIS,0);//object statistics buffer;
-	statBuffer[2] = new OneConstantStatisticsBuffer(string(dir + "/ObjectFloatStatIndex1"), StatisticsBuffer::OBJECT_STATIS,1);
-	statBuffer[3] = new OneConstantStatisticsBuffer(string(dir + "/ObjectDoubleStatIndex1"), StatisticsBuffer::OBJECT_STATIS,2);
-	statBuffer[4] = new TwoConstantStatisticsBuffer(string(dir + "/SubjectPredicateStatIndex1"),StatisticsBuffer::SUBJECTPREDICATE_STATIS,0);	//subject-predicate statistics buffer;
-	statBuffer[5] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectIntPredicateStatIndex1"),StatisticsBuffer::OBJECTPREDICATE_STATIS,0);//object-predicate statistics buffer;
-	statBuffer[6] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectFloatPredicateStatIndex1"),StatisticsBuffer::OBJECTPREDICATE_STATIS,1);//object-predicate statistics buffer;
-	statBuffer[7] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectDoublePredicateStatIndex1"),StatisticsBuffer::OBJECTPREDICATE_STATIS,2);//object-predicate statistics buffer;
+	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/Subject"), StatisticsBuffer::SUBJECT_STATIS,0);	//subject statistics buffer，并将建立的索引文件映射进地址空间
+	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/ObjectInt"), StatisticsBuffer::OBJECT_STATIS,0);//object statistics buffer;
+	statBuffer[2] = new OneConstantStatisticsBuffer(string(dir + "/ObjectFloat"), StatisticsBuffer::OBJECT_STATIS,1);
+	statBuffer[3] = new OneConstantStatisticsBuffer(string(dir + "/ObjectDouble"), StatisticsBuffer::OBJECT_STATIS,2);
+	statBuffer[4] = new TwoConstantStatisticsBuffer(string(dir + "/SubjectPredicate"),StatisticsBuffer::SUBJECTPREDICATE_STATIS,0);	//subject-predicate statistics buffer;
+	statBuffer[5] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectIntPredicate"),StatisticsBuffer::OBJECTPREDICATE_STATIS,0);//object-predicate statistics buffer;
+	statBuffer[6] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectFloatPredicate"),StatisticsBuffer::OBJECTPREDICATE_STATIS,1);//object-predicate statistics buffer;
+	statBuffer[7] = new TwoConstantStatisticsBuffer(string(dir + "/ObjectDoublePredicate"),StatisticsBuffer::OBJECTPREDICATE_STATIS,2);//object-predicate statistics buffer;
 
 	staReifTable = new StatementReificationTable(); //建立有一定空间的MemoryBuffer
 	first = true;
@@ -412,7 +412,9 @@ Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char
 			}
 			if (subjectID != lastSubject) {
 				((OneConstantStatisticsBuffer*) statBuffer[0])->addStatis(lastSubject, count0);//添加S统计，带一个默认值参数的3参数
+				cout<<"Subject:"<<lastSubject<<",count:"<<count0<<endl;
 				statBuffer[4]->addStatis(lastSubject, lastPredicate, count1);//添加SP统计
+                cout<<"Subject:"<<lastSubject<<",lastPredicate:"<<lastPredicate<<",count:"<<endl;
 				lastPredicate = predicateID;
 				lastSubject = subjectID;
 				//lastObject = objectID;
