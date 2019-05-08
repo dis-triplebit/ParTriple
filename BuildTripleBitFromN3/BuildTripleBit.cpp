@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	cout << "start to store" << endl;
 	builder->beforeBuildforNum(argv[1]);
 	cout<<"-----"<<endl;
-	builder->startBuildN3(argv[1]);
+	//builder->startBuildN3(argv[1]);
 	builder->endBuild();
 
 	delete builder;
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
                 uchar *start = iter->second->getStartPtr(j) + sizeof(MetaData);
                 uchar *end = iter->second->getEndPtr(j);
                 cout << "---j = " << j << endl;
-                int used = 0;
+                unsigned used = 0;
                 while (start < end) {
                     Chunk::readXYId(start + used, x, y, i*3+j);
                     cout <<   x << '\t' << iter->first << "\t" << y << '\t' << i << '\t' << j <<endl;
