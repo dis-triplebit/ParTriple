@@ -9,3 +9,8 @@ bin
 *.nt
 *.txt
 Makefile
+.vs/
+*.user
+*.filters
+*.vcxproj
+*.sln
