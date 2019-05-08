@@ -379,8 +379,8 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
         unsigned count;
         value1 = readFloat(begin);
         begin += sizeof(float);
-        count = readDelta4(begin);
-        begin += sizeof(unsigned);
+        count = readFloat(begin);
+        begin += sizeof(float);
 
         (*writer).value1 = value1;
         (*writer).count = count;
@@ -390,8 +390,8 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
             // Decode the header byte
             value1 = readFloat(begin);
             begin += sizeof(float);
-            count = readDelta4(begin);
-            begin += sizeof(unsigned);
+            count = readFloat(begin);
+            begin += sizeof(float);
 
             (*writer).value1 = value1;
             (*writer).count = count;
@@ -410,8 +410,8 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
         unsigned count;
         value1 = readDouble(begin);
         begin += sizeof(double);
-        count = readDelta4(begin);
-        begin += sizeof(unsigned);
+        count = readFloat(begin);
+        begin += sizeof(float);
 
         (*writer).value1 = value1;
         (*writer).count = count;
@@ -420,8 +420,8 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
         while (begin < end) {
             value1 = readDouble(begin);
             begin += sizeof(double);
-            count = readDelta4(begin);
-            begin += sizeof(unsigned);
+            count = readFloat(begin);
+            begin += sizeof(float);
 
             (*writer).value1 = value1;
             (*writer).count = count;
@@ -585,7 +585,7 @@ Status OneConstantStatisticsBuffer::addStatis(float v1, unsigned v2, unsigned v3
     } else {//如果并且第一次写入且v1小于index的长度,那么就进行这一步
 
         writer=writeFloat(writer,v1);
-        writeUint32(writer, v2);
+        writer=writeFloat(writer,v2);
     }
     // lastId为最后插入的Object
     //lastId = v1;
@@ -630,7 +630,7 @@ Status OneConstantStatisticsBuffer::addStatis(double v1, unsigned v2, unsigned v
     } else {//如果并且第一次写入且v1小于index的长度,那么就进行这一步
 
         writer=writeDouble(writer,v1);
-        writeUint32(writer, v2);
+        writer=writeFloat(writer,v2);
     }
     // lastId为最后插入的Object
     //lastId = v1;
@@ -860,7 +860,7 @@ Status OneConstantStatisticsBuffer::getStatis(float& v1, unsigned v2 /* = 0 */)
     //计算从开始位置
     reader = (unsigned char*)buffer->getBuffer() + begin;
     //计算第一个
-    lastId = readFloat(reader);
+    float lastId = readFloat(reader);
     //将偏移加4
     reader += sizeof(float);
 
@@ -875,8 +875,8 @@ Status OneConstantStatisticsBuffer::getStatis(float& v1, unsigned v2 /* = 0 */)
     // 解压
     this->decode(reader - sizeof(float), limit,1);
     if(this->find(v1)) {
-        if(pos->value1 == v1) {
-            v1 = pos->count;
+        if(f_pos->value1 == v1) {
+            v1 = f_pos->count;
             return OK;
         }
     }
@@ -907,9 +907,9 @@ Status OneConstantStatisticsBuffer::getStatis(double& v1, unsigned v2 /* = 0 */)
     //计算从开始位置
     reader = (unsigned char*)buffer->getBuffer() + begin;
     //计算第一个
-    lastId = readDelta4(reader);
-    //将偏移加4
-    reader += 4;
+    double lastId = readDouble(reader);
+    //将偏移加
+    reader += sizeof(double);
 
     //reader = readId(lastId, reader, true);
     if ( lastId == v1 ) {
@@ -920,10 +920,10 @@ Status OneConstantStatisticsBuffer::getStatis(double& v1, unsigned v2 /* = 0 */)
 
     const uchar* limit = (uchar*)buffer->getBuffer() + end;
     // 解压
-    this->decode(reader - 4, limit,2);
+    this->decode(reader + 4, limit,2);
     if(this->find(v1)) {
-        if(pos->value1 == v1) {
-            v1 = pos->count;
+        if(d_pos->value1 == v1) {
+            v1 = d_pos->count;
             return OK;
         }
     }
@@ -935,35 +935,35 @@ Status OneConstantStatisticsBuffer::getStatis(double& v1, unsigned v2 /* = 0 */)
 //保存索引信息，type为0时表示Subject或者Object，为0表示Object为int时,为1表示Object为float时,为2表示Object为double时
 Status OneConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer,StatisticsType type,unsigned dataType)
 {
-    string fileName;
-    if(type==StatisticsType::SUBJECT_STATIS)
-    {
-        fileName="/SubjectStatIndex";
-    }
-    else if(type==StatisticsType::OBJECT_STATIS&&dataType==0)
-    {
-        fileName="/ObjectIntStatIndex";
-    }
-    else if(type==StatisticsType::OBJECT_STATIS&&dataType==1)
-    {
-        fileName="/ObjectFloatStatIndex";
-    }
-    else if(type==StatisticsType::OBJECT_STATIS&&dataType==2)
-    {
-        fileName="/ObjectDoubleStatIndex";
-    }
+    string fileName="/statIndex";
+//    if(type==StatisticsType::SUBJECT_STATIS)
+//    {
+//        fileName="/SubjectStatIndex";
+//    }
+//    else if(type==StatisticsType::OBJECT_STATIS&&dataType==0)
+//    {
+//        fileName="/ObjectIntStatIndex";
+//    }
+//    else if(type==StatisticsType::OBJECT_STATIS&&dataType==1)
+//    {
+//        fileName="/ObjectFloatStatIndex";
+//    }
+//    else if(type==StatisticsType::OBJECT_STATIS&&dataType==2)
+//    {
+//        fileName="/ObjectDoubleStatIndex";
+//    }
 #ifdef DEBUG
     cout<<"index size: "<<index.size()<<endl;
 #endif
     char * writer;
     if(indexBuffer == NULL) {
         //由于存储的是整数那么就乘以4,为什么要加2呢?保存使用的大小和长度
-        indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + fileName).c_str(), (index.size() + 2) * sizeof(unsigned));
+        indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + fileName).c_str(), (index.size() + 2) * 4);
         writer = indexBuffer->get_address();
     } else {
         size_t size = indexBuffer->getSize();
         //扩容了偏移的大小,这需要存储的是所用的空间，索引的大小，以及索引
-        indexBuffer->resize((index.size() + 2) * sizeof(unsigned));
+        indexBuffer->resize((index.size() + 2) * 4);
         writer = indexBuffer->get_address() + size;
     }
     //将使用空间写入，注意，由于之前改过，这里需要将这个方法改成写unsigned类型的
