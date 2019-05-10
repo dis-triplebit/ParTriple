@@ -1731,6 +1731,10 @@ bool TwoConstantStatisticsBuffer::find(unsigned value1, unsigned value2)
     }
 
     if(left == right) {
+        if(right>0&&pos[right]==0){
+            pos = &pos[right-1];
+        }else
+            pos = &pos[right];
         return false;
     } else {
         pos = &pos[middle];
