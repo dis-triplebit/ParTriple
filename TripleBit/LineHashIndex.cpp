@@ -44,10 +44,10 @@ LineHashIndex::LineHashIndex(ChunkManager& _chunkManager, IndexType index_type, 
 {
 	// MemoryBuffer* idTable
 	idTable = NULL;
-	// ID* idTableEntries
+	// Double* idTableEntries
 	idTableEntries = NULL;
 	//char* LineHashIndexEnhanceBase; //used to do update
-	LineHashIndexEnhanceBase = NULL;
+    LineHashIndexBase = NULL;
 
 	startID[0] = startID[1] = startID[2] = startID[3] = UINT_MAX;
 }
@@ -147,7 +147,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType) // chunkType: 1: x>y ; 2: x
 	{
 		//默认的大小是500
 		idTable = new MemoryBuffer(HASH_CAPACITY);
-		//将char*类型转换为ID*
+		//将char*类型转换为double*
 		idTableEntries = (double*) idTable->getBuffer();
 		tableSize = 0;
 	}
@@ -166,6 +166,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType) // chunkType: 1: x>y ; 2: x
 
 		//0表示ID类型,由于chunkType是SO块，因而这个是第一块
 		reader = chunkManager.getStartPtr(chunkType);
+		//end for this Chunk
 		limit = chunkManager.getEndPtr(chunkType);
 		begin = reader;
 		//如果地址块没有被初始化，那么就直接返回
@@ -303,7 +304,7 @@ size_t LineHashIndex::searchChunkFrank(double id)
 		mid = low + (high-low) / 2;
 		while (MetaID(mid) == id)
 		{
-			//从minId小于它的chunk搜索
+			//find the start position of id
 			if (mid > 0 && MetaID(mid - 1) < id){
 				return mid - 1;
 			}
@@ -322,7 +323,7 @@ size_t LineHashIndex::searchChunkFrank(double id)
 			high = mid;
 		}
 	}
-	//返回chunk id
+	//return the position of idTableEntries
 	if (low > 0 && MetaID(low) >= id){
 		return low - 1;
 	}
@@ -336,9 +337,9 @@ size_t LineHashIndex::searchChunk(double xID, double yID){
 	if(MetaID(0) > xID || tableSize == 0){
 		return 0;
 	}
-	// 二分查找搜索offsetID，也就是chunk的块号
+	// binary search for the offset of idTableEntries
 	size_t offsetID = searchChunkFrank(xID);
-	//
+	// the offsetID is the end of idTableEntries so return (offsetID-1)
 	if(offsetID == tableSize-1){
 		return offsetID-1;
 	}
@@ -458,7 +459,7 @@ size_t LineHashIndex::save(MMapBuffer*& indexBuffer)
 
 void LineHashIndex::updateLineIndex()
 {
-	char* base = LineHashIndexEnhanceBase;
+	char* base = LineHashIndexBase;
 
 	*(unsigned *) base = tableSize;
 	base += sizeof(unsigned);
@@ -513,7 +514,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 {
 	LineHashIndex* index = new LineHashIndex(manager, index_type, xy_type);
 	char* base = buffer + offset;
-	index->LineHashIndexEnhanceBase = base;
+	index->LineHashIndexBase = base;
 
 	index->tableSize = *((unsigned *) base);
 	base = base + sizeof(unsigned);

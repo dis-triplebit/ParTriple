@@ -1731,9 +1731,9 @@ bool TwoConstantStatisticsBuffer::find(unsigned value1, unsigned value2)
     }
 
     if(left == right) {
-        if(right>0&&pos[right]==0){
+        if(right>0&&pos[right].count==0)
             pos = &pos[right-1];
-        }else
+        else
             pos = &pos[right];
         return false;
     } else {
@@ -1760,9 +1760,9 @@ bool TwoConstantStatisticsBuffer::find(float value1, unsigned value2)
     }
 
     if(left == right) {
-        if(right>0&&f_pos[right]==0){
+        if(right>0&&f_pos[right].count==0)
             f_pos = &f_pos[right-1];
-        }else
+        else
             f_pos = &f_pos[right];
         return false;
     } else {
@@ -1789,9 +1789,9 @@ bool TwoConstantStatisticsBuffer::find(double value1, unsigned value2)
     }
 
     if(left == right) {
-        if(right>0&&d_pos[right]==0){
+        if(right>0&&d_pos[right].count==0)
             d_pos = &d_pos[right-1];
-        }else
+        else
             d_pos = &d_pos[right];
         return false;
     } else {
