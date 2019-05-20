@@ -380,7 +380,7 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
         value1 = readFloat(begin);
         begin += sizeof(float);
         count = readFloat(begin);
-        begin += sizeof(float);;
+        begin += sizeof(float);
 
         (*writer).value1 = value1;
         (*writer).count = count;
@@ -421,7 +421,7 @@ const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* be
             value1 = readDouble(begin);
             begin += sizeof(double);
             count = readFloat(begin);
-            begin += sizeof(float);;
+            begin += sizeof(float);
 
             (*writer).value1 = value1;
             (*writer).count = count;
