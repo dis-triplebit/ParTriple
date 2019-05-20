@@ -585,7 +585,7 @@ Status OneConstantStatisticsBuffer::addStatis(float v1, unsigned v2, unsigned v3
     } else {//如果并且第一次写入且v1小于index的长度,那么就进行这一步
 
         writer=writeFloat(writer,v1);
-        writer=writeFloat(writer,v2);
+        writer=writeFloat(writer, v2);
     }
     // lastId为最后插入的Object
     //lastId = v1;
@@ -630,7 +630,7 @@ Status OneConstantStatisticsBuffer::addStatis(double v1, unsigned v2, unsigned v
     } else {//如果并且第一次写入且v1小于index的长度,那么就进行这一步
 
         writer=writeDouble(writer,v1);
-        writer=writeFloat(writer,v2);
+        writer=writeFloat(writer, v2);
     }
     // lastId为最后插入的Object
     //lastId = v1;
@@ -873,7 +873,7 @@ Status OneConstantStatisticsBuffer::getStatis(float& v1, unsigned v2 /* = 0 */)
 
     const uchar* limit = (uchar*)buffer->getBuffer() + end;
     // 解压
-    this->decode(reader - sizeof(float), limit,1);
+    this->decode(reader +4, limit,1);
     if(this->find(v1)) {
         if(f_pos->value1 == v1) {
             v1 = f_pos->count;
@@ -907,8 +907,8 @@ Status OneConstantStatisticsBuffer::getStatis(double& v1, unsigned v2 /* = 0 */)
     //计算从开始位置
     reader = (unsigned char*)buffer->getBuffer() + begin;
     //计算第一个
-    double lastId = readDouble(reader);
-    //将偏移加
+    lastId = readDouble(reader);
+    //将偏移加4
     reader += sizeof(double);
 
     //reader = readId(lastId, reader, true);
@@ -968,9 +968,10 @@ Status OneConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer,StatisticsType
     }
     //将使用空间写入，注意，由于之前改过，这里需要将这个方法改成写unsigned类型的
     writer = writeData(writer, usedSpace);
+    cout<<"usedSpace:"<<usedSpace<<endl;
     //将索引大小写入，注意，由于之前改过，这里需要将这个方法改成写unsigned类型的
     writer = writeData(writer, index.size());
-
+    cout<<"indexSize:"<<index.size()<<endl;
     vector<unsigned>::iterator iter, limit;
 
     for(iter = index.begin(), limit = index.end(); iter != limit; iter++) {
@@ -986,12 +987,15 @@ OneConstantStatisticsBuffer* OneConstantStatisticsBuffer::load(StatisticsType ty
     OneConstantStatisticsBuffer* statBuffer = new OneConstantStatisticsBuffer(path, type,dataType);
 
     unsigned size, first;
-    indexBuffer = (char*)readData(indexBuffer, (unsigned &)statBuffer->usedSpace);
-    indexBuffer = (char*)readData(indexBuffer, (unsigned &)size);
 
+    indexBuffer = (char*)readData(indexBuffer, (unsigned &)statBuffer->usedSpace);
+    cout<<"load:usedSpace:"<<statBuffer->usedSpace<<endl;
+    indexBuffer = (char*)readData(indexBuffer, (unsigned &)size);
+    cout<<"load:indexsize:"<<size<<endl;
     statBuffer->index.resize(0);
 
     statBuffer->indexSize = size;
+
     //依次读取index内的值放入statBuffer数组中
     for( unsigned i = 0; i < size; i++ ) {
         indexBuffer = (char*)readData(indexBuffer, (unsigned &)first);
@@ -1425,7 +1429,6 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
             value1 = readFloat(begin); begin += sizeof(float);
             value2 = readDelta4(begin); begin += 4;
             count = readDelta4(begin); begin += 4;
-            Triple_f* writer = &triples_f[0];
             (*writer).value1 = value1;
             (*writer).value2 = value2;
             (*writer).count = count;
@@ -1449,7 +1452,6 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
             value1 = readDouble(begin); begin += sizeof(double);
             value2 = readDelta4(begin); begin += 4;
             count = readDelta4(begin); begin += 4;
-            Triple_d* writer = &triples_d[0];
             (*writer).value1 = value1;
             (*writer).value2 = value2;
             (*writer).count = count;
@@ -1729,6 +1731,10 @@ bool TwoConstantStatisticsBuffer::find(unsigned value1, unsigned value2)
     }
 
     if(left == right) {
+        if(right>0&&pos[right].count==0)
+            pos = &pos[right-1];
+        else
+            pos = &pos[right];
         return false;
     } else {
         pos = &pos[middle];
@@ -1754,6 +1760,10 @@ bool TwoConstantStatisticsBuffer::find(float value1, unsigned value2)
     }
 
     if(left == right) {
+        if(right>0&&f_pos[right].count==0)
+            f_pos = &f_pos[right-1];
+        else
+            f_pos = &f_pos[right];
         return false;
     } else {
         f_pos = &f_pos[middle];
@@ -1779,6 +1789,10 @@ bool TwoConstantStatisticsBuffer::find(double value1, unsigned value2)
     }
 
     if(left == right) {
+        if(right>0&&d_pos[right].count==0)
+            d_pos = &d_pos[right-1];
+        else
+            d_pos = &d_pos[right];
         return false;
     } else {
         d_pos = &d_pos[middle];
@@ -1941,7 +1955,7 @@ Status TwoConstantStatisticsBuffer::getStatis(float& v1, unsigned v2)
     if(::greater(f_pos->value1, f_pos->value2, v1, v2))
         f_pos--;
 
-    unsigned start = f_pos->count; f_pos++;
+   unsigned start = f_pos->count; f_pos++;
     unsigned end = f_pos->count;
     if(f_pos == (index_f + indexPos))
         end = usedSpace;
@@ -2057,16 +2071,21 @@ Status TwoConstantStatisticsBuffer::addStatis(float v1, unsigned v2, unsigned v3
     len=sizeof(float)+ sizeof(unsigned)*2;
     //如果这是第一次插入或者加入的长度大于分配的缓冲长度
     if ( first == true || ( usedSpace + len ) > buffer->getSize() ) {
-        //已经使用的空间
-        usedSpace = writer - (uchar*)buffer->getBuffer();
-        //扩容
-        buffer->resize(STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
-        //重新确定可写入的位置
-        writer = (uchar*)buffer->getBuffer() + usedSpace;
+        if(( usedSpace + len ) > buffer->getSize()) {
+            //已经使用的空间
+            usedSpace = writer - (uchar *) buffer->getBuffer();
+            //扩容
+            buffer->resize(STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
+            //重新确定可写入的位置
+            writer = (uchar *) buffer->getBuffer() + usedSpace;
+        }
         //将v1,v2,v3写入到buffer中
-        writeFloat(writer, v1); writer += sizeof(float);
+        writer=writeFloat(writer, v1);
+       //cout<<"Float"<<readFloat(writer- sizeof(float))<<endl;
         writeUint32(writer, v2); writer += 4;
+        //cout<<"v2:"<<readDelta4(writer-4)<<endl;
         writeUint32(writer, v3); writer += 4;
+        //cout<<"v3:"<<readDelta4(writer-4)<<endl;
         //如果indexPos再偏移一步大于indexSize
         if((indexPos + 1) >= indexSize) {
 #ifdef DEBUF
@@ -2077,19 +2096,24 @@ Status TwoConstantStatisticsBuffer::addStatis(float v1, unsigned v2, unsigned v3
             //重新确定大小
             indexSize += MemoryBuffer::pagesize;
         }
-
+        index_f[indexPos].value1 = v1;
+        //确定谓语
+        index_f[indexPos].value2 = v2;
+        //记录偏移
+        index_f[indexPos].count = usedSpace; //record offset
+        //位置加1
+        indexPos++;
         //将first置为false
-        //first = false;
+        first = false;
+    } else{
+        //将v1,v2,v3写入到buffer中
+        writer=writeFloat(writer, v1);
+        writeUint32(writer, v2); writer += 4;
+        writeUint32(writer, v3); writer += 4;
     }
 
     //确定subject或者object
-    index_f[indexPos].value1 = v1;
-    //确定谓语
-    index_f[indexPos].value2 = v2;
-    //记录偏移
-    index_f[indexPos].count = usedSpace; //record offset
-    //位置加1
-    indexPos++;
+
 
     usedSpace = writer - (uchar*)buffer->getBuffer();
     return OK;
@@ -2109,7 +2133,7 @@ Status TwoConstantStatisticsBuffer::addStatis(double v1, unsigned v2, unsigned v
         //重新确定可写入的位置
         writer = (uchar*)buffer->getBuffer() + usedSpace;
         //将v1,v2,v3写入到buffer中
-        writeDouble(writer, v1); writer += sizeof(double);
+        writer=writeDouble(writer, v1); //writer += sizeof(double);
         writeUint32(writer, v2); writer += 4;
         writeUint32(writer, v3); writer += 4;
         //如果indexPos再偏移一步大于indexSize
@@ -2122,19 +2146,23 @@ Status TwoConstantStatisticsBuffer::addStatis(double v1, unsigned v2, unsigned v
             //重新确定大小
             indexSize += MemoryBuffer::pagesize;
         }
-
+        //确定subject或者object
+        index_d[indexPos].value1 = v1;
+        //确定谓语
+        index_d[indexPos].value2 = v2;
+        //记录偏移
+        index_d[indexPos].count = usedSpace; //record offset
+        //位置加1
+        indexPos++;
         //将first置为false
-        //first = false;
+        first = false;
+    } else{
+        writer=writeDouble(writer, v1); //writer += sizeof(double);
+        writeUint32(writer, v2); writer += 4;
+        writeUint32(writer, v3); writer += 4;
     }
 
-    //确定subject或者object
-    index_d[indexPos].value1 = v1;
-    //确定谓语
-    index_d[indexPos].value2 = v2;
-    //记录偏移
-    index_d[indexPos].count = usedSpace; //record offset
-    //位置加1
-    indexPos++;
+
 
     usedSpace = writer - (uchar*)buffer->getBuffer();
     return OK;
@@ -2148,21 +2176,21 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer,StatisticsType
     if(indexBuffer == NULL) {
         if(type==StatisticsType::SUBJECTPREDICATE_STATIS)
         {
-            indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/SubjectPredicateStatIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
+            indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
         }
         else if(type==StatisticsType::OBJECTPREDICATE_STATIS)
         {
             if(dataType==0)
             {
-                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectIntPredicateStatIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
             }
             else if(dataType==1)
             {
-                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectFloatPredicateStatIndex").c_str(), indexPos * sizeof(Triple_f) + 2 * sizeof(unsigned));
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple_f) + 2 * sizeof(unsigned));
             }
             else if(dataType==2)
             {
-                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/ObjectDoublePredicateStatIndex").c_str(), indexPos * sizeof(Triple_d) + 2 * sizeof(unsigned));
+                indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple_d) + 2 * sizeof(unsigned));
             }
         }
         
@@ -2185,6 +2213,7 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer,StatisticsType
         writer = indexBuffer->get_address() + size;
     }
 
+    cout<<"usedSpace"<<usedSpace<<endl;
     writer = writeData(writer, usedSpace);
     writer = writeData(writer, indexPos);
     if(dataType==0)
@@ -2228,7 +2257,9 @@ TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType ty
     TwoConstantStatisticsBuffer* statBuffer = new TwoConstantStatisticsBuffer(path, type,dataType);
 
     indexBuffer = (char*)readData(indexBuffer, (unsigned &)statBuffer->usedSpace);
+    cout<<"usedSpace:"<<statBuffer->usedSpace<<endl;
     indexBuffer = (char*)readData(indexBuffer, (unsigned &)statBuffer->indexPos);
+    cout<<"indexPos:"<<statBuffer->indexPos<<endl;
 #ifdef DEBUG
     cout<<__FUNCTION__<<"indexPos: "<<statBuffer->indexPos<<endl;
 #endif
@@ -2236,11 +2267,13 @@ TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType ty
     if(dataType==0)
     {
         statBuffer->index = (Triple*)indexBuffer;
+        //
         indexBuffer = indexBuffer + statBuffer->indexPos * sizeof(Triple);
     }
     else if(dataType==1)
     {
         statBuffer->index_f = (Triple_f*)indexBuffer;
+        //
         indexBuffer = indexBuffer + statBuffer->indexPos * sizeof(Triple_f);
     }
     else if(dataType==2)

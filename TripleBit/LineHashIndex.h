@@ -41,14 +41,16 @@ public:
 
 private:
 
-	//TODO
+	//this is the idTableEntries origin address
 	MemoryBuffer* idTable;
+	//record the minID of every chunk
 	double* idTableEntries;
 	ChunkManager& chunkManager;
 	IndexType indexType;
 	ObjectType xyType;
+	//record the size of idTableEntries
 	size_t tableSize;   //chunk number plus 1,because the end edge
-	char* LineHashIndexEnhanceBase; //used to do update
+	char* LineHashIndexBase; //used to do update
 
 	//line parameters;
 	double upperk[4];
