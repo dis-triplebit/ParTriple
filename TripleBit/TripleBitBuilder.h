@@ -48,8 +48,10 @@ private:
 	//map<string, ID> *numId;	//wo
 
 	BitmapBuffer* bitmap;
+public:
 	PredicateTable* preTable;
 	URITable* uriTable;
+private:
 	MMapBuffer *preType;
 	vector<string> predicates;
 	string dir;

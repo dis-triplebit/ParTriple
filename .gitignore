@@ -5,7 +5,6 @@ database
 documents
 software
 bin
-*.n3
 *.nt
 *.txt
 Makefile

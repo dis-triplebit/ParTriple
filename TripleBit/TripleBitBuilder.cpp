@@ -19,6 +19,7 @@
 #include "URITable.h"
 #include "Sorter.h"
 #include "StatisticsBuffer.h"
+#include "Type.hpp"
 
 #include <string.h>
 #include <pthread.h>
@@ -125,7 +126,8 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 
 		//可以做个假设，假设所有有特殊类型（例如integer，string等）表示得object都不会出现在三元组得subject中。这样的话就可以放心大胆的对subject进行原文插入和读取，因为subject全都是URI，没有其他类型。所以这时候对object的任何原文修改打标签行文都不会影响到subject的写入和读取（例如多次重复写入和读取失败）
 
-		//这里的insertTable操作，包括下边的object的代码块，实际上在前边beforeBuildforNum中的updateFakeid时已经进行insertTable了，而且前边也将所有数据都解析过了，为什么这里再进行insertTable一次，完全没有必要啊
+
+		//这里的insertTable操作，包括下边的object的代码块，实际上在前边updateFakeid时已经进行insertTable了，而且前边也将所有数据都解析过了，为什么这里再进行insertTable一次
 		if (uriTable->getIdByURI(subject, subjectID) == URI_NOT_FOUND) {
 			uriTable->insertTable(subject, subjectID);
 			//作用：向URI(SO)所对应的各个（6个）文件存入对应的值，并获取了整个URI的ID
@@ -343,20 +345,9 @@ int TripleBitBuilder::compare321(const char* left, const char* right) {
 void TripleBitBuilder::getObject(ID objectID,string& objectandtype,string& object,string& type) {
 	//cout<<"oandt\t"<<objectandtype<<"oID\t"<<objectID<<endl;
 	//cout<<uriTable->getURIById(objectandtype, objectID)<<endl;
-	uriTable->getURIById(objectandtype, objectID);
-	
-	//cout<<"objectandtype\t"<<objectandtype<<endl;
-	int pos = objectandtype.find_last_of("^");
-	if (pos + 8 < objectandtype.length()) {
-		//说明"^"没有出现在合适的位置，objectandtype不可拆分
-		object = objectandtype;
-		type = "";
-	}
-	else {
-		//"^"出现在合适的位置，objectandtype需要拆分
-		object = objectandtype.substr(0, pos);
-		type = objectandtype.substr(pos + 1);
-	}
+	Type::ID objecttype;
+	uriTable->getURIById(object, objectID, objecttype);
+	type=Type::tostring(objecttype);
 }
 
 Status TripleBitBuilder::storeWayofXY_MetaDta(TempFile &sortedFile,unsigned char sortedWay) {
@@ -774,7 +765,6 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts){//f
 	resolveSortFile(sortedBySubject, 0);
 	cout << "Sort by Subject over" << endl;
 
-
 	cout << "Sort by Object" << endl;
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
 	sortedByObject.close();
@@ -909,8 +899,4 @@ Status TripleBitBuilder::endBuild() {
 	cout<<"constant"<<endl;
 	delete indexBuffer;
 	return OK;
-
-
-
-
 }

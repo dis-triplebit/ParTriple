@@ -16,6 +16,7 @@
 #include <string>
 #include <math.h>
 #include <cstdlib>
+#include "Type.hpp"
 using namespace std;
 // local includes
 #include "./util/Kwaymergesort.h"
@@ -176,10 +177,30 @@ Status URITable::get_fake_IdByURI(const char* URI, ID& id) {
 	searchStr.clear();
 	return URI_FOUND;
 }
-//类似于getIdByPredicate
-Status URITable::getIdByURI(const char* URI, ID& id)
+//need object type
+//getIdByURI("http://sss^URI",id)  =  getIdByURI("http://sss",id,Type::URI)
+Status URITable::getIdByURI(const char* objURI, ID& id,Type::ID objecttype)
 {
-	getPrefix(URI);
+	string URI(objURI);
+	switch (objecttype)
+	{
+	case Type::URI:
+	case Type::Literal:
+	case Type::CustomLanguage:
+	case Type::CustomType:
+		break;
+	case Type::String:
+	case Type::Integer:
+	case Type::Decimal:
+	case Type::Double:
+	case Type::Boolean:
+	case Type::Date:
+		URI = URI + "^" + Type::tostring(objecttype);
+		break;
+	default:
+		break;
+	}
+	getPrefix(URI.c_str());
 	if (prefix.equals(SINGLE.c_str())) {
 		searchStr.clear();
 		searchStr.insert(searchStr.begin(), 2); //开头插入一个非可显字符
@@ -307,7 +328,6 @@ void URITable::modify_uri_fake(Strings_Sort::words * word_list) {
 		curpre = curpre->next;
 		//free(lastpre);
 		delete pre;
-
 	}
 	/*
 	 * getPrefix(URI);
@@ -942,19 +962,16 @@ Status URITable::insertTable(const char* URI, ID& id) {
 }
 
 //利用id再返回回来URI不就完事儿了，这里的URI其实就是个string字符串，包括了所有URI，string，integer等等
-Status URITable::getURIById(string& URI, ID id) {
+Status URITable::getURIById(string& URI, ID id,Type::ID& objecttype) {
 	//cout<<"id is"<<id<<endl;
 	LengthString prefix, suffix;
 	//URI.clear();
 	//cout<<URI<<endl;
-
 	if (suffix_segment->findStringById(&suffix, id) == false){
 		//cout<<"uri2"<<endl;
 		return URI_NOT_FOUND;
 	}
-		
-	
-	
+
 	char temp[10];
 	memset(temp, 0, 10);
 	const char* ptr = suffix.str;
@@ -985,6 +1002,40 @@ Status URITable::getURIById(string& URI, ID id) {
 		URI.append(suffix.str + i, suffix.length - i);
 	}
 
+	//split string(URI^Type)
+	int pos = URI.find_last_of("^");
+	if (pos + 8 < URI.length()) {
+		//说明"^"没有出现在合适的位置，objectandtype不可拆分
+		//object = URI;
+		objecttype = Type::ID::URI;
+	}
+	else {
+		//"^"出现在合适的位置，objectandtype需要拆分
+		//objecttype = URI.substr(pos + 1);
+		string object=URI.substr(pos + 1);
+		if(object=="String"){
+			objecttype=Type::ID::String;
+		}else if(object=="Integer"){
+			objecttype=Type::ID::Integer;
+		}else if(object=="Date"){
+			objecttype=Type::ID::Date;
+		}else if(object=="Boolean"){
+			objecttype=Type::ID::Boolean;
+		}else if(object=="Decimal"){
+			objecttype=Type::ID::Decimal;
+		}else if(object=="Double"){
+			objecttype=Type::ID::Double;
+		}else if(object=="Literal"){
+			objecttype=Type::ID::Literal;
+		}else if(object=="CustomLanguage"){
+			objecttype=Type::ID::CustomLanguage;
+		}else if(object=="CustomType"){
+			objecttype=Type::ID::CustomType;
+		}else{
+			objecttype=Type::ID::URI;
+		}
+		URI = URI.substr(0, pos);
+	}
 	return OK;
 }
 //作用：加载uri_prefix的三个文件和uri_suffix的三个文件

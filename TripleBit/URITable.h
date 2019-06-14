@@ -12,12 +12,15 @@
 // or send a letter to Creative Commons, 171 Second Street, Suite 300,
 // San Francisco, California, 94105, USA.
 //---------------------------------------------------------------------------
+//在整个URITable中,只有数值型数据和字符串和Date会进行^标记
 
 #include "TripleBit.h"
 #include "StringIDSegment.h"
 #include <stdlib.h>
 #include "Strings_Sort.h"
 #include "TempFile.h"
+#include "Type.hpp"
+
 using namespace std;
 class URITable {
 	ID prefixStartID;
@@ -72,12 +75,16 @@ public:
 	URITable();
 	URITable(const string dir);
 	virtual ~URITable();
+
 	Status insertTable(const char* URI,ID& id);
+
 	Status insert_fake_Table(const char* URI,ID& id);//wonder
 	Status insertfake_prefixTable(LengthString prefix);//wonder
 	Status get_fake_IdByURI(const char* URI,ID& id);//wonder
-	Status getIdByURI(const char* URI,ID& id);
-	Status getURIById(string& URI,ID id);
+
+	Status getIdByURI(const char* URI,ID& id,Type::ID objecttype=Type::ID::URI);
+	Status getURIById(string& URI,ID id,Type::ID& objecttype);
+
 	Status insertNumID(const char* URI,ID& id);
 	size_t getSize() {
 		cout<<"max id: "<<suffix_segment->getMaxID()<<endl;
