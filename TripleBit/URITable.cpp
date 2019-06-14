@@ -328,7 +328,6 @@ void URITable::modify_uri_fake(Strings_Sort::words * word_list) {
 		curpre = curpre->next;
 		//free(lastpre);
 		delete pre;
-
 	}
 	/*
 	 * getPrefix(URI);
@@ -972,6 +971,7 @@ Status URITable::getURIById(string& URI, ID id,Type::ID& objecttype) {
 		//cout<<"uri2"<<endl;
 		return URI_NOT_FOUND;
 	}
+
 	char temp[10];
 	memset(temp, 0, 10);
 	const char* ptr = suffix.str;

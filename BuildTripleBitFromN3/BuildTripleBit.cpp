@@ -148,7 +148,6 @@ int main(int argc, char* argv[])
     }*/
 
 
-
     // string filename = "database/BitmapBuffer";
     // string predicateFile(filename);
     // predicateFile.append("_predicate");

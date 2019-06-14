@@ -126,6 +126,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 
 		//可以做个假设，假设所有有特殊类型（例如integer，string等）表示得object都不会出现在三元组得subject中。这样的话就可以放心大胆的对subject进行原文插入和读取，因为subject全都是URI，没有其他类型。所以这时候对object的任何原文修改打标签行文都不会影响到subject的写入和读取（例如多次重复写入和读取失败）
 
+
 		//这里的insertTable操作，包括下边的object的代码块，实际上在前边updateFakeid时已经进行insertTable了，而且前边也将所有数据都解析过了，为什么这里再进行insertTable一次
 		if (uriTable->getIdByURI(subject, subjectID) == URI_NOT_FOUND) {
 			uriTable->insertTable(subject, subjectID);
@@ -764,7 +765,6 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts){//f
 	resolveSortFile(sortedBySubject, 0);
 	cout << "Sort by Subject over" << endl;
 
-
 	cout << "Sort by Object" << endl;
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
 	sortedByObject.close();
@@ -899,8 +899,4 @@ Status TripleBitBuilder::endBuild() {
 	cout<<"constant"<<endl;
 	delete indexBuffer;
 	return OK;
-
-
-
-
 }

@@ -13,12 +13,14 @@
 // San Francisco, California, 94105, USA.
 //---------------------------------------------------------------------------
 //在整个URITable中,只有数值型数据和字符串和Date会进行^标记
+
 #include "TripleBit.h"
 #include "StringIDSegment.h"
 #include <stdlib.h>
 #include "Strings_Sort.h"
 #include "TempFile.h"
 #include "Type.hpp"
+
 using namespace std;
 class URITable {
 	ID prefixStartID;
